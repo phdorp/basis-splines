@@ -30,3 +30,18 @@
 *.exe
 *.out
 *.app
+
+# Build
+build/
+
+# vscode
+.vscode
+
+# documentation
+docs/build
+
+# log files
+benchmarks/logs
+
+# example outputs
+examples/out
