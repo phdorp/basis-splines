@@ -51,7 +51,23 @@ public:
    * @return std::pair<Eigen::ArrayXd, Eigen::ArrayXi> breakpoints and
    * continuities.
    */
-  std::pair<Eigen::ArrayXd, Eigen::ArrayXi> breakpoints();
+  std::pair<Eigen::ArrayXd, Eigen::ArrayXi> breakpoints() const {
+    int idxBps{};
+    Eigen::ArrayXd breakpoints(m_knots.size());
+    breakpoints(0) = m_knots(0);
+    Eigen::ArrayXi continuities{Eigen::ArrayXi::Zero(m_knots.size()) + m_order};
+    --continuities(0);
+
+    auto curKnot{m_knots.begin() + 1};
+    for (; curKnot != m_knots.end(); ++curKnot) {
+      if (*curKnot > breakpoints(idxBps))
+        breakpoints(++idxBps) = *curKnot;
+      --continuities(idxBps);
+    }
+
+    return {breakpoints(Eigen::seqN(0, idxBps + 1)),
+            continuities(Eigen::seqN(0, idxBps + 1))};
+  }
 
   /**
    * @brief Evaluate the truncated power basis at the given points.
