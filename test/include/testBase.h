@@ -5,7 +5,7 @@
 #include <array>
 #include <gtest/gtest.h>
 
-namespace BasisSpline {
+namespace BasisSplines {
 namespace Internal {
 using limits = std::numeric_limits<double>;
 
@@ -31,13 +31,13 @@ protected:
                       const Eigen::ArrayBase<ValType> &groundTruth,
                       double errAbs = limits::infinity(),
                       double errRel = limits::infinity()) {
-    const auto errAbsVals{(estimate - groundTruth).abs()};
-    const auto errRelVals{errAbsVals / groundTruth};
+    const ValType errAbsVals{(estimate - groundTruth).abs()};
+    const ValType errRelVals{errAbsVals / groundTruth};
 
     for (int idx{}; idx < estimate.size(); ++idx) {
       EXPECT_LT(errAbsVals(idx), errAbs)
           << "Error bound violated at index " << idx << '!';
-      if (!std::isinf(errRelVals(idx)))
+      if (!std::isinf(errRelVals(idx)) && !std::isnan(errRelVals(idx)))
         EXPECT_LT(errRelVals(idx), errRel)
             << "Error bound violated at index " << idx << '!';
     }
