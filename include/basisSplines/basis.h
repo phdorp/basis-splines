@@ -2,6 +2,7 @@
 #define BASIS_H
 
 #include <Eigen/Core>
+#include <numeric>
 
 namespace BasisSplines {
 /**
@@ -80,8 +81,9 @@ public:
           const double weightR{std::abs(denumR) > 1e-10
                                    ? (m_knots(cKnot + cOrder) - point) / denumR
                                    : 0};
-          valuesTmp(cOrder - 1, cKnot) = weightL * valuesTmp(cOrder - 2, cKnot) +
-                                     weightR * valuesTmp(cOrder - 2, cKnot + 1);
+          valuesTmp(cOrder - 1, cKnot) =
+              weightL * valuesTmp(cOrder - 2, cKnot) +
+              weightR * valuesTmp(cOrder - 2, cKnot + 1);
         }
       }
 
@@ -97,7 +99,16 @@ public:
    *
    * @return Eigen::ArrayXd greville sites.
    */
-  Eigen::ArrayXd greville();
+  Eigen::ArrayXd greville() const {
+    Eigen::ArrayXd grevilleSites(dim());
+    for (int cKnot{}; cKnot < dim(); ++cKnot) {
+      auto begin{m_knots.begin() + cKnot + 1};
+      auto end{begin + m_order - 1};
+      grevilleSites(cKnot) = std::accumulate(begin, end, 0.0) / (m_order - 1);
+    }
+
+    return grevilleSites;
+  }
 
   /**
    * @brief Combine the knots of this and another Basis.
