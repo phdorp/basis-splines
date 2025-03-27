@@ -31,6 +31,6 @@ configure_package_config_file (
 
 export (
   TARGETS basisSpline eigen
-  NAMESPACE BasisSplins::
+  NAMESPACE BasisSplines::
   FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake
 )
