@@ -13,7 +13,7 @@ class BasisTest : public TestBase {
     }
 };
 
-TEST_F(BasisTest, BasisEvalOrder0)
+TEST_F(BasisTest, BasisEvalOrder1)
 {
     const Eigen::ArrayXd knots {{0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0}};
     const int order {1};
@@ -30,7 +30,7 @@ TEST_F(BasisTest, BasisEvalOrder0)
     expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
 
-TEST_F(BasisTest, BasisEvalOrder1)
+TEST_F(BasisTest, BasisEvalOrder2)
 {
     const Eigen::ArrayXd knots {{0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0}};
     const int order {2};
@@ -43,6 +43,18 @@ TEST_F(BasisTest, BasisEvalOrder1)
         {0.0, 0.8, 0.2, 0.0, 0.0, 0.0},
         {0.0, 0.0, 0.0, 0.5, 0.5, 0.0}
     };
+
+    expectAllClose(valuesEst, valuesGtr, 1e-10);
+}
+
+TEST_F(BasisTest, GrevilleOrder2)
+{
+    const Eigen::ArrayXd knots {{0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0}};
+    const int order {2};
+
+    const Basis basis {knots, order};
+    const Eigen::ArrayXd valuesEst {basis.greville()};
+    const Eigen::ArrayXd valuesGtr {{0.0, 0.0, 0.5, 0.5, 1.0, 1.0}};
 
     expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
