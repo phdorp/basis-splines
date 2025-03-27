@@ -20,7 +20,7 @@ public:
    * @param knots locations of the Basis knots.
    * @param order basis order.
    */
-  Basis(const Eigen::ArrayXd &knots, double order)
+  Basis(const Eigen::ArrayXd &knots, int order)
       : m_knots{knots}, m_order{order} {}
 
   /**
@@ -28,21 +28,21 @@ public:
    *
    * @return int basis dimensionality.
    */
-  int dim();
+  int dim() const { return m_knots.size() - m_order; }
 
   /**
    * @brief Determine basis order.
    *
    * @return int basis order.
    */
-  int order();
+  int order() const { return m_order; }
 
   /**
    * @brief Determine basis knots.
    *
    * @return const Eigen::ArrayXd& basis knots.
    */
-  const Eigen::ArrayXd& knots();
+  const Eigen::ArrayXd &knots() const { return m_knots; }
 
   /**
    * @brief Determine basis breakpoints and continuities at breakpoints.
@@ -58,7 +58,39 @@ public:
    * @param points evaluation points.
    * @return Eigen::ArrayXd values of truncated powers.
    */
-  Eigen::ArrayXd operator()(const Eigen::ArrayXd points);
+  Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points) const {
+    Eigen::ArrayXXd values{Eigen::ArrayXXd::Zero(points.size(), dim())};
+
+    int cPoint{};
+    for (double point : points) {
+      Eigen::ArrayXXd valuesTmp{
+          Eigen::ArrayXXd::Zero(m_order, m_knots.size() - 1)};
+
+      for (int cKnot{}; cKnot < m_knots.size() - 1; ++cKnot) {
+        valuesTmp(0, cKnot) =
+            inKnotSeg(m_knots(cKnot), m_knots(cKnot + 1), point) ? 1 : 0;
+      }
+
+      for (int cOrder{2}; cOrder <= m_order; ++cOrder) {
+        for (int cKnot{}; cKnot < m_knots.size() - cOrder - 1; ++cKnot) {
+          const double denumL{m_knots(cKnot + cOrder - 1) - m_knots(cKnot)};
+          const double weightL{
+              std::abs(denumL) > 1e-10 ? (point - m_knots(cKnot)) / denumL : 0};
+          const double denumR{m_knots(cKnot + cOrder) - m_knots(cKnot + 1)};
+          const double weightR{std::abs(denumR) > 1e-10
+                                   ? (m_knots(cKnot + cOrder) - point) / denumR
+                                   : 0};
+          valuesTmp(cOrder - 1, cKnot) = weightL * valuesTmp(cOrder - 2, cKnot) +
+                                     weightR * valuesTmp(cOrder - 2, cKnot + 1);
+        }
+      }
+
+      values(cPoint++, Eigen::seqN(0, dim())) =
+          valuesTmp(m_order - 1, Eigen::seqN(0, dim()));
+    }
+
+    return values;
+  }
 
   /**
    * @brief Determine the Greville sites representing the knot averages.
@@ -76,8 +108,14 @@ public:
   Eigen::ArrayXd combine(const Basis &basis);
 
 private:
-  Eigen::ArrayXd m_knots{}; /**<< basis knots */
-  double m_order = 0 /**<< basis order */;
+  Eigen::ArrayXd m_knots; /**<< basis knots */
+  int m_order{};          /**<< basis order */
+
+  bool inKnotSeg(double knotL, double knotR, double point) const {
+    if (knotR == m_knots(0))
+      return point >= knotL && point <= knotR;
+    return point > knotL && point <= knotR;
+  }
 };
 }; // namespace BasisSplines
 
