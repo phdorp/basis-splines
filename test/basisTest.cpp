@@ -58,6 +58,19 @@ TEST_F(BasisTest, GrevilleOrder2)
 
     expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
+
+TEST_F(BasisTest, BreakpointsOrder2)
+{
+    const Eigen::ArrayXd knots {{0.0, 0.0, 0.5, 1.0, 1.0}};
+    const int order {2};
+
+    const Basis basis {knots, order};
+    const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesEst {basis.breakpoints()};
+    const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesGtr {{{0.0, 0.5, 1.0}}, {{0, 1, 0}}};
+
+    expectAllClose(valuesEst.first, valuesGtr.first, 1e-10);
+    expectAllClose(valuesEst.second, valuesGtr.second, 1e-10);
+}
 }; // namespace Internal
 }; // namespace BasisSplines
 
