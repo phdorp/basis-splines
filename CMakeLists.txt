@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 4.0)
 
 project(BasisSplines VERSION 1.0.0)
 
