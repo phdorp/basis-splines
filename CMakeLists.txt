@@ -25,9 +25,9 @@ endif()
 #     add_subdirectory(benchmarks)
 # endif()
 
-# if(BUILD_EXAMPLES)
-#     add_subdirectory(examples)
-# endif()
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 # if(BUILD_DOCS)
 #     set(doxyfile_in ${PROJECT_SOURCE_DIR}/Doxyfile.in)
