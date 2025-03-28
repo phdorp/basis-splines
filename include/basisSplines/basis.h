@@ -75,7 +75,7 @@ public:
    * @param points evaluation points.
    * @return Eigen::ArrayXd values of truncated powers.
    */
-  Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points, double accuracy=1e-6) const {
+  Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points, double accuracy=1e-10) const {
     Eigen::ArrayXXd values{Eigen::ArrayXXd::Zero(points.size(), dim())};
 
     int cPoint{};
@@ -89,7 +89,7 @@ public:
       }
 
       for (int cOrder{2}; cOrder <= m_order; ++cOrder) {
-        for (int cKnot{}; cKnot < m_knots.size() - cOrder - 1; ++cKnot) {
+        for (int cKnot{}; cKnot < m_knots.size() - cOrder; ++cKnot) {
           const double denumL{m_knots(cKnot + cOrder - 1) - m_knots(cKnot)};
           const double weightL{
               std::abs(denumL) > accuracy ? (point - m_knots(cKnot)) / denumL : 0};
