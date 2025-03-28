@@ -51,7 +51,7 @@ public:
    * @return std::pair<Eigen::ArrayXd, Eigen::ArrayXi> breakpoints and
    * continuities.
    */
-  std::pair<Eigen::ArrayXd, Eigen::ArrayXi> breakpoints() const {
+  std::pair<Eigen::ArrayXd, Eigen::ArrayXi> breakpoints(double accuracy=1e-6) const {
     int idxBps{};
     Eigen::ArrayXd breakpoints(m_knots.size());
     breakpoints(0) = m_knots(0);
@@ -60,7 +60,7 @@ public:
 
     auto curKnot{m_knots.begin() + 1};
     for (; curKnot != m_knots.end(); ++curKnot) {
-      if (*curKnot > breakpoints(idxBps))
+      if (*curKnot > breakpoints(idxBps) + accuracy)
         breakpoints(++idxBps) = *curKnot;
       --continuities(idxBps);
     }
@@ -75,7 +75,7 @@ public:
    * @param points evaluation points.
    * @return Eigen::ArrayXd values of truncated powers.
    */
-  Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points) const {
+  Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points, double accuracy=1e-6) const {
     Eigen::ArrayXXd values{Eigen::ArrayXXd::Zero(points.size(), dim())};
 
     int cPoint{};
@@ -92,9 +92,9 @@ public:
         for (int cKnot{}; cKnot < m_knots.size() - cOrder - 1; ++cKnot) {
           const double denumL{m_knots(cKnot + cOrder - 1) - m_knots(cKnot)};
           const double weightL{
-              std::abs(denumL) > 1e-10 ? (point - m_knots(cKnot)) / denumL : 0};
+              std::abs(denumL) > accuracy ? (point - m_knots(cKnot)) / denumL : 0};
           const double denumR{m_knots(cKnot + cOrder) - m_knots(cKnot + 1)};
-          const double weightR{std::abs(denumR) > 1e-10
+          const double weightR{std::abs(denumR) > accuracy
                                    ? (m_knots(cKnot + cOrder) - point) / denumR
                                    : 0};
           valuesTmp(cOrder - 1, cKnot) =
