@@ -63,9 +63,23 @@ TEST_F(BasisTest, BreakpointsOrder2) {
   expectAllClose(valuesEst.first, valuesGtr.first, 1e-10);
   expectAllClose(valuesEst.second, valuesGtr.second, 1e-10);
 }
+
+TEST_F(BasisTest, CombineOrder2) {
+  const int order{2};
+  const Eigen::ArrayXd knotsA{{0.0, 0.0, 0.2, 0.2, 0.5, 1.0, 1.0}};
+  const Basis basisA{knotsA, order};
+  const Eigen::ArrayXd knotsB {{0.0, 0.0, 0.5, 0.6, 1.0, 1.0}};
+  const Basis basisB{knotsB, order};
+
+  const Basis estimate {basisA.combine(basisB)};
+
+  const Basis groundTruth { {{0.0, 0.0, 0.2, 0.2, 0.5, 0.6, 1.0, 1.0}}, 2};
+
+  expectAllClose(estimate.knots(), groundTruth.knots(), 1e-6);
+  EXPECT_EQ(estimate.order(), groundTruth.order());
+}
 }; // namespace Internal
 }; // namespace BasisSplines
-
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
