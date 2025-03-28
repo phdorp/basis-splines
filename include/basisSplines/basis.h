@@ -132,7 +132,43 @@ public:
    * @param basis other basis to combine with.
    * @return Eigen::ArrayXd knots as the combination of both bases.
    */
-  Eigen::ArrayXd combine(const Basis &basis);
+  Basis combine(const Basis &basis, double accuracy=1e-6) const {
+    // create combined knots worst case length
+    Eigen::ArrayXd knotsComb(m_knots.size() + basis.knots().size());
+
+    // iterate over both knot arrays
+    // compare knots and place smaller one in "knotsComb"
+    // auto knotComb {knotsComb.begin()};
+    auto knotThis{m_knots.begin()};
+    auto knotOther{basis.knots().begin()};
+    int numKnotsComb {};
+    for (auto &knotComb : knotsComb) {
+      bool atThisEnd{knotThis == (m_knots.end())};
+      bool atOtherEnd{knotOther == (basis.knots().end())};
+
+      if(atThisEnd && atOtherEnd)
+        break;
+
+      // assign this knot if smaller or other end is reached
+      if (*knotThis < *knotOther - accuracy && !atThisEnd || atOtherEnd)
+        knotComb = *(knotThis++);
+      // assign other knot if smaller or other end is reached
+      else if (*knotOther < *knotThis - accuracy && !atOtherEnd || atThisEnd)
+        knotComb = *(knotOther++);
+      // asign this and other knot, which are equal
+      else {
+        knotComb = *knotOther;
+        if (!atOtherEnd)
+          ++knotOther;
+        if (!atThisEnd)
+          ++knotThis;
+      }
+
+      ++numKnotsComb;
+    }
+
+    return {knotsComb(Eigen::seqN(0,numKnotsComb)), std::max(m_order, basis.order())};
+  }
 
 private:
   Eigen::ArrayXd m_knots; /**<< basis knots */
