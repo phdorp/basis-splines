@@ -51,7 +51,8 @@ public:
    * @return std::pair<Eigen::ArrayXd, Eigen::ArrayXi> breakpoints and
    * continuities.
    */
-  std::pair<Eigen::ArrayXd, Eigen::ArrayXi> breakpoints(double accuracy=1e-6) const {
+  std::pair<Eigen::ArrayXd, Eigen::ArrayXi>
+  breakpoints(double accuracy = 1e-6) const {
     int idxBps{};
     Eigen::ArrayXd breakpoints(m_knots.size());
     breakpoints(0) = m_knots(0);
@@ -75,7 +76,17 @@ public:
    * @param points evaluation points.
    * @return Eigen::ArrayXd values of truncated powers.
    */
-  Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points, double accuracy=1e-10) const {
+  /**
+   * @brief Evaluate the truncated power basis at the given points.
+   *
+   * @param points evaluation points.
+   * @param accDenum accuracy basis denominator.
+   * @param accDomain point accuracy at domain limits.
+   * @return Eigen::ArrayXd values of truncated powers.
+   */
+  Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points,
+                             double accDenum = 1e-6,
+                             double accDomain = 1e-6) const {
     Eigen::ArrayXXd values{Eigen::ArrayXXd::Zero(points.size(), dim())};
 
     int cPoint{};
@@ -85,16 +96,18 @@ public:
       valuesTmp[0].resize(m_knots.size() - 1);
       for (int cKnot{}; cKnot < m_knots.size() - 1; ++cKnot) {
         valuesTmp[0](cKnot) =
-            inKnotSeg(m_knots(cKnot), m_knots(cKnot + 1), point) ? 1 : 0;
+            inKnotSeg(m_knots(cKnot), m_knots(cKnot + 1), point, accDomain) ? 1
+                                                                            : 0;
       }
 
       for (int cOrder{2}; cOrder <= m_order; ++cOrder) {
         for (int cKnot{}; cKnot < m_knots.size() - cOrder; ++cKnot) {
           const double denumL{m_knots(cKnot + cOrder - 1) - m_knots(cKnot)};
-          const double weightL{
-              std::abs(denumL) > accuracy ? (point - m_knots(cKnot)) / denumL : 0};
+          const double weightL{std::abs(denumL) > accDenum
+                                   ? (point - m_knots(cKnot)) / denumL
+                                   : 0};
           const double denumR{m_knots(cKnot + cOrder) - m_knots(cKnot + 1)};
-          const double weightR{std::abs(denumR) > accuracy
+          const double weightR{std::abs(denumR) > accDenum
                                    ? (m_knots(cKnot + cOrder) - point) / denumR
                                    : 0};
           valuesTmp[cOrder - 1].resize(m_knots.size() - cOrder);
@@ -104,7 +117,8 @@ public:
         }
       }
 
-      values(cPoint++, Eigen::seqN(0, dim())) = valuesTmp[m_order - 1](Eigen::seqN(0, dim()));
+      values(cPoint++, Eigen::seqN(0, dim())) =
+          valuesTmp[m_order - 1](Eigen::seqN(0, dim()));
     }
 
     return values;
@@ -132,7 +146,7 @@ public:
    * @param basis other basis to combine with.
    * @return Eigen::ArrayXd knots as the combination of both bases.
    */
-  Basis combine(const Basis &basis, double accuracy=1e-6) const {
+  Basis combine(const Basis &basis, double accuracy = 1e-6) const {
     // create combined knots worst case length
     Eigen::ArrayXd knotsComb(m_knots.size() + basis.knots().size());
 
@@ -141,12 +155,12 @@ public:
     // auto knotComb {knotsComb.begin()};
     auto knotThis{m_knots.begin()};
     auto knotOther{basis.knots().begin()};
-    int numKnotsComb {};
+    int numKnotsComb{};
     for (auto &knotComb : knotsComb) {
       bool atThisEnd{knotThis == (m_knots.end())};
       bool atOtherEnd{knotOther == (basis.knots().end())};
 
-      if(atThisEnd && atOtherEnd)
+      if (atThisEnd && atOtherEnd)
         break;
 
       // assign this knot if smaller or other end is reached
@@ -167,16 +181,20 @@ public:
       ++numKnotsComb;
     }
 
-    return {knotsComb(Eigen::seqN(0,numKnotsComb)), std::max(m_order, basis.order())};
+    return {knotsComb(Eigen::seqN(0, numKnotsComb)),
+            std::max(m_order, basis.order())};
   }
 
 private:
   Eigen::ArrayXd m_knots; /**<< basis knots */
   int m_order{};          /**<< basis order */
 
-  bool inKnotSeg(double knotL, double knotR, double point) const {
-    if (knotR == m_knots(0))
-      return point >= knotL && point <= knotR;
+  bool inKnotSeg(double knotL, double knotR, double point,
+                 double accuracy = 1e-6) const {
+    if (knotL == m_knots(0))
+      return point >= knotL - accuracy && point <= knotR;
+    else if (knotR == m_knots(m_knots.size() - 1))
+      return point > knotL && point <= knotR + accuracy;
     return point > knotL && point <= knotR;
   }
 };
