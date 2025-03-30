@@ -80,11 +80,11 @@ public:
 
     int cPoint{};
     for (double point : points) {
-      Eigen::ArrayXXd valuesTmp{
-          Eigen::ArrayXXd::Zero(m_order, m_knots.size() - 1)};
+      std::vector<Eigen::ArrayXd> valuesTmp(m_order);
 
+      valuesTmp[0].resize(m_knots.size() - 1);
       for (int cKnot{}; cKnot < m_knots.size() - 1; ++cKnot) {
-        valuesTmp(0, cKnot) =
+        valuesTmp[0](cKnot) =
             inKnotSeg(m_knots(cKnot), m_knots(cKnot + 1), point) ? 1 : 0;
       }
 
@@ -97,14 +97,14 @@ public:
           const double weightR{std::abs(denumR) > accuracy
                                    ? (m_knots(cKnot + cOrder) - point) / denumR
                                    : 0};
-          valuesTmp(cOrder - 1, cKnot) =
-              weightL * valuesTmp(cOrder - 2, cKnot) +
-              weightR * valuesTmp(cOrder - 2, cKnot + 1);
+          valuesTmp[cOrder - 1].resize(m_knots.size() - cOrder);
+          valuesTmp[cOrder - 1](cKnot) =
+              weightL * valuesTmp[cOrder - 2](cKnot) +
+              weightR * valuesTmp[cOrder - 2](cKnot + 1);
         }
       }
 
-      values(cPoint++, Eigen::seqN(0, dim())) =
-          valuesTmp(m_order - 1, Eigen::seqN(0, dim()));
+      values(cPoint++, Eigen::seqN(0, dim())) = valuesTmp[m_order - 1](Eigen::seqN(0, dim()));
     }
 
     return values;
