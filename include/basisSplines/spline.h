@@ -59,6 +59,22 @@ public:
   Spline operator-() const { return {m_basis, -m_coefficients}; }
 
   /**
+   * @brief Create new spline as derivative of this spline.
+   *
+   * @param order derivative order.
+   * @return Spline as derivative of "order".
+   */
+  Spline derivative(int order = 1) const;
+
+  /**
+   * @brief Create new spline as integral of this spline.
+   *
+   * @param order integral order.
+   * @return Spline as integral of "order".
+   */
+  Spline integral(int order = 1) const;
+
+  /**
    * @brief Create new spline as sum of two splines.
    *
    * @param splineL left spline in sum.
