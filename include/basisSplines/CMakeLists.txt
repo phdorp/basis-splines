@@ -1,7 +1,7 @@
 FetchContent_Declare(
   eigen
   URL https://gitlab.com/libeigen/eigen/-/archive/3.4/eigen-3.4.zip
-  # DOWNLOAD_EXTRACT_TIMESTAMP NEW
+  DOWNLOAD_EXTRACT_TIMESTAMP NEW
 )
 set(BUILD_TESTING OFF)
 set(EIGEN_BUILD_TESTING OFF)
@@ -31,6 +31,6 @@ configure_package_config_file (
 
 export (
   TARGETS basisSpline eigen
-  NAMESPACE BasisSplins::
+  NAMESPACE BasisSplines::
   FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake
 )

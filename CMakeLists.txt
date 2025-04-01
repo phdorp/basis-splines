@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.31.6)
 
 project(BasisSplines VERSION 1.0.0)
 
@@ -25,9 +25,9 @@ endif()
 #     add_subdirectory(benchmarks)
 # endif()
 
-# if(BUILD_EXAMPLES)
-#     add_subdirectory(examples)
-# endif()
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 # if(BUILD_DOCS)
 #     set(doxyfile_in ${PROJECT_SOURCE_DIR}/Doxyfile.in)
