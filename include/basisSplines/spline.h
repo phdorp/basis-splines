@@ -38,7 +38,7 @@ public:
    *
    * @return const std::shared_ptr<Basis> spline basis.
    */
-const std::shared_ptr<Basis> basis() const { return m_basis; }
+  const std::shared_ptr<Basis> basis() const { return m_basis; }
 
   /**
    * @brief Evaluate spline at given points.
@@ -56,7 +56,7 @@ const std::shared_ptr<Basis> basis() const { return m_basis; }
    *
    * @return Spline spline with negative spline coefficients.
    */
-  Spline operator-();
+  Spline operator-() const { return {m_basis, -m_coefficients}; }
 
   /**
    * @brief Create new spline as sum of two splines.
