@@ -82,7 +82,8 @@ public:
    * @param points evaluation points.
    * @param accDenum accuracy basis denominator.
    * @param accDomain point accuracy at domain limits.
-   * @return Eigen::ArrayXd values of truncated powers.
+   * @return Eigen::ArrayXd values of truncated powers with "points.size()" rows
+   * and "self->dim()" columns.
    */
   Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points,
                              double accDenum = 1e-6,
