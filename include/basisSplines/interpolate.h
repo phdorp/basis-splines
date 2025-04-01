@@ -2,6 +2,7 @@
 #define INTERPOLATE_H
 
 #include <Eigen/Core>
+#include <Eigen/Dense>
 #include <memory>
 
 #include "basisSplines/basis.h"
@@ -29,8 +30,12 @@ public:
    * @param points evaluation points corresponding to the "observations".
    * @return Eigen::ArrayXd spline coefficients fitting the observations.
    */
-  Eigen::ArrayXd fit(const Eigen::ArrayXd observations,
-                     const Eigen::ArrayXd points);
+  Eigen::ArrayXd fit(const Eigen::ArrayXd &observations,
+                     const Eigen::ArrayXd &points) const {
+    Eigen::ColPivHouseholderQR<Eigen::MatrixXd> basis{
+        m_basis->operator()(points).matrix()};
+    return basis.solve(observations.matrix()).array();
+  }
 
   /**
    * @brief Determine coefficients that fit a spline function at the given
@@ -40,8 +45,8 @@ public:
    * @param points evaluation points corresponding to the "observations".
    * @return Eigen::ArrayXd spline coefficients fitting the observations.
    */
-  Eigen::ArrayXd fit(const Eigen::ArrayXXd observations,
-                     const Eigen::ArrayXd points);
+  Eigen::ArrayXd fit(const Eigen::ArrayXXd &observations,
+                     const Eigen::ArrayXd &points) const;
 
 private:
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
