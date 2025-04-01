@@ -37,17 +37,6 @@ public:
     return basis.solve(observations.matrix()).array();
   }
 
-  /**
-   * @brief Determine coefficients that fit a spline function at the given
-   * "points" to the "observations".
-   *
-   * @param observations observed derivatives to fit the spline function.
-   * @param points evaluation points corresponding to the "observations".
-   * @return Eigen::ArrayXd spline coefficients fitting the observations.
-   */
-  Eigen::ArrayXd fit(const Eigen::ArrayXXd &observations,
-                     const Eigen::ArrayXd &points) const;
-
 private:
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
 };
