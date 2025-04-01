@@ -33,7 +33,7 @@ TEST_F(SplineTest, SplineEvalOrder1) {
   // ground truth assumes picewise linear function between coefficients
   const Eigen::ArrayXd valuesGtr{{0.0, 0.5, 1.0, 0.25}};
 
-  expectAllClose(valuesEst, valuesGtr);
+  expectAllClose(valuesEst, valuesGtr, 1e-6);
 }
 
 }; // namespace Internal
