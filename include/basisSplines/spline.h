@@ -29,16 +29,16 @@ public:
   /**
    * @brief Returns the spline coefficients.
    *
-   * @return const Eigen::ArrayXd spline coefficients.
+   * @return const Eigen::ArrayXd& spline coefficients.
    */
-  const Eigen::ArrayXd coefficients();
+  const Eigen::ArrayXd &coefficients() const { return m_coefficients; }
 
   /**
    * @brief Returns the spline basis.
    *
-   * @return std::shared_ptr<Basis> spline basis.
+   * @return const std::shared_ptr<Basis> spline basis.
    */
-  std::shared_ptr<Basis> basis();
+const std::shared_ptr<Basis> basis() const { return m_basis; }
 
   /**
    * @brief Evaluate spline at given points.
