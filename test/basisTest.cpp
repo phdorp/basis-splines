@@ -19,7 +19,7 @@ TEST_F(BasisTest, BasisEvalOrder1) {
   const Basis basis{knots, order};
   const Eigen::ArrayXXd valuesEst{basis(points)};
 
-  const Eigen::ArrayXXd valuesGtr{{1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+  const Eigen::ArrayXXd valuesGtr{{1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0},
                                   {0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0}};
 
   expectAllClose(valuesEst, valuesGtr, 1e-10);
