@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "basisSplines/basis.h"
+#include "basisSplines/interpolate.h"
 
 namespace BasisSplines {
 /**
@@ -75,31 +76,40 @@ public:
   Spline integral(int order = 1) const;
 
   /**
-   * @brief Create new spline as sum of two splines.
+   * @brief Create new spline as sum of this and another spline.
    *
-   * @param splineL left spline in sum.
-   * @param splineR right spline in sum.
+   * @tparam Interp type of interpolation.
+   * @param spline function to add with.
    * @return Spline representation of spline sum.
    */
-  friend Spline operator+(const Spline &splineL, const Spline &splineR);
+  template <typename Interp = Interpolate>
+  Spline add(const Spline &spline) const {
+    const std::shared_ptr<Basis> basis{std::make_shared<Basis>(
+        m_basis->combine(*spline.basis().get(),
+                         std::max(m_basis->order(), spline.basis()->order())))};
+    const Eigen::ArrayXd greville{basis->greville()};
+    const Interp interp{basis};
+    return {basis, interp.fit(this->operator()(greville) + spline(greville),
+                              greville)};
+  }
 
   /**
-   * @brief Create new spline as difference between two splines.
+   * @brief Create new spline as product of this and another spline.
    *
-   * @param splineL left spline in difference.
-   * @param splineR right spline in difference.
-   * @return Spline representation of spline difference.
-   */
-  friend Spline operator-(const Spline &splineL, const Spline &splineR);
-
-  /**
-   * @brief Create new spline as product of two splines.
-   *
-   * @param splineL left spline in product.
-   * @param splineR right spline in product.
+   * @tparam Interp type of interpolation.
+   * @param spline function to multiply with.
    * @return Spline representation of spline product.
    */
-  friend Spline operator*(const Spline &splineL, const Spline &splineR);
+  template <typename Interp = Interpolate>
+  Spline prod(const Spline &spline) const {
+    const std::shared_ptr<Basis> basis{std::make_shared<Basis>(
+        m_basis->combine(*spline.basis().get(),
+                         m_basis->order() + spline.basis()->order() - 1))};
+    const Eigen::ArrayXd greville{basis->greville()};
+    const Interp interp{basis};
+    return {basis, interp.fit(this->operator()(greville) * spline(greville),
+                              greville)};
+  }
 
 private:
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
