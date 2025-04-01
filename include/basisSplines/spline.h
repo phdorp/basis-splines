@@ -46,7 +46,10 @@ const std::shared_ptr<Basis> basis() const { return m_basis; }
    * @param points evaluation points.
    * @return Eigen::ArrayXd spline function values at "points".
    */
-  Eigen::ArrayXd operator()(const Eigen::ArrayXd &points);
+  Eigen::ArrayXd operator()(const Eigen::ArrayXd &points) const {
+    return (m_basis->operator()(points).matrix() * m_coefficients.matrix())
+        .array();
+  }
 
   /**
    * @brief Create new spline with negative spline coefficients.
