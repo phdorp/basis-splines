@@ -186,6 +186,32 @@ public:
             std::max(m_order, basis.order())};
   }
 
+  /**
+   * @brief Convert breakpoints to knots.
+   *
+   * @param bps breakpoints for conversion.
+   * @param conts continuity at the breakpoints.
+   * @param order basis order.
+   * @return Eigen::ArrayXd knot representation of given breakpoints.
+   */
+  static Eigen::ArrayXd toKnots(const Eigen::ArrayXd bps,
+                                const Eigen::ArrayXi conts, int order) {
+    Eigen::ArrayXi mults{order - conts};
+    Eigen::ArrayXd knots(bps.size() * order - conts.sum());
+    auto mult{mults.begin()};
+    auto bp{bps.begin()};
+    for (double &knot : knots) {
+      knot = *bp;
+      --(*mult);
+      if (*mult < 0) {
+        ++mult;
+        ++bp;
+      }
+    }
+
+    return knots;
+  }
+
 private:
   Eigen::ArrayXd m_knots; /**<< basis knots */
   int m_order{};          /**<< basis order */

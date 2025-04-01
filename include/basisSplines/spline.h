@@ -29,16 +29,16 @@ public:
   /**
    * @brief Returns the spline coefficients.
    *
-   * @return const Eigen::ArrayXd spline coefficients.
+   * @return const Eigen::ArrayXd& spline coefficients.
    */
-  const Eigen::ArrayXd coefficients();
+  const Eigen::ArrayXd &coefficients() const { return m_coefficients; }
 
   /**
    * @brief Returns the spline basis.
    *
-   * @return std::shared_ptr<Basis> spline basis.
+   * @return const std::shared_ptr<Basis> spline basis.
    */
-  std::shared_ptr<Basis> basis();
+  const std::shared_ptr<Basis> basis() const { return m_basis; }
 
   /**
    * @brief Evaluate spline at given points.
@@ -46,14 +46,33 @@ public:
    * @param points evaluation points.
    * @return Eigen::ArrayXd spline function values at "points".
    */
-  Eigen::ArrayXd operator()(const Eigen::ArrayXd &points);
+  Eigen::ArrayXd operator()(const Eigen::ArrayXd &points) const {
+    return (m_basis->operator()(points).matrix() * m_coefficients.matrix())
+        .array();
+  }
 
   /**
    * @brief Create new spline with negative spline coefficients.
    *
    * @return Spline spline with negative spline coefficients.
    */
-  Spline operator-();
+  Spline operator-() const { return {m_basis, -m_coefficients}; }
+
+  /**
+   * @brief Create new spline as derivative of this spline.
+   *
+   * @param order derivative order.
+   * @return Spline as derivative of "order".
+   */
+  Spline derivative(int order = 1) const;
+
+  /**
+   * @brief Create new spline as integral of this spline.
+   *
+   * @param order integral order.
+   * @return Spline as integral of "order".
+   */
+  Spline integral(int order = 1) const;
 
   /**
    * @brief Create new spline as sum of two splines.

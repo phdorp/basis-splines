@@ -98,6 +98,22 @@ TEST_F(BasisTest, CombineOrder2) {
   expectAllClose(estimate.knots(), groundTruth.knots(), 1e-6);
   EXPECT_EQ(estimate.order(), groundTruth.order());
 }
+
+/**
+ * @brief Test conversion from breakpoints to knots for spline of order 2.
+ *
+ */
+TEST_F(BasisTest, ToKnotsOrder2)
+{
+  const int order {2};
+  const Eigen::ArrayXd bps {{0.0, 0.25, 0.5, 1.0}};
+  const Eigen::ArrayXi conts {{0, 1, 0, 1}};
+
+  const Eigen::ArrayXd valuesEst {Basis::toKnots(bps, conts, order)};
+  const Eigen::ArrayXd valuesGtr {{0.0, 0.0, 0.25, 0.5, 0.5, 1.0}};
+
+  expectAllClose(valuesEst, valuesGtr);
+}
 }; // namespace Internal
 }; // namespace BasisSplines
 
