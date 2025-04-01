@@ -112,7 +112,7 @@ TEST_F(BasisTest, ToKnotsOrder2)
   const Eigen::ArrayXd valuesEst {Basis::toKnots(bps, conts, order)};
   const Eigen::ArrayXd valuesGtr {{0.0, 0.0, 0.25, 0.5, 0.5, 1.0}};
 
-  expectAllClose(valuesEst, valuesGtr);
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
 }; // namespace Internal
 }; // namespace BasisSplines

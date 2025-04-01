@@ -203,7 +203,7 @@ public:
     for (double &knot : knots) {
       knot = *bp;
       --(*mult);
-      if (*mult < 0) {
+      if (*mult == 0) {
         ++mult;
         ++bp;
       }
