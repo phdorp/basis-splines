@@ -147,7 +147,7 @@ public:
    * @param basis other basis to combine with.
    * @return Eigen::ArrayXd knots as the combination of both bases.
    */
-  Basis combine(const Basis &basis, double accuracy = 1e-6) const {
+  Basis combine(const Basis &basis, int order, double accuracy = 1e-6) const {
     // create combined knots worst case length
     Eigen::ArrayXd knotsComb(m_knots.size() + basis.knots().size());
 
@@ -182,8 +182,7 @@ public:
       ++numKnotsComb;
     }
 
-    return {knotsComb(Eigen::seqN(0, numKnotsComb)),
-            std::max(m_order, basis.order())};
+    return {knotsComb(Eigen::seqN(0, numKnotsComb)), order};
   }
 
   /**

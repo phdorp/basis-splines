@@ -91,7 +91,7 @@ TEST_F(BasisTest, CombineOrder2) {
   const Eigen::ArrayXd knotsB {{0.0, 0.0, 0.5, 0.6, 1.0, 1.0}};
   const Basis basisB{knotsB, order};
 
-  const Basis estimate {basisA.combine(basisB)};
+  const Basis estimate {basisA.combine(basisB, order)};
 
   const Basis groundTruth { {{0.0, 0.0, 0.2, 0.2, 0.5, 0.6, 1.0, 1.0}}, 2};
 
