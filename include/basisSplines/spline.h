@@ -87,10 +87,11 @@ public:
     const std::shared_ptr<Basis> basis{std::make_shared<Basis>(
         m_basis->combine(*spline.basis().get(),
                          std::max(m_basis->order(), spline.basis()->order())))};
-    const Eigen::ArrayXd greville{basis->greville()};
     const Interp interp{basis};
-    return {basis, interp.fit(this->operator()(greville) + spline(greville),
-                              greville)};
+    return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
+              Eigen::ArrayXd procSum{(*this)(points) + spline(points)};
+              return procSum;
+            })};
   }
 
   /**
@@ -105,10 +106,11 @@ public:
     const std::shared_ptr<Basis> basis{std::make_shared<Basis>(
         m_basis->combine(*spline.basis().get(),
                          m_basis->order() + spline.basis()->order() - 1))};
-    const Eigen::ArrayXd greville{basis->greville()};
     const Interp interp{basis};
-    return {basis, interp.fit(this->operator()(greville) * spline(greville),
-                              greville)};
+    return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
+              Eigen::ArrayXd procProd{(*this)(points)*spline(points)};
+              return procProd;
+            })};
   }
 
 private:
