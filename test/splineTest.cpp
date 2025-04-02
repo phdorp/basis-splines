@@ -62,6 +62,7 @@ TEST_F(SplineTest, SplineSumOrder3)
 
   expectAllClose(valuesGtr, valuesEst, 1e-10);
 }
+
 /**
  * @brief Test multiplying two splines of order 3.
  *
@@ -78,6 +79,33 @@ TEST_F(SplineTest, SplineProdOrder3)
   const Eigen::ArrayXd knotsR{{0.0, 0.0, 0.0, 0.25, 0.5, 0.8, 1.0, 1.0}};
   std::shared_ptr<Basis> basisR{std::make_shared<Basis>(knotsR, order)};
   const Eigen::ArrayXd coeffsR {Eigen::ArrayXd::Random(knotsR.size() - order)};
+  const Spline splineR {basisR, coeffsR};
+
+  const Eigen::ArrayXd points {Eigen::ArrayXd::LinSpaced(101, 0.0, 1.0)};
+  const Eigen::ArrayXd valuesGtr {splineL(points) * splineR(points)};
+
+  const Spline spline {splineL.prod(splineR)};
+  const Eigen::ArrayXd valuesEst {spline(points)};
+
+  expectAllClose(valuesGtr, valuesEst, 1e-10);
+}
+
+/**
+ * @brief Test multiplying splines of order 4 and 3.
+ *
+ */
+TEST_F(SplineTest, SplineProdOrderL3R4)
+{
+  const int orderL{3};
+  const Eigen::ArrayXd knotsL{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0}};
+  std::shared_ptr<Basis> basisL{std::make_shared<Basis>(knotsL, orderL)};
+  const Eigen::ArrayXd coeffsL {Eigen::ArrayXd::Random(knotsL.size() - orderL)};
+  const Spline splineL {basisL, coeffsL};
+
+  const int orderR{4};
+  const Eigen::ArrayXd knotsR{{0.0, 0.0, 0.0, 0.25, 0.5, 0.8, 1.0, 1.0}};
+  std::shared_ptr<Basis> basisR{std::make_shared<Basis>(knotsR, orderR)};
+  const Eigen::ArrayXd coeffsR {Eigen::ArrayXd::Random(knotsR.size() - orderR)};
   const Spline splineR {basisR, coeffsR};
 
   const Eigen::ArrayXd points {Eigen::ArrayXd::LinSpaced(101, 0.0, 1.0)};
