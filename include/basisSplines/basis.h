@@ -148,18 +148,21 @@ public:
    * @return Eigen::ArrayXd knots as the combination of both bases.
    */
   Basis combine(const Basis &basis, int order, double accuracy = 1e-6) const {
+    Eigen::ArrayXd knotsThis{toKnots(breakpoints(), order)};
+    Eigen::ArrayXd knotsOther{toKnots(basis.breakpoints(), order)};
+
     // create combined knots worst case length
-    Eigen::ArrayXd knotsComb(m_knots.size() + basis.knots().size());
+    Eigen::ArrayXd knotsComb(knotsThis.size() + knotsOther.size());
 
     // iterate over both knot arrays
     // compare knots and place smaller one in "knotsComb"
     // auto knotComb {knotsComb.begin()};
-    auto knotThis{m_knots.begin()};
-    auto knotOther{basis.knots().begin()};
+    auto knotThis{knotsThis.begin()};
+    auto knotOther{knotsOther.begin()};
     int numKnotsComb{};
     for (auto &knotComb : knotsComb) {
-      bool atThisEnd{knotThis == (m_knots.end())};
-      bool atOtherEnd{knotOther == (basis.knots().end())};
+      bool atThisEnd{knotThis == (knotsThis.end())};
+      bool atOtherEnd{knotOther == (knotsOther.end())};
 
       if (atThisEnd && atOtherEnd)
         break;
@@ -193,8 +196,8 @@ public:
    * @param order basis order.
    * @return Eigen::ArrayXd knot representation of given breakpoints.
    */
-  static Eigen::ArrayXd toKnots(const Eigen::ArrayXd bps,
-                                const Eigen::ArrayXi conts, int order) {
+  static Eigen::ArrayXd toKnots(const Eigen::ArrayXd& bps,
+                                const Eigen::ArrayXi& conts, int order) {
     Eigen::ArrayXi mults{order - conts};
     Eigen::ArrayXd knots(bps.size() * order - conts.sum());
     auto mult{mults.begin()};
@@ -209,6 +212,10 @@ public:
     }
 
     return knots;
+  }
+
+  static Eigen::ArrayXd toKnots(const std::pair<Eigen::ArrayXd, Eigen::ArrayXi>& bps, int order) {
+    return toKnots(bps.first, bps.second, order);
   }
 
 private:
