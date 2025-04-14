@@ -65,7 +65,21 @@ public:
    * @param order derivative order.
    * @return Spline as derivative of "order".
    */
-  Spline derivative(int order = 1) const;
+  Spline derivative(int order = 1) const {
+    // basis for derivative spline of order - 1
+    std::shared_ptr<Basis> basis{std::make_shared<Basis>(
+        m_basis->knots()(Eigen::seqN(1, m_basis->knots().size() - 2)),
+        m_basis->order() - 1)};
+
+    // coefficients of derivative spline coeffs = o * (c_i+1 - c_i) / (k_i+o - k_i+1)
+    Eigen::ArrayXd coeffs(basis->dim());
+    for (int idx{}; idx < coeffs.size(); ++idx)
+      coeffs(idx) = (m_basis->order() - 1) *
+                    (m_coefficients(idx + 1) - m_coefficients(idx)) /
+                    (m_basis->knots()(idx + m_basis->order()) -
+                     m_basis->knots()(idx + 1));
+    return {basis, coeffs};
+  }
 
   /**
    * @brief Create new spline as integral of this spline.

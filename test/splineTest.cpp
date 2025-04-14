@@ -117,6 +117,27 @@ TEST_F(SplineTest, SplineProdOrderL3R4)
   expectAllClose(valuesGtr, valuesEst, 1e-10);
 }
 
+/**
+ * @brief Test derivative spline of order 3.
+ *
+ */
+TEST_F(SplineTest, SplineDerivOrder3)
+{
+  const int order{3};
+  const Eigen::ArrayXd knots{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0}};
+  std::shared_ptr<Basis> basis{std::make_shared<Basis>(knots, order)};
+  const Eigen::ArrayXd coeffs {Eigen::ArrayXd::Random(knots.size() - order)};
+  const Spline spline {basis, coeffs};
+
+  const double step {1e-8};
+  const Eigen::ArrayXd points {Eigen::ArrayXd::LinSpaced(101, 0.0, 1.0-step)};
+  const Eigen::ArrayXd valuesGtr {(spline(points+step) - spline(points))/step };
+
+  const Eigen::ArrayXd valuesEst {spline.derivative()(points)};
+
+  expectAllClose(valuesGtr, valuesEst, 1e-6);
+}
+
 }; // namespace Internal
 }; // namespace BasisSplines
 
