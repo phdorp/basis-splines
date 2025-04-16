@@ -91,7 +91,7 @@ TEST_F(BasisTest, CombineOrder2) {
   const Eigen::ArrayXd knotsB {{0.0, 0.0, 0.5, 0.6, 1.0, 1.0}};
   const Basis basisB{knotsB, order};
 
-  const Basis estimate {basisA.combine(basisB)};
+  const Basis estimate {basisA.combine(basisB, order)};
 
   const Basis groundTruth { {{0.0, 0.0, 0.2, 0.2, 0.5, 0.6, 1.0, 1.0}}, 2};
 
@@ -112,7 +112,7 @@ TEST_F(BasisTest, ToKnotsOrder2)
   const Eigen::ArrayXd valuesEst {Basis::toKnots(bps, conts, order)};
   const Eigen::ArrayXd valuesGtr {{0.0, 0.0, 0.25, 0.5, 0.5, 1.0}};
 
-  expectAllClose(valuesEst, valuesGtr);
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
 }; // namespace Internal
 }; // namespace BasisSplines

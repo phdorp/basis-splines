@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "basisSplines/basis.h"
+#include "basisSplines/interpolate.h"
 
 namespace BasisSplines {
 /**
@@ -64,7 +65,30 @@ public:
    * @param order derivative order.
    * @return Spline as derivative of "order".
    */
-  Spline derivative(int order = 1) const;
+  Spline derivative(int order = 1) const {
+    // basis for derivative spline of order - 1
+    std::shared_ptr<Basis> basis{std::make_shared<Basis>(
+        m_basis->knots()(Eigen::seqN(1, m_basis->knots().size() - 2)),
+        m_basis->order() - 1)};
+
+    // coefficients of derivative spline coeffs = o * (c_i+1 - c_i) / (k_i+o -
+    // k_i+1)
+    Eigen::ArrayXd coeffs(basis->dim());
+    for (int idx{}; idx < coeffs.size(); ++idx)
+      coeffs(idx) = (m_basis->order() - 1) *
+                    (m_coefficients(idx + 1) - m_coefficients(idx)) /
+                    (m_basis->knots()(idx + m_basis->order()) -
+                     m_basis->knots()(idx + 1));
+
+    // result spline
+    Spline spline {basis, coeffs};
+    // base case
+    if (order == 1)
+      return spline;
+    // reduce order
+    else
+      return spline.derivative(order - 1);
+  }
 
   /**
    * @brief Create new spline as integral of this spline.
@@ -72,34 +96,66 @@ public:
    * @param order integral order.
    * @return Spline as integral of "order".
    */
-  Spline integral(int order = 1) const;
+  Spline integral(int order = 1) const {
+    // basis for derivative spline of order + 1
+    Eigen::ArrayXd knots(m_basis->knots().size() + 2);
+    knots << m_basis->knots()(0), m_basis->knots(), *(m_basis->knots().end());
+    std::shared_ptr<Basis> basis{
+        std::make_shared<Basis>(knots, m_basis->order() + 1)};
+
+    // coefficients of derivative spline coeffs_i+1 = c_i * (k_i+o -
+    // k_i) / o + coeffs_i
+    Eigen::ArrayXd coeffs(basis->dim());
+    for (int idx{}; idx < coeffs.size()-1; ++idx)
+      coeffs(idx+1) = m_coefficients(idx) * (m_basis->knots()(idx+m_basis->order()) - m_basis->knots()(idx)) / m_basis->order() + coeffs(idx);
+
+    // result spline
+    Spline spline {basis, coeffs};
+    // base case
+    if (order == 1)
+      return spline;
+    // reduce order
+    else
+      return spline.integral(order - 1);
+  }
 
   /**
-   * @brief Create new spline as sum of two splines.
+   * @brief Create new spline as sum of this and another spline.
    *
-   * @param splineL left spline in sum.
-   * @param splineR right spline in sum.
+   * @tparam Interp type of interpolation.
+   * @param spline function to add with.
    * @return Spline representation of spline sum.
    */
-  friend Spline operator+(const Spline &splineL, const Spline &splineR);
+  template <typename Interp = Interpolate>
+  Spline add(const Spline &spline) const {
+    const std::shared_ptr<Basis> basis{std::make_shared<Basis>(
+        m_basis->combine(*spline.basis().get(),
+                         std::max(m_basis->order(), spline.basis()->order())))};
+    const Interp interp{basis};
+    return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
+              Eigen::ArrayXd procSum{(*this)(points) + spline(points)};
+              return procSum;
+            })};
+  }
 
   /**
-   * @brief Create new spline as difference between two splines.
+   * @brief Create new spline as product of this and another spline.
    *
-   * @param splineL left spline in difference.
-   * @param splineR right spline in difference.
-   * @return Spline representation of spline difference.
-   */
-  friend Spline operator-(const Spline &splineL, const Spline &splineR);
-
-  /**
-   * @brief Create new spline as product of two splines.
-   *
-   * @param splineL left spline in product.
-   * @param splineR right spline in product.
+   * @tparam Interp type of interpolation.
+   * @param spline function to multiply with.
    * @return Spline representation of spline product.
    */
-  friend Spline operator*(const Spline &splineL, const Spline &splineR);
+  template <typename Interp = Interpolate>
+  Spline prod(const Spline &spline) const {
+    const std::shared_ptr<Basis> basis{std::make_shared<Basis>(
+        m_basis->combine(*spline.basis().get(),
+                         m_basis->order() + spline.basis()->order() - 1))};
+    const Interp interp{basis};
+    return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
+              Eigen::ArrayXd procProd{(*this)(points)*spline(points)};
+              return procProd;
+            })};
+  }
 
 private:
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
