@@ -79,7 +79,15 @@ public:
                     (m_coefficients(idx + 1) - m_coefficients(idx)) /
                     (m_basis->knots()(idx + m_basis->order()) -
                      m_basis->knots()(idx + 1));
-    return {basis, coeffs};
+
+    // result spline
+    Spline spline {basis, coeffs};
+    // base case
+    if (order == 1)
+      return spline;
+    // reduce order
+    else
+      return spline.derivative(order - 1);
   }
 
   /**
@@ -100,7 +108,15 @@ public:
     Eigen::ArrayXd coeffs(basis->dim());
     for (int idx{}; idx < coeffs.size()-1; ++idx)
       coeffs(idx+1) = m_coefficients(idx) * (m_basis->knots()(idx+m_basis->order()) - m_basis->knots()(idx)) / m_basis->order() + coeffs(idx);
-    return {basis, coeffs};
+
+    // result spline
+    Spline spline {basis, coeffs};
+    // base case
+    if (order == 1)
+      return spline;
+    // reduce order
+    else
+      return spline.integral(order - 1);
   }
 
   /**
