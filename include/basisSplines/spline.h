@@ -18,6 +18,8 @@ namespace BasisSplines {
  */
 class Spline {
 public:
+  Spline() = default;
+
   /**
    * @brief Construct a new Spline in basis form.
    *
