@@ -15,6 +15,8 @@ namespace BasisSplines {
  */
 class Basis {
 public:
+  Basis() = default;
+
   /**
    * @brief Construct a new Basis for the given knots and order.
    *
