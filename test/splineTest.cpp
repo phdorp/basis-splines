@@ -173,6 +173,23 @@ TEST_F(SplineTest, SplineIntOrder3) {
   expectAllClose(valuesGtr, valuesEst, 1e-2);
 }
 
+TEST_F(SplineTest, InsertKnots) {
+  const int order{3};
+  const Eigen::ArrayXd knots{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0}};
+  std::shared_ptr<Basis> basis{std::make_shared<Basis>(knots, order)};
+  const Eigen::ArrayXd coeffs{Eigen::ArrayXd::Random(knots.size() - order)};
+  const Spline spline{basis, coeffs};
+
+  const Eigen::ArrayXd knotsInsert{{0.4, 0.5, 0.6}};
+  const Spline splineInsert{spline.insertKnots(knotsInsert)};
+
+  const Eigen::ArrayXd points{Eigen::ArrayXd::LinSpaced(101, 0.0, 1.0)};
+  const Eigen::ArrayXd valuesGtr{spline(points)};
+  const Eigen::ArrayXd valuesEst{splineInsert(points)};
+
+  expectAllClose(valuesGtr, valuesEst, 1e-6);
+}
+
 }; // namespace Internal
 }; // namespace BasisSplines
 
