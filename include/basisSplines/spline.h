@@ -83,7 +83,7 @@ public:
                      m_basis->knots()(idx + 1));
 
     // result spline
-    Spline spline {basis, coeffs};
+    Spline spline{basis, coeffs};
     // base case
     if (order == 1)
       return spline;
@@ -108,11 +108,15 @@ public:
     // coefficients of derivative spline coeffs_i+1 = c_i * (k_i+o -
     // k_i) / o + coeffs_i
     Eigen::ArrayXd coeffs(basis->dim());
-    for (int idx{}; idx < coeffs.size()-1; ++idx)
-      coeffs(idx+1) = m_coefficients(idx) * (m_basis->knots()(idx+m_basis->order()) - m_basis->knots()(idx)) / m_basis->order() + coeffs(idx);
+    for (int idx{}; idx < coeffs.size() - 1; ++idx)
+      coeffs(idx + 1) = m_coefficients(idx) *
+                            (m_basis->knots()(idx + m_basis->order()) -
+                             m_basis->knots()(idx)) /
+                            m_basis->order() +
+                        coeffs(idx);
 
     // result spline
-    Spline spline {basis, coeffs};
+    Spline spline{basis, coeffs};
     // base case
     if (order == 1)
       return spline;
@@ -156,6 +160,29 @@ public:
     return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
               Eigen::ArrayXd procProd{(*this)(points)*spline(points)};
               return procProd;
+            })};
+  }
+
+  /**
+   * @brief Create new spline including the given and this splines' knots.
+   * The new spline coincides with this spline.
+   * The distance between coefficients and spline is decreased.
+   * The knot multiplicity must remain smaller than the basis order.
+   *
+   * @tparam Interp type of interpolation.
+   * @param knots knots to insert to this basis' knots.
+   * @return Spline new spline including the given knots.
+   */
+  template <typename Interp = Interpolate>
+  Spline insertKnots(const Eigen::ArrayXd &knots) const {
+    // create new basis with inserted knot
+    const std::shared_ptr<Basis> basis{
+        std::make_shared<Basis>(m_basis->insertKnots(knots))};
+    // determine new coefficients via interpolation
+    const Interp interp{basis};
+    return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
+              Eigen::ArrayXd procInsert{(*this)(points)};
+              return procInsert;
             })};
   }
 
