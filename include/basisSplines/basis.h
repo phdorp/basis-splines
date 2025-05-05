@@ -48,6 +48,21 @@ public:
   const Eigen::ArrayXd &knots() const { return m_knots; }
 
   /**
+   * @brief Create new basis including the given and this basis' knots.
+   *
+   * @param knots knots to insert to this basis' knots.
+   * @return Basis new basis including the given knots.
+   */
+  Basis insertKnots(const Eigen::ArrayXd &knots) const {
+    // concatenate knots with this basis knots
+    Eigen::ArrayXd knotsNew(knots.size() + m_knots.size());
+    knotsNew << knots, m_knots;
+    // sort for increasing knot sequence
+    std::sort(knotsNew.begin(), knotsNew.end());
+    return {knotsNew, m_order};
+  }
+
+  /**
    * @brief Determine basis breakpoints and continuities at breakpoints.
    *
    * @return std::pair<Eigen::ArrayXd, Eigen::ArrayXi> breakpoints and
@@ -198,8 +213,8 @@ public:
    * @param order basis order.
    * @return Eigen::ArrayXd knot representation of given breakpoints.
    */
-  static Eigen::ArrayXd toKnots(const Eigen::ArrayXd& bps,
-                                const Eigen::ArrayXi& conts, int order) {
+  static Eigen::ArrayXd toKnots(const Eigen::ArrayXd &bps,
+                                const Eigen::ArrayXi &conts, int order) {
     Eigen::ArrayXi mults{order - conts};
     Eigen::ArrayXd knots(bps.size() * order - conts.sum());
     auto mult{mults.begin()};
@@ -216,7 +231,8 @@ public:
     return knots;
   }
 
-  static Eigen::ArrayXd toKnots(const std::pair<Eigen::ArrayXd, Eigen::ArrayXi>& bps, int order) {
+  static Eigen::ArrayXd
+  toKnots(const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> &bps, int order) {
     return toKnots(bps.first, bps.second, order);
   }
 
