@@ -9,70 +9,30 @@ namespace Internal {
 class BasisTest : public TestBase {
 protected:
   void SetUp() {}
+
+  const Eigen::ArrayXd m_knotsO3{{0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0}};
+  Basis m_basisO3{m_knotsO3, 3};
 };
 
 /**
- * @brief Test the evaluation of basis functions of order 1.
+ * @brief Test the determintation of greville sites for basis functions of
+ * order 3.
  *
  */
-TEST_F(BasisTest, BasisEvalOrder1) {
-  const Eigen::ArrayXd knots{{0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0}};
-  const int order{1};
-  const Eigen::ArrayXd points{{0.0, 0.75}};
-
-  const Basis basis{knots, order};
-  const Eigen::ArrayXXd valuesEst{basis(points)};
-
-  const Eigen::ArrayXXd valuesGtr{{1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0},
-                                  {0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0}};
+TEST_F(BasisTest, GrevilleO3) {
+  const Eigen::ArrayXd valuesEst{m_basisO3.greville()};
+  const Eigen::ArrayXd valuesGtr{{0.0, 0.25, 0.5, 0.75, 1.0}};
 
   expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
 
 /**
- * @brief Test the evaluation of basis functions of order 2.
+ * @brief Test the determination of breakpoints for basis functions of order 3.
  *
  */
-TEST_F(BasisTest, BasisEvalOrder2) {
-  const Eigen::ArrayXd knots{{0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0}};
-  const int order{2};
-  const Eigen::ArrayXd points{{0.1, 0.75}};
-
-  const Basis basis{knots, order};
-  const Eigen::ArrayXXd valuesEst{basis(points)};
-
-  const Eigen::ArrayXXd valuesGtr{{0.0, 0.8, 0.2, 0.0, 0.0, 0.0},
-                                  {0.0, 0.0, 0.0, 0.5, 0.5, 0.0}};
-
-  expectAllClose(valuesEst, valuesGtr, 1e-10);
-}
-
-/**
- * @brief Test the determintation of greville sites for basis functions of order 2.
- *
- */
-TEST_F(BasisTest, GrevilleOrder2) {
-  const Eigen::ArrayXd knots{{0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0}};
-  const int order{2};
-
-  const Basis basis{knots, order};
-  const Eigen::ArrayXd valuesEst{basis.greville()};
-  const Eigen::ArrayXd valuesGtr{{0.0, 0.0, 0.5, 0.5, 1.0, 1.0}};
-
-  expectAllClose(valuesEst, valuesGtr, 1e-10);
-}
-
-/**
- * @brief Test the determination of breakpoints for basis functions of order 2.
- *
- */
-TEST_F(BasisTest, BreakpointsOrder2) {
-  const Eigen::ArrayXd knots{{0.0, 0.0, 0.5, 1.0, 1.0}};
-  const int order{2};
-
-  const Basis basis{knots, order};
+TEST_F(BasisTest, BreakpointsO3) {
   const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesEst{
-      basis.breakpoints()};
+      m_basisO3.breakpoints()};
   const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesGtr{{{0.0, 0.5, 1.0}},
                                                             {{0, 1, 0}}};
 
@@ -81,36 +41,32 @@ TEST_F(BasisTest, BreakpointsOrder2) {
 }
 
 /**
- * @brief Combine two spline bases of order 2.
+ * @brief Combine a basis of order 3 with a basis of order 2.
  *
  */
-TEST_F(BasisTest, CombineOrder2) {
-  const int order{2};
-  const Eigen::ArrayXd knotsA{{0.0, 0.0, 0.2, 0.2, 0.5, 1.0, 1.0}};
-  const Basis basisA{knotsA, order};
-  const Eigen::ArrayXd knotsB {{0.0, 0.0, 0.5, 0.6, 1.0, 1.0}};
-  const Basis basisB{knotsB, order};
+TEST_F(BasisTest, CombineO3O2) {
+  const Eigen::ArrayXd knotsO2{{0.0, 0.0, 0.2, 0.5, 0.6, 1.0, 1.0}};
+  const Basis basisO2{knotsO2, 2};
 
-  const Basis estimate {basisA.combine(basisB, order)};
+  const Basis estimate{m_basisO3.combine(basisO2, m_basisO3.order())};
 
-  const Basis groundTruth { {{0.0, 0.0, 0.2, 0.2, 0.5, 0.6, 1.0, 1.0}}, 2};
+  const Basis groundTruth{
+      {{0.0, 0.0, 0.0, 0.2, 0.2, 0.5, 0.5, 0.6, 0.6, 1.0, 1.0, 1.0}},
+      m_basisO3.order()};
 
   expectAllClose(estimate.knots(), groundTruth.knots(), 1e-6);
   EXPECT_EQ(estimate.order(), groundTruth.order());
 }
 
 /**
- * @brief Test conversion from breakpoints to knots for spline of order 2.
+ * @brief Test conversion from breakpoints to knots for spline of order 3.
  *
  */
-TEST_F(BasisTest, ToKnotsOrder2)
-{
-  const int order {2};
-  const Eigen::ArrayXd bps {{0.0, 0.25, 0.5, 1.0}};
-  const Eigen::ArrayXi conts {{0, 1, 0, 1}};
+TEST_F(BasisTest, ToKnotsO3) {
+  const auto [bps, conts] = m_basisO3.breakpoints();
 
-  const Eigen::ArrayXd valuesEst {Basis::toKnots(bps, conts, order)};
-  const Eigen::ArrayXd valuesGtr {{0.0, 0.0, 0.25, 0.5, 0.5, 1.0}};
+  const Eigen::ArrayXd valuesEst{Basis::toKnots(bps, conts, m_basisO3.order())};
+  const Eigen::ArrayXd valuesGtr{m_knotsO3};
 
   expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
