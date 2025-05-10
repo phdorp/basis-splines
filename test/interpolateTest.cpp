@@ -19,7 +19,7 @@ protected:
  * matrix.
  *
  */
-TEST_F(InterpolateTest, InterpolateSplineOrder2) {
+TEST_F(InterpolateTest, InterpolateSplineO2) {
   // setup basis of order 2 with continuity 0, 1, 0
   const Eigen::ArrayXd knots{{0.0, 0.0, 0.5, 1.0, 1.0}};
   const int order{2};
@@ -40,7 +40,7 @@ TEST_F(InterpolateTest, InterpolateSplineOrder2) {
  * @brief Test interpolation of a piecewise quadratic spline function.
  *
  */
-TEST_F(InterpolateTest, InterpolateSplineOrder3) {
+TEST_F(InterpolateTest, InterpolateSplineO3) {
   const Eigen::ArrayXd knots{{0.0, 0.0, 0.0, 0.5, 0.5, 0.75, 1.0, 1.0}};
   const int order{3};
   std::shared_ptr<Basis> basis{std::make_shared<Basis>(knots, order)};
