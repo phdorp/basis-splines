@@ -24,7 +24,11 @@ public:
   }
 
   static Eigen::ArrayXd polyO3Int(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{1 / 3 * points.pow(3)};
+    return Eigen::ArrayXd{points.pow(3) / 3};
+  }
+
+  static Eigen::ArrayXd polyO3Iint(const Eigen::ArrayXd &points) {
+    return Eigen::ArrayXd{points.pow(4) / 12};
   }
 
 protected:
@@ -159,44 +163,25 @@ TEST_F(SplineTest, SplineDderivO3) {
 }
 
 /**
- * @brief Test integral spline of order 2.
- *
- */
-TEST_F(SplineTest, SplineIntO2) {
-  // instantiate a spline of order 2
-  const int order{2};
-  const Eigen::ArrayXd knots{{0.0, 0.0, 1.0, 1.0}};
-  std::shared_ptr<Basis> basis{std::make_shared<Basis>(knots, order)};
-  const Eigen::ArrayXd coeffs{{0, 1}};
-  const Spline spline{basis, coeffs};
-
-  // spline integral ground truth
-  Eigen::ArrayXd valuesGtr {spline(m_points).pow(2) / 2};
-  const Eigen::ArrayXd valuesEst{spline.integral()(m_points)};
-
-  expectAllClose(valuesGtr, valuesEst, 1e-6);
-}
-
-/**
  * @brief Test integral spline of order 3.
  *
  */
 TEST_F(SplineTest, SplineIntO3) {
-  // instantiate spline of order 3
-  const Eigen::ArrayXd coeffs{Eigen::ArrayXd::Random(m_basisO3->dim())};
-  const Spline spline{m_basisO3, coeffs};
+  const Eigen::ArrayXd valuesGtr{polyO3Int(m_points)};
+  const Eigen::ArrayXd valuesEst{m_splineO3.integral()(m_points)};
 
-  // get ground truth with numeric approximation
-  const double step{m_points(m_points.size() - 1) / (m_points.size() - 1)};
-  Eigen::ArrayXd valuesGtr(m_points.size());
-  const Eigen::ArrayXd splineValues{spline(m_points)};
-  std::partial_sum(splineValues.begin(), splineValues.end(), valuesGtr.begin());
-  valuesGtr *= step;
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+}
 
-  // get estimate from spline integral
-  const Eigen::ArrayXd valuesEst{spline.integral()(m_points)};
+/**
+ * @brief Test second order integral spline of order 3.
+ *
+ */
+TEST_F(SplineTest, SplineIintO3) {
+  const Eigen::ArrayXd valuesGtr{polyO3Iint(m_points)};
+  const Eigen::ArrayXd valuesEst{m_splineO3.integral(2)(m_points)};
 
-  expectAllClose(valuesGtr, valuesEst, 1e-2);
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
 
 TEST_F(SplineTest, InsertKnots) {
