@@ -2,22 +2,42 @@
 #include <gtest/gtest.h>
 
 #include "basisSplines/basis.h"
+#include "basisSplines/interpolate.h"
 #include "basisSplines/spline.h"
 #include "testBase.h"
 
 namespace BasisSplines {
 namespace Internal {
 class SplineTest : public TestBase {
-protected:
-  void SetUp() {
 
+public:
+  static Eigen::ArrayXd polyO3(const Eigen::ArrayXd &points) {
+    return Eigen::ArrayXd{points.pow(2)};
   }
+
+  static Eigen::ArrayXd polyO3Der(const Eigen::ArrayXd &points) {
+    return Eigen::ArrayXd{2 * points};
+  }
+
+  static Eigen::ArrayXd polyO3Dder(const Eigen::ArrayXd &points) {
+    return Eigen::ArrayXd::Zero(points.size()) + 2;
+  }
+
+  static Eigen::ArrayXd polyO3Int(const Eigen::ArrayXd &points) {
+    return Eigen::ArrayXd{1 / 3 * points.pow(3)};
+  }
+
+protected:
+  void SetUp() { m_splineO3 = Spline{m_basisO3, m_interpO3.fit(&polyO3)}; }
 
   const Eigen::ArrayXd m_knotsO2{{0.0, 0.0, 0.5, 1.0, 1.0}};
   std::shared_ptr<Basis> m_basisO2{std::make_shared<Basis>(m_knotsO2, 2)};
 
   const Eigen::ArrayXd m_knotsO3{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0}};
   std::shared_ptr<Basis> m_basisO3{std::make_shared<Basis>(m_knotsO3, 3)};
+  const Interpolate m_interpO3{m_basisO3};
+
+  Spline m_splineO3{};
 
   const Eigen::ArrayXd m_points{Eigen::ArrayXd::LinSpaced(101, 0.0, 1.0)};
 };
@@ -121,20 +141,21 @@ TEST_F(SplineTest, SplineProdO3O4) {
  *
  */
 TEST_F(SplineTest, SplineDerivO3) {
-  // instantiate spline of order 3
-  const Eigen::ArrayXd coeffs{Eigen::ArrayXd::Random(m_basisO3->dim())};
-  const Spline spline{m_basisO3, coeffs};
+  const Eigen::ArrayXd valuesGtr{polyO3Der(m_points)};
+  const Eigen::ArrayXd valuesEst{m_splineO3.derivative()(m_points)};
 
-  // get gt first derivative with finite differences
-  const double step{1e-8};
-  const Eigen::ArrayXd points{Eigen::ArrayXd::LinSpaced(101, 0.0, 1.0 - step)};
-  const Eigen::ArrayXd valuesGtr{(spline(points + step) - spline(points)) /
-                                 step};
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+}
 
-  // get estimate from spline derivative
-  const Eigen::ArrayXd valuesEst{spline.derivative()(points)};
+/**
+ * @brief Test second order derivative spline of order 3.
+ *
+ */
+TEST_F(SplineTest, SplineDderivO3) {
+  const Eigen::ArrayXd valuesGtr{polyO3Dder(m_points)};
+  const Eigen::ArrayXd valuesEst{m_splineO3.derivative(2)(m_points)};
 
-  expectAllClose(valuesGtr, valuesEst, 1e-6);
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
 
 /**
