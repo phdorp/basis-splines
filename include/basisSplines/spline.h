@@ -69,9 +69,8 @@ public:
    */
   Spline derivative(int order = 1) const {
     // basis for derivative spline of order - 1
-    std::shared_ptr<Basis> basis{std::make_shared<Basis>(
-        m_basis->knots()(Eigen::seqN(1, m_basis->knots().size() - 2)),
-        m_basis->order() - 1)};
+    std::shared_ptr<Basis> basis{
+        std::make_shared<Basis>(m_basis->derivative())};
 
     // coefficients of derivative spline coeffs = o * (c_i+1 - c_i) / (k_i+o -
     // k_i+1)
