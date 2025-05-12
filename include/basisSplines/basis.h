@@ -220,6 +220,22 @@ public:
   }
 
   /**
+   * @brief Determine basis derivative.
+   * Reduces order by 1.
+   *
+   * @param order derivative order.
+   * @return Basis derivative basis.
+   */
+  Basis integral(int order = 1) const {
+    Eigen::ArrayXd knots(m_knots.size() + 2);
+    knots << m_knots(0), m_knots, *(m_knots.end());
+    Basis basis{knots, m_order + 1};
+    if (order == 1)
+      return basis;
+    return basis.integral(order - 1);
+  }
+
+  /**
    * @brief Convert breakpoints to knots.
    *
    * @param bps breakpoints for conversion.
