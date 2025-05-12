@@ -98,11 +98,9 @@ public:
    * @return Spline as integral of "order".
    */
   Spline integral(int order = 1) const {
-    // basis for derivative spline of order + 1
-    Eigen::ArrayXd knots(m_basis->knots().size() + 2);
-    knots << m_basis->knots()(0), m_basis->knots(), *(m_basis->knots().end());
+    // basis for integral spline of order + 1
     std::shared_ptr<Basis> basis{
-        std::make_shared<Basis>(knots, m_basis->order() + 1)};
+      std::make_shared<Basis>(m_basis->integral())};
 
     // coefficients of derivative spline coeffs_i+1 = c_i * (k_i+o -
     // k_i) / o + coeffs_i
