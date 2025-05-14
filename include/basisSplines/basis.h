@@ -148,7 +148,13 @@ public:
    * @return Eigen::ArrayXd greville sites.
    */
   Eigen::ArrayXd greville() const {
+    // basis order 1 greville abs. coincide with knots
+    if (m_order == 1)
+      return m_knots;
+
+    // higher order basis knot averages
     Eigen::ArrayXd grevilleSites(dim());
+
     for (int cKnot{}; cKnot < dim(); ++cKnot) {
       auto begin{m_knots.begin() + cKnot + 1};
       auto end{begin + m_order - 1};
