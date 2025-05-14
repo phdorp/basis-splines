@@ -27,6 +27,28 @@ public:
    * @return Eigen::ArrayXd derivative coefficients.
    */
   Eigen::ArrayXd derivative(const Eigen::ArrayXd &coeffs, int order = 1) const {
+    return derivative(*m_basis.get(), coeffs, order);
+  }
+
+  /**
+   * @brief Dertermines a matrix A to transform the spline coefficients c to
+   * derivative coefficients dc.
+   *
+   * dc = A * c
+   *
+   * @param order derivative order.
+   * @return Eigen::MatrixXd transformation matrix.
+   */
+  Eigen::MatrixXd derivative(int order = 1) const {
+    return derivative(*m_basis.get(), order);
+  };
+
+  Eigen::ArrayXXd integral(int order = 1) const;
+
+  std::pair<Eigen::ArrayXXd, Eigen::ArrayXXd> sum(const Basis &basis) const;
+
+  Eigen::ArrayXXd product(const Basis &basis);
+
   /**
    * @brief Transforms the given spline coefficients to derivative coefficients.
    *
