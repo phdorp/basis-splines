@@ -27,38 +27,52 @@ public:
    * @return Eigen::ArrayXd derivative coefficients.
    */
   Eigen::ArrayXd derivative(const Eigen::ArrayXd &coeffs, int order = 1) const {
+  /**
+   * @brief Transforms the given spline coefficients to derivative coefficients.
+   *
+   * Performs less calculations than the transformation matrix.
+   *
+   * @param basis basis spline.
+   * @param coeffs coefficients to transform.
+   * @param order derivative order.
+   * @return Eigen::ArrayXd derivative coefficients.
+   */
+  static Eigen::ArrayXd
+  derivative(const Basis &basis, const Eigen::ArrayXd &coeffs, int order = 1) {
     // coefficients of derivative spline coeffs = o * (c_i+1 - c_i) / (k_i+o -
     // k_i+1)
-    Eigen::ArrayXd coeffsRes(m_basis->dim() - 1);
+    Eigen::ArrayXd coeffsRes(basis.dim() - 1);
     for (int idx{}; idx < coeffsRes.size(); ++idx)
-      coeffsRes(idx) = (m_basis->order() - 1) *
-                       (coeffs(idx + 1) - coeffs(idx)) /
-                       (m_basis->knots()(idx + m_basis->order()) -
-                        m_basis->knots()(idx + 1));
+      coeffsRes(idx) =
+          (basis.order() - 1) * (coeffs(idx + 1) - coeffs(idx)) /
+          (basis.knots()(idx + basis.order()) - basis.knots()(idx + 1));
 
     // base case order 1 derivative
     if (order == 1)
       return coeffsRes;
 
     // recursion higher order derivative
-    return Transform{std::make_shared<Basis>(m_basis->derivative(order - 1))}
-        .derivative(coeffsRes, order - 1);
+    return derivative(basis.derivative(), coeffsRes, order - 1);
   }
 
   /**
-   * @brief Dertermines a matrix A to transform the spline coefficients c to derivative coefficients dc.
+   * @brief Dertermines a matrix A to transform the spline coefficients c to
+   * derivative coefficients dc.
    *
    * dc = A * c
    *
+   * @param basis basis spline.
    * @param order derivative order.
-   * @return Eigen::MatrixXd transformation matrix.
+   * @return Eigen::ArrayXd derivative coefficients.
    */
-  Eigen::MatrixXd derivative(int order = 1) const {
+  static Eigen::MatrixXd derivative(const Basis &basis, int order = 1) {
     // determine transformation matrix
-    Eigen::MatrixXd transform(Eigen::MatrixXd::Zero(m_basis->dim() - 1, m_basis->dim()));
+    Eigen::MatrixXd transform(
+        Eigen::MatrixXd::Zero(basis.dim() - 1, basis.dim()));
     for (int cRow{}; cRow < transform.rows(); ++cRow) {
-      transform(cRow, cRow) = (m_basis->order() - 1) / (m_basis->knots()(cRow + 1) -
-                                     m_basis->knots()(m_basis->order() + cRow));
+      transform(cRow, cRow) =
+          (basis.order() - 1) /
+          (basis.knots()(cRow + 1) - basis.knots()(basis.order() + cRow));
       transform(cRow, cRow + 1) = -transform(cRow, cRow);
     }
 
@@ -67,16 +81,8 @@ public:
       return transform;
 
     // recursion higher order derivative
-    return Transform{std::make_shared<Basis>(m_basis->derivative())}
-               .derivative(order - 1) *
-           transform;
-  };
-
-  Eigen::ArrayXXd integral(int order = 1) const;
-
-  std::pair<Eigen::ArrayXXd, Eigen::ArrayXXd> sum(const Basis &basis) const;
-
-  Eigen::ArrayXXd product(const Basis &basis);
+    return derivative(basis.derivative(), order - 1) * transform;
+  }
 
 private:
   std::shared_ptr<Basis> m_basis{};
