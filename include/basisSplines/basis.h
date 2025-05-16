@@ -212,11 +212,10 @@ public:
   }
 
   /**
-   * @brief Determine basis derivative.
-   * Reduces order by 1.
+   * @brief Determine new basis with decreased order.
    *
-   * @param order derivative order.
-   * @return Basis derivative basis.
+   * @param order order to decrease.
+   * @return Basis basis with reduced order.
    */
   Basis orderDecrease(int order = 1) const {
     Basis basis{m_knots(Eigen::seqN(1, m_knots.size() - 2)), m_order - 1};
@@ -226,11 +225,10 @@ public:
   }
 
   /**
-   * @brief Determine basis derivative.
-   * Reduces order by 1.
+   * @brief Determine new basis with increased order.
    *
-   * @param order derivative order.
-   * @return Basis derivative basis.
+   * @param order order to increase.
+   * @return Basis basis with increased order.
    */
   Basis orderIncrease(int order = 1) const {
     Eigen::ArrayXd knots(m_knots.size() + 2);
