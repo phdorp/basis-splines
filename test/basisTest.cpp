@@ -132,7 +132,8 @@ TEST_F(BasisTest, CombineO3O2) {
 TEST_F(BasisTest, ToKnotsO3) {
   const auto [bps, conts] = m_basisO3->breakpoints();
 
-  const Eigen::ArrayXd valuesEst{Basis::toKnots(bps, conts, m_basisO3->order())};
+  const Eigen::ArrayXd valuesEst{
+      Basis::toKnots(bps, conts, m_basisO3->order())};
   const Eigen::ArrayXd valuesGtr{m_knotsO3};
 
   expectAllClose(valuesEst, valuesGtr, 1e-10);
@@ -181,6 +182,56 @@ TEST_F(BasisTest, DderivMatO3) {
 
   // ground truth basis
   Basis basisGtr{*m_basisO3Dder.get()};
+
+  // test if knots are almost equal
+  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
+  // test if order is equal
+  EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
+/**
+ * @brief Test generation of integral transformation matrix.
+ *
+ */
+TEST_F(BasisTest, IntMatO3) {
+  // ground truth from spline fit to integral
+  const Eigen::ArrayXd valuesGtr{m_splineO3Int.coefficients()};
+
+  // get estimate from result spline
+  Basis basisEst{};
+  const Eigen::ArrayXd valuesEst{m_basisO3->integral(basisEst, 1) *
+                                 m_splineO3.coefficients().matrix()};
+
+  // test if coefficients are almost equal
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+
+  // ground truth basis
+  Basis basisGtr{*m_basisO3Int.get()};
+
+  // test if knots are almost equal
+  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
+  // test if order is equal
+  EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
+/**
+ * @brief Test generation of second integral transformation matrix.
+ *
+ */
+TEST_F(BasisTest, IintMatO3) {
+  // ground truth from spline fit to integral
+  const Eigen::ArrayXd valuesGtr{m_splineO3Iint.coefficients()};
+
+  // get estimate from result spline
+  Basis basisEst{};
+  const Eigen::ArrayXd valuesEst{m_basisO3->integral(basisEst, 2) *
+                                 m_splineO3.coefficients().matrix()};
+
+  // test if coefficients are almost equal
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+
+  // ground truth basis
+  Basis basisGtr{*m_basisO3Iint.get()};
 
   // test if knots are almost equal
   expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
