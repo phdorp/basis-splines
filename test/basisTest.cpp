@@ -137,6 +137,57 @@ TEST_F(BasisTest, ToKnotsO3) {
 
   expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
+
+/**
+ * @brief Test generation of derivative transformation matrix.
+ *
+ */
+TEST_F(BasisTest, DerivMatO3) {
+  // ground truth from spline fit to derivative
+  const Eigen::ArrayXd valuesGtr{m_splineO3Der.coefficients()};
+
+  // get estimate from result spline
+  Basis basisEst{};
+  const Eigen::ArrayXd valuesEst{m_basisO3->derivative(basisEst, 1) *
+                                 m_splineO3.coefficients().matrix()};
+
+  // test if coefficients are almost equal
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+
+  // ground truth basis
+  Basis basisGtr{*m_basisO3Der.get()};
+
+  // test if knots are almost equal
+  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
+  // test if order is equal
+  EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
+/**
+ * @brief Test generation of second derivative transformation matrix.
+ *
+ */
+TEST_F(BasisTest, DderivMatO3) {
+  // ground truth from spline fit to derivative
+  const Eigen::ArrayXd valuesGtr{m_splineO3Dder.coefficients()};
+
+  // get estimate from result spline
+  Basis basisEst{};
+  const Eigen::ArrayXd valuesEst{m_basisO3->derivative(basisEst, 2) *
+                                 m_splineO3.coefficients().matrix()};
+
+  // test if coefficients are almost equal
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+
+  // ground truth basis
+  Basis basisGtr{*m_basisO3Dder.get()};
+
+  // test if knots are almost equal
+  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
+  // test if order is equal
+  EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
 }; // namespace Internal
 }; // namespace BasisSplines
 
