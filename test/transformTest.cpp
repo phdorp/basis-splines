@@ -68,6 +68,24 @@ protected:
   Spline m_splineO3Dder{
       m_basisO3Dder, m_interpolateO3Dder.fit(
                          &polyO3Dder)}; /** order 3 second derivative spline */
+
+  // create order 3 integral spline
+  std::shared_ptr<Basis> m_basisO3Int{std::make_shared<Basis>(
+      m_basisO3->integral())}; /**<< order 3 integral basis */
+  const Interpolate m_interpolateO3Int{
+      m_basisO3Int}; /**<< order 3 integral interpolation */
+  Spline m_splineO3Int{
+      m_basisO3Int,
+      m_interpolateO3Int.fit(&polyO3Int)}; /** order 3 integral spline */
+
+  // create order 3 second integral spline
+  std::shared_ptr<Basis> m_basisO3Iint{std::make_shared<Basis>(
+      m_basisO3Int->integral())}; /**<< order 3 integral basis */
+  const Interpolate m_interpolateO3Iint{
+      m_basisO3Iint}; /**<< order 3 integral interpolation */
+  Spline m_splineO3Iint{
+      m_basisO3Iint,
+      m_interpolateO3Iint.fit(&polyO3Iint)}; /** order 3 integral spline */
 };
 
 /**
@@ -126,6 +144,66 @@ TEST_F(TransformTest, DderivCoeffO3) {
   // get estimate from result spline
   const Eigen::ArrayXd valuesEst{
       m_transformO3.derivative(m_splineO3.coefficients(), 2)};
+
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+}
+
+/**
+ * @brief Test generation of integral transformation matrix.
+ *
+ */
+TEST_F(TransformTest, IntMatO3) {
+  // ground truth from spline fit to integral
+  const Eigen::ArrayXd valuesGtr{m_splineO3Int.coefficients()};
+
+  // get estimate from result spline
+  const Eigen::ArrayXd valuesEst{m_transformO3.integral() *
+                                 m_splineO3.coefficients().matrix()};
+
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+}
+
+/**
+ * @brief Test transformation of spline coefficient to integral.
+ *
+ */
+TEST_F(TransformTest, IntCoeffO3) {
+  // ground truth from spline fit to derivative
+  const Eigen::ArrayXd valuesGtr{m_splineO3Int.coefficients()};
+
+  // get estimate from result spline
+  const Eigen::ArrayXd valuesEst{
+      m_transformO3.integral(m_splineO3.coefficients())};
+
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+}
+
+/**
+ * @brief Test generation of second integral transformation matrix.
+ *
+ */
+TEST_F(TransformTest, IintMatO3) {
+  // ground truth from spline fit to integral
+  const Eigen::ArrayXd valuesGtr{m_splineO3Iint.coefficients()};
+
+  // get estimate from result spline
+  const Eigen::ArrayXd valuesEst{m_transformO3.integral(2) *
+                                 m_splineO3.coefficients().matrix()};
+
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+}
+
+/**
+ * @brief Test transformation of spline coefficient to second integral.
+ *
+ */
+TEST_F(TransformTest, IintCoeffO3) {
+  // ground truth from spline fit to derivative
+  const Eigen::ArrayXd valuesGtr{m_splineO3Iint.coefficients()};
+
+  // get estimate from result spline
+  const Eigen::ArrayXd valuesEst{
+      m_transformO3.integral(m_splineO3.coefficients(), 2)};
 
   expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
