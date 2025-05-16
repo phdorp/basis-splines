@@ -148,7 +148,13 @@ public:
    * @return Eigen::ArrayXd greville sites.
    */
   Eigen::ArrayXd greville() const {
+    // basis order 1 greville abs. coincide with knots
+    if (m_order == 1)
+      return m_knots;
+
+    // higher order basis knot averages
     Eigen::ArrayXd grevilleSites(dim());
+
     for (int cKnot{}; cKnot < dim(); ++cKnot) {
       auto begin{m_knots.begin() + cKnot + 1};
       auto end{begin + m_order - 1};
@@ -203,6 +209,36 @@ public:
     }
 
     return {knotsComb(Eigen::seqN(0, numKnotsComb)), order};
+  }
+
+  /**
+   * @brief Determine basis derivative.
+   * Reduces order by 1.
+   *
+   * @param order derivative order.
+   * @return Basis derivative basis.
+   */
+  Basis derivative(int order = 1) const {
+    Basis basis{m_knots(Eigen::seqN(1, m_knots.size() - 2)), m_order - 1};
+    if (order == 1)
+      return basis;
+    return basis.derivative(order - 1);
+  }
+
+  /**
+   * @brief Determine basis derivative.
+   * Reduces order by 1.
+   *
+   * @param order derivative order.
+   * @return Basis derivative basis.
+   */
+  Basis integral(int order = 1) const {
+    Eigen::ArrayXd knots(m_knots.size() + 2);
+    knots << m_knots(0), m_knots, *(m_knots.end());
+    Basis basis{knots, m_order + 1};
+    if (order == 1)
+      return basis;
+    return basis.integral(order - 1);
   }
 
   /**
