@@ -53,7 +53,7 @@ protected:
 
   // create order 3 derivative spline
   std::shared_ptr<Basis> m_basisO3Der{std::make_shared<Basis>(
-      m_basisO3->derivative())}; /**<< order 3 derivative basis */
+      m_basisO3->orderDecrease())}; /**<< order 3 derivative basis */
   const Interpolate m_interpolateO3Der{
       m_basisO3Der}; /**<< order 3 derivative interpolation */
   Spline m_splineO3Der{
@@ -62,7 +62,7 @@ protected:
 
   // create order 3 second derivative spline
   std::shared_ptr<Basis> m_basisO3Dder{std::make_shared<Basis>(
-      m_basisO3Der->derivative())}; /**<< order 3 second derivative basis */
+      m_basisO3Der->orderDecrease())}; /**<< order 3 second derivative basis */
   const Interpolate m_interpolateO3Dder{
       m_basisO3Dder}; /**<< order 3 second derivative interpolation */
   Spline m_splineO3Dder{

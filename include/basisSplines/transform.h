@@ -96,7 +96,7 @@ public:
       return coeffsRes;
 
     // recursion higher order derivative
-    return derivative(basis.derivative(), coeffsRes, order - 1);
+    return derivative(basis.orderDecrease(), coeffsRes, order - 1);
   }
 
   /**
@@ -125,7 +125,7 @@ public:
       return transform;
 
     // recursion higher order derivative
-    return derivative(basis.derivative(), order - 1) * transform;
+    return derivative(basis.orderDecrease(), order - 1) * transform;
   }
 
   /**

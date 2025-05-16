@@ -70,7 +70,7 @@ public:
   Spline derivative(int order = 1) const {
     // basis for derivative spline of order - 1
     std::shared_ptr<Basis> basis{
-        std::make_shared<Basis>(m_basis->derivative())};
+        std::make_shared<Basis>(m_basis->orderDecrease())};
 
     // coefficients of derivative spline coeffs = o * (c_i+1 - c_i) / (k_i+o -
     // k_i+1)

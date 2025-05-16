@@ -218,11 +218,11 @@ public:
    * @param order derivative order.
    * @return Basis derivative basis.
    */
-  Basis derivative(int order = 1) const {
+  Basis orderDecrease(int order = 1) const {
     Basis basis{m_knots(Eigen::seqN(1, m_knots.size() - 2)), m_order - 1};
     if (order == 1)
       return basis;
-    return basis.derivative(order - 1);
+    return basis.orderDecrease(order - 1);
   }
 
   /**
