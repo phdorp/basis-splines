@@ -71,7 +71,7 @@ protected:
 
   // create order 3 integral spline
   std::shared_ptr<Basis> m_basisO3Int{std::make_shared<Basis>(
-      m_basisO3->integral())}; /**<< order 3 integral basis */
+      m_basisO3->orderIncrease())}; /**<< order 3 integral basis */
   const Interpolate m_interpolateO3Int{
       m_basisO3Int}; /**<< order 3 integral interpolation */
   Spline m_splineO3Int{
@@ -80,7 +80,7 @@ protected:
 
   // create order 3 second integral spline
   std::shared_ptr<Basis> m_basisO3Iint{std::make_shared<Basis>(
-      m_basisO3Int->integral())}; /**<< order 3 integral basis */
+      m_basisO3Int->orderIncrease())}; /**<< order 3 integral basis */
   const Interpolate m_interpolateO3Iint{
       m_basisO3Iint}; /**<< order 3 integral interpolation */
   Spline m_splineO3Iint{

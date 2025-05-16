@@ -153,7 +153,7 @@ public:
       return coeffsRes;
 
     // recursion higher order derivative
-    return integral(basis.integral(), coeffsRes, order - 1);
+    return integral(basis.orderIncrease(), coeffsRes, order - 1);
   }
 
   /**
@@ -187,7 +187,7 @@ public:
       return transform;
 
     // recursion higher order integral
-    return integral(basis.integral(), order - 1) * transform;
+    return integral(basis.orderIncrease(), order - 1) * transform;
   }
 
 private:

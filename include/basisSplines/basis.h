@@ -232,13 +232,13 @@ public:
    * @param order derivative order.
    * @return Basis derivative basis.
    */
-  Basis integral(int order = 1) const {
+  Basis orderIncrease(int order = 1) const {
     Eigen::ArrayXd knots(m_knots.size() + 2);
     knots << m_knots(0), m_knots, *(m_knots.end());
     Basis basis{knots, m_order + 1};
     if (order == 1)
       return basis;
-    return basis.integral(order - 1);
+    return basis.orderIncrease(order - 1);
   }
 
   /**

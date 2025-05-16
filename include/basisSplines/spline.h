@@ -100,7 +100,7 @@ public:
   Spline integral(int order = 1) const {
     // basis for integral spline of order + 1
     std::shared_ptr<Basis> basis{
-      std::make_shared<Basis>(m_basis->integral())};
+      std::make_shared<Basis>(m_basis->orderIncrease())};
 
     // coefficients of derivative spline coeffs_i+1 = c_i * (k_i+o -
     // k_i) / o + coeffs_i
