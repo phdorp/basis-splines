@@ -270,6 +270,44 @@ public:
     // recursion higher order derivative
     return basisDeriv.derivative(basis, order - 1) * transform;
   };
+
+  /**
+   * @brief Dertermines a matrix A to transform the spline coefficients c to
+   * integral coefficients ic.
+   *
+   * ic = A * c
+   *
+   * @param basis basis spline.
+   * @param order integral order.
+   * @return Eigen::MatrixXd transformation matrix.
+   */
+  Eigen::MatrixXd integral(Basis &basis, int order = 1) const {
+
+    // initialize transformation matrix with zeros
+    Eigen::MatrixXd transform(Eigen::MatrixXd::Zero(dim() + 1, dim()));
+
+    // fill transformation matrix
+    int cCol{};
+    for (auto col : transform.colwise()) {
+      for (int cRow{cCol + 1}; cRow < transform.rows(); ++cRow) {
+        col(cRow) = (m_knots(m_order + cCol) - m_knots(cCol)) / m_order;
+      }
+      ++cCol;
+    }
+
+    // provide basis integral basis with increased order
+    Basis basisDeriv{orderIncrease()};
+
+    // base case order 1 integral
+    if (order == 1) {
+      basis = basisDeriv;
+      return transform;
+    }
+
+    // recursion higher order integral
+    return basisDeriv.integral(basis, order - 1) * transform;
+  }
+
   /**
    * @brief Convert breakpoints to knots.
    *
