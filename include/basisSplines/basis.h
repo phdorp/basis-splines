@@ -240,6 +240,37 @@ public:
   }
 
   /**
+   * @brief Dertermines a matrix A to transform the spline coefficients c to
+   * derivative coefficients dc.
+   *
+   * dc = A * c
+   *
+   * @param basis basis of reduced order.
+   * @param order derivative order.
+   * @return Eigen::MatrixXd transformation matrix.
+   */
+  Eigen::MatrixXd derivative(Basis &basis, int order = 1) const {
+    // determine transformation matrix
+    Eigen::MatrixXd transform(Eigen::MatrixXd::Zero(dim() - 1, dim()));
+    for (int cRow{}; cRow < transform.rows(); ++cRow) {
+      transform(cRow, cRow) =
+          (m_order - 1) / (m_knots(cRow + 1) - m_knots(m_order + cRow));
+      transform(cRow, cRow + 1) = -transform(cRow, cRow);
+    }
+
+    // provide basis derivative basis with decreased order
+    Basis basisDeriv{orderDecrease()};
+
+    // base case order 1 derivative
+    if (order == 1) {
+      basis = basisDeriv;
+      return transform;
+    }
+
+    // recursion higher order derivative
+    return basisDeriv.derivative(basis, order - 1) * transform;
+  };
+  /**
    * @brief Convert breakpoints to knots.
    *
    * @param bps breakpoints for conversion.
