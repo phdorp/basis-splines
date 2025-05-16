@@ -43,7 +43,29 @@ public:
     return derivative(*m_basis.get(), order);
   };
 
-  Eigen::ArrayXXd integral(int order = 1) const;
+  /**
+   * @brief Transforms the given spline coefficients to integral coefficients.
+   *
+   * @param coeffs coefficients to transform.
+   * @param order integral order.
+   * @return Eigen::ArrayXd integral coefficients.
+   */
+  Eigen::ArrayXd integral(const Eigen::ArrayXd &coeffs, int order = 1) const {
+    return integral(*m_basis.get(), coeffs, order);
+  }
+
+  /**
+   * @brief Dertermines a matrix A to transform the spline coefficients c to
+   * integral coefficients ic.
+   *
+   * ic = A * c
+   *
+   * @param order integral order.
+   * @return Eigen::MatrixXd transformation matrix.
+   */
+  Eigen::MatrixXd integral(int order = 1) const {
+    return integral(*m_basis.get(), order);
+  }
 
   std::pair<Eigen::ArrayXXd, Eigen::ArrayXXd> sum(const Basis &basis) const;
 
@@ -104,6 +126,68 @@ public:
 
     // recursion higher order derivative
     return derivative(basis.derivative(), order - 1) * transform;
+  }
+
+  /**
+   * @brief Transforms the given spline coefficients to integral coefficients.
+   *
+   * @param basis basis spline.
+   * @param coeffs coefficients to transform.
+   * @param order integral order.
+   * @return Eigen::ArrayXd integral coefficients.
+   */
+  static Eigen::ArrayXd integral(const Basis &basis,
+                                 const Eigen::ArrayXd &coeffs, int order = 1) {
+    // coefficients of derivative spline coeffs_i+1 = c_i * (k_i+o -
+    // k_i) / o + coeffs_i
+    Eigen::ArrayXd coeffsRes(basis.dim() + 1);
+    for (int idx{}; idx < coeffsRes.size() - 1; ++idx)
+      coeffsRes(idx + 1) =
+          coeffs(idx) *
+              (basis.knots()(idx + basis.order()) - basis.knots()(idx)) /
+              basis.order() +
+          coeffsRes(idx);
+
+    // base case order 1 derivative
+    if (order == 1)
+      return coeffsRes;
+
+    // recursion higher order derivative
+    return integral(basis.integral(), coeffsRes, order - 1);
+  }
+
+  /**
+   * @brief Dertermines a matrix A to transform the spline coefficients c to
+   * integral coefficients ic.
+   *
+   * ic = A * c
+   *
+   * @param basis basis spline.
+   * @param order integral order.
+   * @return Eigen::MatrixXd transformation matrix.
+   */
+  static Eigen::MatrixXd integral(const Basis &basis, int order = 1) {
+    // initialize transformation matrix with zeros
+    Eigen::MatrixXd transform(
+        Eigen::MatrixXd::Zero(basis.dim() + 1, basis.dim()));
+
+    // fill transformation matrix
+    int cCol{};
+    for (auto col : transform.colwise()) {
+      for (int cRow{cCol + 1}; cRow < transform.rows(); ++cRow) {
+        col(cRow) =
+            (basis.knots()(basis.order() + cCol) - basis.knots()(cCol)) /
+            basis.order();
+      }
+      ++cCol;
+    }
+
+    // base case order 1 integral
+    if (order == 1)
+      return transform;
+
+    // recursion higher order integral
+    return integral(basis.integral(), order - 1) * transform;
   }
 
 private:
