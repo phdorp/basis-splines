@@ -2,6 +2,7 @@
 #define BASIS_H
 
 #include <Eigen/Core>
+#include <Eigen/Dense>
 #include <numeric>
 
 namespace BasisSplines {
@@ -306,6 +307,31 @@ public:
 
     // recursion higher order integral
     return basisDeriv.integral(basis, order - 1) * transform;
+  }
+
+  /**
+   * @brief Determine transformation matrices Tl and Tr for left and right
+   * operand coefficients cl and cr to get sum coefficients cs.
+   *
+   * cs = Tl * cl + Tr * cr
+   *
+   * @param basis right operand basis.
+   * @param basisOut sum basis.
+   * @return std::pair<Eigen::MatrixXd, Eigen::MatrixXd> transformation matrices
+   * Tl and Tr.
+   */
+  std::pair<Eigen::MatrixXd, Eigen::MatrixXd> add(const Basis &basis,
+                                                  Basis &basisOut) const {
+    basisOut = combine(basis, std::max(m_order, basis.order()));
+    Eigen::ColPivHouseholderQR<Eigen::MatrixXd> solver{
+        basisOut(basisOut.greville()).matrix()};
+
+    Eigen::MatrixXd transformThis{
+        solver.solve((*this)(basisOut.greville()).matrix())};
+    Eigen::MatrixXd transformOther{
+        solver.solve(basis(basisOut.greville()).matrix())};
+
+    return {transformThis, transformOther};
   }
 
   /**
