@@ -148,7 +148,13 @@ public:
    * @return Eigen::ArrayXd greville sites.
    */
   Eigen::ArrayXd greville() const {
+    // basis order 1 greville abs. coincide with knots
+    if (m_order == 1)
+      return m_knots;
+
+    // higher order basis knot averages
     Eigen::ArrayXd grevilleSites(dim());
+
     for (int cKnot{}; cKnot < dim(); ++cKnot) {
       auto begin{m_knots.begin() + cKnot + 1};
       auto end{begin + m_order - 1};
@@ -203,6 +209,103 @@ public:
     }
 
     return {knotsComb(Eigen::seqN(0, numKnotsComb)), order};
+  }
+
+  /**
+   * @brief Determine new basis with decreased order.
+   *
+   * @param order order to decrease.
+   * @return Basis basis with reduced order.
+   */
+  Basis orderDecrease(int order = 1) const {
+    Basis basis{m_knots(Eigen::seqN(1, m_knots.size() - 2)), m_order - 1};
+    if (order == 1)
+      return basis;
+    return basis.orderDecrease(order - 1);
+  }
+
+  /**
+   * @brief Determine new basis with increased order.
+   *
+   * @param order order to increase.
+   * @return Basis basis with increased order.
+   */
+  Basis orderIncrease(int order = 1) const {
+    Eigen::ArrayXd knots(m_knots.size() + 2);
+    knots << m_knots(0), m_knots, *(m_knots.end());
+    Basis basis{knots, m_order + 1};
+    if (order == 1)
+      return basis;
+    return basis.orderIncrease(order - 1);
+  }
+
+  /**
+   * @brief Dertermines a matrix A to transform the spline coefficients c to
+   * derivative coefficients dc.
+   *
+   * dc = A * c
+   *
+   * @param basis basis of reduced order.
+   * @param order derivative order.
+   * @return Eigen::MatrixXd transformation matrix.
+   */
+  Eigen::MatrixXd derivative(Basis &basis, int order = 1) const {
+    // determine transformation matrix
+    Eigen::MatrixXd transform(Eigen::MatrixXd::Zero(dim() - 1, dim()));
+    for (int cRow{}; cRow < transform.rows(); ++cRow) {
+      transform(cRow, cRow) =
+          (m_order - 1) / (m_knots(cRow + 1) - m_knots(m_order + cRow));
+      transform(cRow, cRow + 1) = -transform(cRow, cRow);
+    }
+
+    // provide basis derivative basis with decreased order
+    Basis basisDeriv{orderDecrease()};
+
+    // base case order 1 derivative
+    if (order == 1) {
+      basis = basisDeriv;
+      return transform;
+    }
+
+    // recursion higher order derivative
+    return basisDeriv.derivative(basis, order - 1) * transform;
+  };
+
+  /**
+   * @brief Dertermines a matrix A to transform the spline coefficients c to
+   * integral coefficients ic.
+   *
+   * ic = A * c
+   *
+   * @param basis basis spline.
+   * @param order integral order.
+   * @return Eigen::MatrixXd transformation matrix.
+   */
+  Eigen::MatrixXd integral(Basis &basis, int order = 1) const {
+
+    // initialize transformation matrix with zeros
+    Eigen::MatrixXd transform(Eigen::MatrixXd::Zero(dim() + 1, dim()));
+
+    // fill transformation matrix
+    int cCol{};
+    for (auto col : transform.colwise()) {
+      for (int cRow{cCol + 1}; cRow < transform.rows(); ++cRow) {
+        col(cRow) = (m_knots(m_order + cCol) - m_knots(cCol)) / m_order;
+      }
+      ++cCol;
+    }
+
+    // provide basis integral basis with increased order
+    Basis basisDeriv{orderIncrease()};
+
+    // base case order 1 integral
+    if (order == 1) {
+      basis = basisDeriv;
+      return transform;
+    }
+
+    // recursion higher order integral
+    return basisDeriv.integral(basis, order - 1) * transform;
   }
 
   /**

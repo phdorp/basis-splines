@@ -1,14 +1,17 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
+#include <iostream>
 
 #include "basisSplines/basis.h"
 #include "basisSplines/interpolate.h"
 #include "basisSplines/spline.h"
+#include "basisSplines/transform.h"
 #include "testBase.h"
 
 namespace BasisSplines {
 namespace Internal {
-class BasisTest : public TestBase {
+class TransformTest : public TestBase {
+
 protected:
   static Eigen::ArrayXd polyO3(const Eigen::ArrayXd &points) {
     return Eigen::ArrayXd{points.pow(2)};
@@ -30,15 +33,19 @@ protected:
     return Eigen::ArrayXd{points.pow(4) / 12};
   }
 
+  void SetUp() {}
+
   // create basis of order 3
   const Eigen::ArrayXd m_knotsO3{
       {0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0}}; /**<< knots of order 3 basis */
   std::shared_ptr<Basis> m_basisO3{
       std::make_shared<Basis>(m_knotsO3, 3)}; /**<< order 3 basis */
 
-  // create order 3 interatpolation
+  // create order 3 interatpolation and transformation
   const Interpolate m_interpolateO3{
       m_basisO3}; /**<< interpolation for order 3 basis */
+  const Transform m_transformO3{
+      m_basisO3}; /**<< transfomration of order 3 spline coefficients */
 
   // create order 3 spline interpolating order 3 polynomial
   const Spline m_splineO3{
@@ -82,167 +89,130 @@ protected:
 };
 
 /**
- * @brief Test the determintation of greville sites for basis functions of
- * order 3.
- *
- */
-TEST_F(BasisTest, GrevilleO3) {
-  const Eigen::ArrayXd valuesEst{m_basisO3->greville()};
-  const Eigen::ArrayXd valuesGtr{{0.0, 0.25, 0.75, 1.0}};
-
-  expectAllClose(valuesEst, valuesGtr, 1e-10);
-}
-
-/**
- * @brief Test the determination of breakpoints for basis functions of order 3.
- *
- */
-TEST_F(BasisTest, BreakpointsO3) {
-  const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesEst{
-      m_basisO3->breakpoints()};
-  const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesGtr{{{0.0, 0.5, 1.0}},
-                                                            {{0, 2, 0}}};
-
-  expectAllClose(valuesEst.first, valuesGtr.first, 1e-10);
-  expectAllClose(valuesEst.second, valuesGtr.second, 1e-10);
-}
-
-/**
- * @brief Combine a basis of order 3 with a basis of order 2.
- *
- */
-TEST_F(BasisTest, CombineO3O2) {
-  const Eigen::ArrayXd knotsO2{{0.0, 0.0, 0.2, 0.5, 0.6, 1.0, 1.0}};
-  const Basis basisO2{knotsO2, 2};
-
-  const Basis estimate{m_basisO3->combine(basisO2, m_basisO3->order())};
-
-  const Basis groundTruth{
-      {{0.0, 0.0, 0.0, 0.2, 0.2, 0.5, 0.5, 0.6, 0.6, 1.0, 1.0, 1.0}},
-      m_basisO3->order()};
-
-  expectAllClose(estimate.knots(), groundTruth.knots(), 1e-6);
-  EXPECT_EQ(estimate.order(), groundTruth.order());
-}
-
-/**
- * @brief Test conversion from breakpoints to knots for spline of order 3.
- *
- */
-TEST_F(BasisTest, ToKnotsO3) {
-  const auto [bps, conts] = m_basisO3->breakpoints();
-
-  const Eigen::ArrayXd valuesEst{
-      Basis::toKnots(bps, conts, m_basisO3->order())};
-  const Eigen::ArrayXd valuesGtr{m_knotsO3};
-
-  expectAllClose(valuesEst, valuesGtr, 1e-10);
-}
-
-/**
  * @brief Test generation of derivative transformation matrix.
  *
  */
-TEST_F(BasisTest, DerivMatO3) {
+TEST_F(TransformTest, DerivMatO3) {
   // ground truth from spline fit to derivative
   const Eigen::ArrayXd valuesGtr{m_splineO3Der.coefficients()};
 
   // get estimate from result spline
-  Basis basisEst{};
-  const Eigen::ArrayXd valuesEst{m_basisO3->derivative(basisEst, 1) *
+  const Eigen::ArrayXd valuesEst{m_transformO3.derivative() *
                                  m_splineO3.coefficients().matrix()};
 
-  // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
+}
 
-  // ground truth basis
-  Basis basisGtr{*m_basisO3Der.get()};
+/**
+ * @brief Test transformation of spline coefficient to derivative.
+ *
+ */
+TEST_F(TransformTest, DerivCoeffO3) {
+  // ground truth from spline fit to derivative
+  const Eigen::ArrayXd valuesGtr{m_splineO3Der.coefficients()};
 
-  // test if knots are almost equal
-  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
-  // test if order is equal
-  EXPECT_EQ(basisGtr.order(), basisEst.order());
+  // get estimate from result spline
+  const Eigen::ArrayXd valuesEst{
+      m_transformO3.derivative(m_splineO3.coefficients())};
+
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
 
 /**
  * @brief Test generation of second derivative transformation matrix.
  *
  */
-TEST_F(BasisTest, DderivMatO3) {
+TEST_F(TransformTest, DderivMatO3) {
   // ground truth from spline fit to derivative
   const Eigen::ArrayXd valuesGtr{m_splineO3Dder.coefficients()};
 
   // get estimate from result spline
-  Basis basisEst{};
-  const Eigen::ArrayXd valuesEst{m_basisO3->derivative(basisEst, 2) *
+  const Eigen::ArrayXd valuesEst{m_transformO3.derivative(2) *
                                  m_splineO3.coefficients().matrix()};
 
-  // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
+}
 
-  // ground truth basis
-  Basis basisGtr{*m_basisO3Dder.get()};
+/**
+ * @brief Test transformation of spline coefficient to second derivative.
+ *
+ */
+TEST_F(TransformTest, DderivCoeffO3) {
+  // ground truth from spline fit to derivative
+  const Eigen::ArrayXd valuesGtr{m_splineO3Dder.coefficients()};
 
-  // test if knots are almost equal
-  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
-  // test if order is equal
-  EXPECT_EQ(basisGtr.order(), basisEst.order());
+  // get estimate from result spline
+  const Eigen::ArrayXd valuesEst{
+      m_transformO3.derivative(m_splineO3.coefficients(), 2)};
+
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
 
 /**
  * @brief Test generation of integral transformation matrix.
  *
  */
-TEST_F(BasisTest, IntMatO3) {
+TEST_F(TransformTest, IntMatO3) {
   // ground truth from spline fit to integral
   const Eigen::ArrayXd valuesGtr{m_splineO3Int.coefficients()};
 
   // get estimate from result spline
-  Basis basisEst{};
-  const Eigen::ArrayXd valuesEst{m_basisO3->integral(basisEst, 1) *
+  const Eigen::ArrayXd valuesEst{m_transformO3.integral() *
                                  m_splineO3.coefficients().matrix()};
 
-  // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
+}
 
-  // ground truth basis
-  Basis basisGtr{*m_basisO3Int.get()};
+/**
+ * @brief Test transformation of spline coefficient to integral.
+ *
+ */
+TEST_F(TransformTest, IntCoeffO3) {
+  // ground truth from spline fit to derivative
+  const Eigen::ArrayXd valuesGtr{m_splineO3Int.coefficients()};
 
-  // test if knots are almost equal
-  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
-  // test if order is equal
-  EXPECT_EQ(basisGtr.order(), basisEst.order());
+  // get estimate from result spline
+  const Eigen::ArrayXd valuesEst{
+      m_transformO3.integral(m_splineO3.coefficients())};
+
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
 
 /**
  * @brief Test generation of second integral transformation matrix.
  *
  */
-TEST_F(BasisTest, IintMatO3) {
+TEST_F(TransformTest, IintMatO3) {
   // ground truth from spline fit to integral
   const Eigen::ArrayXd valuesGtr{m_splineO3Iint.coefficients()};
 
   // get estimate from result spline
-  Basis basisEst{};
-  const Eigen::ArrayXd valuesEst{m_basisO3->integral(basisEst, 2) *
+  const Eigen::ArrayXd valuesEst{m_transformO3.integral(2) *
                                  m_splineO3.coefficients().matrix()};
 
-  // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
+}
 
-  // ground truth basis
-  Basis basisGtr{*m_basisO3Iint.get()};
+/**
+ * @brief Test transformation of spline coefficient to second integral.
+ *
+ */
+TEST_F(TransformTest, IintCoeffO3) {
+  // ground truth from spline fit to derivative
+  const Eigen::ArrayXd valuesGtr{m_splineO3Iint.coefficients()};
 
-  // test if knots are almost equal
-  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
-  // test if order is equal
-  EXPECT_EQ(basisGtr.order(), basisEst.order());
+  // get estimate from result spline
+  const Eigen::ArrayXd valuesEst{
+      m_transformO3.integral(m_splineO3.coefficients(), 2)};
+
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
 
 }; // namespace Internal
 }; // namespace BasisSplines
 
 int main(int argc, char **argv) {
+  std::srand(0);
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
