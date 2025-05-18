@@ -37,5 +37,32 @@ Eigen::MatrixXd khatriRao(const Eigen::MatrixXd &matL,
 
   return matRes;
 }
+
+/**
+ * @brief Determines the Kronecker product of two matrices "matL" and "matR".
+ *
+ * @param matL left operand matrix (nL x mL).
+ * @param matR right operand matrix (nL x mR).
+ * @return Eigen::MatrixXd result matrix (nL*nR x mL*mR).
+ */
+Eigen::MatrixXd kron(const Eigen::MatrixXd &matL, const Eigen::MatrixXd &matR) {
+  // initialize result matrix
+  Eigen::MatrixXd matRes(matL.rows() * matR.rows(), matL.cols() * matR.cols());
+
+  // fill result matrix row-wise
+  int cRow{};
+  for (const auto rowL : matL.rowwise()) {
+    // product of each matL row element with matR
+    int cCol{};
+    for (const double coeffL : rowL) {
+      matRes(Eigen::seqN(cRow, matR.rows()), Eigen::seqN(cCol, matR.cols())) =
+          coeffL * matR;
+      cCol += matR.cols();
+    }
+    cRow += matR.rows();
+  }
+
+  return matRes;
+}
 }; // namespace BasisSplines
 #endif
