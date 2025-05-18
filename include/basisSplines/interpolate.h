@@ -3,10 +3,10 @@
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
-#include <memory>
 #include <functional>
+#include <memory>
 
-#include "basisSplines/basis.h"
+#include "basisSplines/internal/basisBase.h"
 
 namespace BasisSplines {
 /**
@@ -21,7 +21,7 @@ public:
    *
    * @param basis spline basis.
    */
-  Interpolate(const std::shared_ptr<Basis> basis) : m_basis{basis} {};
+  Interpolate(const std::shared_ptr<BasisBase> basis) : m_basis{basis} {};
 
   /**
    * @brief Determine coefficients that fit a spline function at the given
@@ -31,26 +31,27 @@ public:
    * @param points evaluation points corresponding to the "observations".
    * @return Eigen::ArrayXd spline coefficients fitting the observations.
    */
-  Eigen::ArrayXd fit(const Eigen::ArrayXd &observations,
-                     const Eigen::ArrayXd &points) const {
+  Eigen::ArrayXXd fit(const Eigen::ArrayXd &observations,
+                      const Eigen::ArrayXd &points) const {
     Eigen::ColPivHouseholderQR<Eigen::MatrixXd> basis{
         m_basis->operator()(points).matrix()};
     return basis.solve(observations.matrix()).array();
   }
 
   /**
-   * @brief Determine coefficients that fit a spline function to the given process.
+   * @brief Determine coefficients that fit a spline function to the given
+   * process.
    *
    * @param process function representation of the process.
    * @return Eigen::ArrayXd spline coefficients fitting the process.
    */
-  Eigen::ArrayXd fit(std::function<Eigen::ArrayXd(Eigen::ArrayXd)> process)const {
+  Eigen::ArrayXXd
+  fit(std::function<Eigen::ArrayXXd(Eigen::ArrayXd)> process) const {
     return fit(process(m_basis->greville()), m_basis->greville());
   }
 
-
 private:
-  std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
+  std::shared_ptr<BasisBase> m_basis{}; /**<< spline basis */
 };
 }; // namespace BasisSplines
 #endif
