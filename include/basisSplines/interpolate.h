@@ -31,7 +31,7 @@ public:
    * @param points evaluation points corresponding to the "observations".
    * @return Eigen::ArrayXd spline coefficients fitting the observations.
    */
-  Eigen::ArrayXXd fit(const Eigen::ArrayXd &observations,
+  Eigen::ArrayXXd fit(const Eigen::ArrayXXd &observations,
                       const Eigen::ArrayXd &points) const {
     Eigen::ColPivHouseholderQR<Eigen::MatrixXd> basis{
         m_basis->operator()(points).matrix()};

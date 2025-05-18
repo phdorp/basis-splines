@@ -6,6 +6,7 @@
 #include <numeric>
 
 #include "basisSplines/internal/basisBase.h"
+#include "basisSplines/interpolate.h"
 
 namespace BasisSplines {
 /**
@@ -199,16 +200,24 @@ public:
    * @return std::pair<Eigen::MatrixXd, Eigen::MatrixXd> transformation matrices
    * Tl and Tr.
    */
+  template <typename Interp = Interpolate>
   std::pair<Eigen::MatrixXd, Eigen::MatrixXd> add(const Basis &basis,
                                                   Basis &basisOut) const {
+    // combine this and other basis to sum basis
     basisOut = combine(basis, std::max(order(), basis.order()));
-    Eigen::ColPivHouseholderQR<Eigen::MatrixXd> solver{
-        basisOut(basisOut.greville()).matrix()};
 
-    Eigen::MatrixXd transformThis{
-        solver.solve((*this)(basisOut.greville()).matrix())};
-    Eigen::MatrixXd transformOther{
-        solver.solve(basis(basisOut.greville()).matrix())};
+    // instantiate interpolate with sum basis
+    const Interp interp{std::make_shared<Basis>(basisOut)};
+    // determine transform for this basis by interpolating the sum basis
+    const Eigen::MatrixXd transformThis{interp.fit([&](Eigen::ArrayXd points) {
+      Eigen::ArrayXXd values{(*this)(points)};
+      return values;
+    })};
+    // determine transform for other basis by interpolating the sum basis
+    const Eigen::MatrixXd transformOther{interp.fit([&](Eigen::ArrayXd points) {
+      Eigen::ArrayXXd values{basis(points)};
+      return values;
+    })};
 
     return {transformThis, transformOther};
   }
