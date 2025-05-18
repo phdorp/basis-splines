@@ -7,6 +7,7 @@
 
 #include "basisSplines/internal/basisBase.h"
 #include "basisSplines/interpolate.h"
+#include "basisSplines/math.h"
 
 namespace BasisSplines {
 /**
@@ -220,6 +221,32 @@ public:
     })};
 
     return {transformThis, transformOther};
+  }
+
+  /**
+   * @brief Determine transformation matrixT for coefficients cl and cr to get
+   * product coefficients cs.
+   *
+   * cs = T (cl \kron cr)
+   *
+   * @param basis right operand basis.
+   * @param basisOut product basis.
+   * @return Eigen::MatrixXd transformation matrix T.
+   */
+  template <typename Interp = Interpolate>
+  Eigen::MatrixXd prod(const Basis &basis, Basis &basisOut) const {
+    // combine this and other basis to sum basis
+    basisOut = combine(basis, order() + basis.order());
+
+    // instantiate interpolate with sum basis
+    const Interp interp{std::make_shared<Basis>(basisOut)};
+    // determine transform for this basis by interpolating the sum basis
+    const Eigen::MatrixXd transformThis{interp.fit([&](Eigen::ArrayXd points) {
+      Eigen::ArrayXXd values{khatriRao((*this)(points), basis(points))};
+      return values;
+    })};
+
+    return transformThis;
   }
 };
 }; // namespace BasisSplines

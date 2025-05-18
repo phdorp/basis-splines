@@ -3,6 +3,7 @@
 
 #include "basisSplines/basis.h"
 #include "basisSplines/interpolate.h"
+#include "basisSplines/math.h"
 #include "basisSplines/spline.h"
 #include "testBase.h"
 
@@ -255,9 +256,9 @@ TEST_F(BasisTest, SumMatO3) {
   const Eigen::ArrayXd coeffsR{Eigen::ArrayXd::Random(basisR.dim())};
 
   // get gt from basis evaluations
-  const Eigen::ArrayXd valuesGtr{
-      (*m_basisO3)(m_points).matrix() * coeffsL.matrix() +
-      basisR(m_points).matrix() * coeffsR.matrix()};
+  const Eigen::ArrayXd valuesGtr{(*m_basisO3)(m_points).matrix() *
+                                     coeffsL.matrix() +
+                                 basisR(m_points).matrix() * coeffsR.matrix()};
 
   // determine sum transformations
   Basis basisEst{};
@@ -266,13 +267,57 @@ TEST_F(BasisTest, SumMatO3) {
   // get estimate by applying sum transformations
   const Eigen::ArrayXd coeffsAdd{transformL * coeffsL.matrix() +
                                  transformR * coeffsR.matrix()};
-  const Eigen::ArrayXd valuesEst{basisEst(m_points).matrix() * coeffsAdd.matrix()};
+  const Eigen::ArrayXd valuesEst{basisEst(m_points).matrix() *
+                                 coeffsAdd.matrix()};
 
   // test if evaluations are alomst equal
   expectAllClose(valuesGtr, valuesEst, 1e-10);
 
   // ground truth basis
-  const Basis basisGtr {m_basisO3->combine(basisR, std::max(m_basisO3->order(), basisR.order()))};
+  const Basis basisGtr{
+      m_basisO3->combine(basisR, std::max(m_basisO3->order(), basisR.order()))};
+
+  // test if knots are almost equal
+  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
+  // test if order is equal
+  EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
+/**
+ * @brief Test product two splines of order 3.
+ *
+ */
+TEST_F(BasisTest, ProdMatO3) {
+  // instatiate left operand spline of order 3
+  const Eigen::ArrayXd coeffsL{Eigen::ArrayXd::Random(m_basisO3->dim())};
+
+  // instantiate right operand spline of order 3
+  const Eigen::ArrayXd knotsR{{0.0, 0.0, 0.0, 0.25, 0.5, 0.8, 1.0, 1.0}};
+  const Basis basisR{knotsR, 3};
+  const Eigen::ArrayXd coeffsR{Eigen::ArrayXd::Random(basisR.dim())};
+
+  // get gt from basis evaluations
+  const Eigen::VectorXd valsL{(*m_basisO3)(m_points).matrix() *
+                              coeffsL.matrix()};
+  const Eigen::VectorXd valsR{basisR(m_points).matrix() * coeffsR.matrix()};
+  const Eigen::ArrayXd valuesGtr{valsL.array() * valsR.array()};
+
+  // determine product transformations
+  Basis basisEst{};
+  const Eigen::MatrixXd transform{m_basisO3->prod(basisR, basisEst)};
+
+  // get estimate by applying product transformations
+  const Eigen::ArrayXd coeffsProd{transform *
+                                  kron(coeffsL.matrix(), coeffsR.matrix())};
+  const Eigen::ArrayXd valuesEst{basisEst(m_points).matrix() *
+                                 coeffsProd.matrix()};
+
+  // test if evaluations are alomst equal
+  expectAllClose(valuesGtr, valuesEst, 1e-10);
+
+  // ground truth basis
+  const Basis basisGtr{
+      m_basisO3->combine(basisR, m_basisO3->order() + basisR.order())};
 
   // test if knots are almost equal
   expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
