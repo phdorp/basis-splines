@@ -82,14 +82,14 @@ public:
    * @return Eigen::ArrayXd values of truncated powers with "points.size()" rows
    * and "self->dim()" columns.
    */
-  Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points,
+  Eigen::MatrixXd operator()(const Eigen::ArrayXd &points,
                              double accDenum = 1e-6,
                              double accDomain = 1e-6) const {
-    Eigen::ArrayXXd values{Eigen::ArrayXXd::Zero(points.size(), dim())};
+    Eigen::MatrixXd values{Eigen::MatrixXd::Zero(points.size(), dim())};
 
     int cPoint{};
     for (double point : points) {
-      std::vector<Eigen::ArrayXd> valuesTmp(m_order);
+      std::vector<Eigen::VectorXd> valuesTmp(m_order);
 
       valuesTmp[0].resize(m_knots.size() - 1);
       for (int cKnot{}; cKnot < m_knots.size() - 1; ++cKnot) {
