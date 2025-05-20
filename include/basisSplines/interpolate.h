@@ -21,21 +21,23 @@ public:
    *
    * @param basis spline basis.
    */
-  Interpolate(const std::shared_ptr<BasisBase> basis) : m_basis{basis} {};
+  Interpolate(const std::shared_ptr<const BasisBase> basis) : m_basis{basis} {};
 
   /**
    * @brief Determine coefficients that fit a spline function at the given
    * "points" to the given "observations".
    *
+   * @tparam DecompositionType type of Eigen matrix decomposition
+   * https://eigen.tuxfamily.org/dox/group__DenseDecompositionBenchmark.html
    * @param observations values to fit the spline function.
    * @param points evaluation points corresponding to the "observations".
    * @return Eigen::MatrixXd spline coefficients fitting the observations.
    */
+  template <
+      typename DecompositionType = Eigen::ColPivHouseholderQR<Eigen::MatrixXd>>
   Eigen::MatrixXd fit(const Eigen::MatrixXd &observations,
                       const Eigen::VectorXd &points) const {
-    Eigen::ColPivHouseholderQR<Eigen::MatrixXd> basis{
-        m_basis->operator()(points)};
-    return basis.solve(observations);
+    return DecompositionType{m_basis->operator()(points)}.solve(observations);
   }
 
   /**
@@ -51,7 +53,7 @@ public:
   }
 
 private:
-  std::shared_ptr<BasisBase> m_basis{}; /**<< spline basis */
+  std::shared_ptr<const BasisBase> m_basis{}; /**<< spline basis */
 };
 }; // namespace BasisSplines
 #endif
