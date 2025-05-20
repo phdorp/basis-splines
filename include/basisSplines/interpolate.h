@@ -29,10 +29,10 @@ public:
    *
    * @param observations values to fit the spline function.
    * @param points evaluation points corresponding to the "observations".
-   * @return Eigen::ArrayXd spline coefficients fitting the observations.
+   * @return Eigen::VectorXd spline coefficients fitting the observations.
    */
-  Eigen::ArrayXXd fit(const Eigen::ArrayXXd &observations,
-                      const Eigen::ArrayXd &points) const {
+  Eigen::MatrixXd fit(const Eigen::MatrixXd &observations,
+                      const Eigen::VectorXd &points) const {
     Eigen::ColPivHouseholderQR<Eigen::MatrixXd> basis{
         m_basis->operator()(points).matrix()};
     return basis.solve(observations.matrix()).array();
@@ -43,10 +43,10 @@ public:
    * process.
    *
    * @param process function representation of the process.
-   * @return Eigen::ArrayXd spline coefficients fitting the process.
+   * @return Eigen::VectorXd spline coefficients fitting the process.
    */
-  Eigen::ArrayXXd
-  fit(std::function<Eigen::ArrayXXd(Eigen::ArrayXd)> process) const {
+  Eigen::MatrixXd
+  fit(std::function<Eigen::MatrixXd(Eigen::VectorXd)> process) const {
     return fit(process(m_basis->greville()), m_basis->greville());
   }
 
