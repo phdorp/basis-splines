@@ -248,27 +248,24 @@ TEST_F(BasisTest, IintMatO3) {
  */
 TEST_F(BasisTest, SumMatO3) {
   // instatiate left operand spline of order 3
-  const Eigen::ArrayXd coeffsL{Eigen::ArrayXd::Random(m_basisO3->dim())};
+  const Eigen::VectorXd coeffsL{Eigen::VectorXd::Random(m_basisO3->dim())};
 
   // instantiate right operand spline of order 3
   const Eigen::ArrayXd knotsR{{0.0, 0.0, 0.0, 0.25, 0.5, 0.8, 1.0, 1.0}};
   const Basis basisR{knotsR, 3};
-  const Eigen::ArrayXd coeffsR{Eigen::ArrayXd::Random(basisR.dim())};
+  const Eigen::VectorXd coeffsR{Eigen::VectorXd::Random(basisR.dim())};
 
   // get gt from basis evaluations
-  const Eigen::ArrayXd valuesGtr{(*m_basisO3)(m_points).matrix() *
-                                     coeffsL.matrix() +
-                                 basisR(m_points).matrix() * coeffsR.matrix()};
+  const Eigen::ArrayXd valuesGtr{(*m_basisO3)(m_points)*coeffsL +
+                                 basisR(m_points) * coeffsR};
 
   // determine sum transformations
   Basis basisEst{};
   const auto [transformL, transformR] = m_basisO3->add(basisR, basisEst);
 
   // get estimate by applying sum transformations
-  const Eigen::ArrayXd coeffsAdd{transformL * coeffsL.matrix() +
-                                 transformR * coeffsR.matrix()};
-  const Eigen::ArrayXd valuesEst{basisEst(m_points).matrix() *
-                                 coeffsAdd.matrix()};
+  const Eigen::ArrayXd valuesEst{basisEst(m_points) *
+                                 (transformL * coeffsL + transformR * coeffsR)};
 
   // test if evaluations are alomst equal
   expectAllClose(valuesGtr, valuesEst, 1e-10);
@@ -289,18 +286,16 @@ TEST_F(BasisTest, SumMatO3) {
  */
 TEST_F(BasisTest, ProdMatO3) {
   // instatiate left operand spline of order 3
-  const Eigen::ArrayXd coeffsL{Eigen::ArrayXd::Random(m_basisO3->dim())};
+  const Eigen::VectorXd coeffsL{Eigen::VectorXd::Random(m_basisO3->dim())};
 
   // instantiate right operand spline of order 3
   const Eigen::ArrayXd knotsR{{0.0, 0.0, 0.0, 0.25, 0.5, 0.8, 1.0, 1.0}};
   const Basis basisR{knotsR, 3};
-  const Eigen::ArrayXd coeffsR{Eigen::ArrayXd::Random(basisR.dim())};
+  const Eigen::VectorXd coeffsR{Eigen::VectorXd::Random(basisR.dim())};
 
   // get gt from basis evaluations
-  const Eigen::VectorXd valsL{(*m_basisO3)(m_points).matrix() *
-                              coeffsL.matrix()};
-  const Eigen::VectorXd valsR{basisR(m_points).matrix() * coeffsR.matrix()};
-  const Eigen::ArrayXd valuesGtr{valsL.array() * valsR.array()};
+  const Eigen::ArrayXd valuesGtr{((*m_basisO3)(m_points)*coeffsL).array() *
+                                 (basisR(m_points) * coeffsR).array()};
 
   // determine product transformations
   Basis basisEst{};

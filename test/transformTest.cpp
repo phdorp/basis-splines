@@ -98,7 +98,7 @@ TEST_F(TransformTest, DerivMatO3) {
 
   // get estimate from result spline
   const Eigen::ArrayXd valuesEst{m_transformO3.derivative() *
-                                 m_splineO3.coefficients().matrix()};
+                                 m_splineO3.coefficients()};
 
   expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
@@ -128,7 +128,7 @@ TEST_F(TransformTest, DderivMatO3) {
 
   // get estimate from result spline
   const Eigen::ArrayXd valuesEst{m_transformO3.derivative(2) *
-                                 m_splineO3.coefficients().matrix()};
+                                 m_splineO3.coefficients()};
 
   expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
@@ -158,7 +158,7 @@ TEST_F(TransformTest, IntMatO3) {
 
   // get estimate from result spline
   const Eigen::ArrayXd valuesEst{m_transformO3.integral() *
-                                 m_splineO3.coefficients().matrix()};
+                                 m_splineO3.coefficients()};
 
   expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
@@ -188,7 +188,7 @@ TEST_F(TransformTest, IintMatO3) {
 
   // get estimate from result spline
   const Eigen::ArrayXd valuesEst{m_transformO3.integral(2) *
-                                 m_splineO3.coefficients().matrix()};
+                                 m_splineO3.coefficients()};
 
   expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
