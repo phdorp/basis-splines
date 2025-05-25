@@ -193,6 +193,14 @@ private:
       return point > knotL && point <= knotR + accuracy;
     return point > knotL && point <= knotR;
   }
+
+  static bool checkIncreasing(const Eigen::ArrayXd &sequence) {
+    for (auto elemPtr{sequence.begin() + 1}; elemPtr < sequence.end();
+         ++elemPtr)
+      if (*elemPtr - *(elemPtr - 1) < 0)
+        return false;
+    return true;
+  }
 };
 }; // namespace BasisSplines
 
