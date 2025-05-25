@@ -102,7 +102,7 @@ TEST_F(BasisTest, GrevilleO3) {
  */
 TEST_F(BasisTest, BreakpointsO3) {
   const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesEst{
-      m_basisO3->breakpoints()};
+      m_basisO3->getBreakpoints()};
   const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesGtr{{{0.0, 0.5, 1.0}},
                                                             {{0, 2, 0}}};
 
@@ -133,7 +133,7 @@ TEST_F(BasisTest, CombineO3O2) {
  *
  */
 TEST_F(BasisTest, ToKnotsO3) {
-  const auto [bps, conts] = m_basisO3->breakpoints();
+  const auto [bps, conts] = m_basisO3->getBreakpoints();
 
   const Eigen::ArrayXd valuesEst{
       Basis::toKnots(bps, conts, m_basisO3->order())};
@@ -318,6 +318,108 @@ TEST_F(BasisTest, ProdMatO3) {
   expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
   // test if order is equal
   EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
+/**
+ * @brief Test setting breakpoints successfully.
+ *
+ */
+TEST_F(BasisTest, SetBreakpointsPositive) {
+  // TEST: successful breakpoint setting
+  // determine ground truth: set first breakpoint to 0.1, second to 0.6
+  auto [breakpointsGtr, contsGtr] = m_basisO3->getBreakpoints();
+  const Eigen::ArrayXi breakpointIdcs{{0, 1}};
+  breakpointsGtr(breakpointIdcs) = Eigen::ArrayXd{{0.1, 0.6}};
+
+  // expect: setting valit breakpoints does not throw invalid argument error
+  EXPECT_NO_THROW(m_basisO3->setBreakpoints(breakpointsGtr(breakpointIdcs),
+                                            breakpointIdcs));
+  // determine estimate: get current breakpoints
+  auto [breakpointsEst, contsEst] = m_basisO3->getBreakpoints();
+
+  // expect: breakpoint estimates and ground truth almost equal
+  expectAllClose(breakpointsGtr, breakpointsEst, 1e-8);
+}
+
+/**
+ * @brief Test setting breakpoints resulting in a non-increasing order.
+ *
+ */
+TEST_F(BasisTest, SetBreakpointsNegativeNonIncreasing) {
+  // determine ground truth
+  auto [breakpointsGtr, contsGtr] = m_basisO3->getBreakpoints();
+
+  // expect: setting invalid breakpoints throws invalid arugment error
+  EXPECT_THROW(m_basisO3->setBreakpoints({{0.1, 0.0}}, {{0, 1}}),
+               std::invalid_argument);
+  // determine estimate: get current breakpoints
+  auto [breakpointsEst, contsEst] = m_basisO3->getBreakpoints();
+
+  // expect: setting invalid breakpionts does not change basis
+  expectAllClose(breakpointsGtr, breakpointsEst, 1e-8);
+}
+
+/**
+ * @brief Test setting continuities successfully.
+ *
+ */
+TEST_F(BasisTest, SetContinuitiesPositive) {
+  // Get current breakpoints and continuities
+  auto [breakpointsGtr, contsGtr] = m_basisO3->getBreakpoints();
+
+  // Set new valid continuities: e.g., set first and second to 1 (C1 continuity)
+  Eigen::ArrayXi continuityIdcs{{0, 1}};
+  Eigen::ArrayXi newContinuities{{1, 1}};
+  contsGtr(continuityIdcs) = newContinuities;
+
+  // Expect: setting valid continuities does not throw
+  EXPECT_NO_THROW(m_basisO3->setContinuities(newContinuities, continuityIdcs));
+
+  // Get updated continuities
+  auto [breakpointsEst, contsEst] = m_basisO3->getBreakpoints();
+
+  // Expect: updated continuities match ground truth
+  expectAllClose(contsGtr, contsEst, 1e-8);
+}
+
+/**
+ * @brief Test setting continuities with invalid (negative) values.
+ *
+ */
+TEST_F(BasisTest, SetContinuitiesNegativeInvalidValue) {
+  // Get current breakpoints and continuities
+  auto [breakpointsGtr, contsGtr] = m_basisO3->getBreakpoints();
+
+  // Try to set a negative continuity (invalid)
+  Eigen::ArrayXi continuityIdcs{{0}};
+  Eigen::ArrayXi invalidContinuities{{-1}};
+
+  // Expect: setting invalid continuity throws invalid_argument
+  EXPECT_THROW(m_basisO3->setContinuities(invalidContinuities, continuityIdcs), std::invalid_argument);
+
+  // Ensure basis is unchanged
+  auto [breakpointsEst, contsEst] = m_basisO3->getBreakpoints();
+  expectAllClose(contsGtr, contsEst, 1e-8);
+}
+
+/**
+ * @brief Test setting continuities with values exceeding order-1.
+ *
+ */
+TEST_F(BasisTest, SetContinuitiesNegativeTooHigh) {
+  // Get current breakpoints and continuities
+  auto [breakpointsGtr, contsGtr] = m_basisO3->getBreakpoints();
+
+  // Try to set a continuity higher than order-1 (for order 3, max is 2)
+  Eigen::ArrayXi continuityIdcs{{1}};
+  Eigen::ArrayXi invalidContinuities{{5}};
+
+  // Expect: setting invalid continuity throws invalid_argument
+  EXPECT_THROW(m_basisO3->setContinuities(invalidContinuities, continuityIdcs), std::invalid_argument);
+
+  // Ensure basis is unchanged
+  auto [breakpointsEst, contsEst] = m_basisO3->getBreakpoints();
+  expectAllClose(contsGtr, contsEst, 1e-8);
 }
 
 }; // namespace Internal

@@ -53,8 +53,8 @@ public:
    * @return Eigen::ArrayXd knots as the combination of both bases.
    */
   Basis combine(const Basis &basis, int order, double accuracy = 1e-6) const {
-    Eigen::ArrayXd knotsThis{toKnots(breakpoints(), order)};
-    Eigen::ArrayXd knotsOther{toKnots(basis.breakpoints(), order)};
+    Eigen::ArrayXd knotsThis{toKnots(getBreakpoints(), order)};
+    Eigen::ArrayXd knotsOther{toKnots(basis.getBreakpoints(), order)};
 
     // create combined knots worst case length
     Eigen::ArrayXd knotsComb(knotsThis.size() + knotsOther.size());
