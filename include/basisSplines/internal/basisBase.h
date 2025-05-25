@@ -47,6 +47,24 @@ public:
    * @return const Eigen::ArrayXd& basis knots.
    */
   const Eigen::ArrayXd &knots() const { return m_knots; }
+  /**
+   * @brief Set breakpoints at given breakpoint indices.
+   *
+   * @param breakpointsNew new breakpoints.
+   * @param idcs breakpoint indices to set.
+   */
+  void setBreakpoints(const Eigen::ArrayXd &breakpointsNew,
+                      const Eigen::ArrayXi &idcs) {
+    auto [breakpoints, conts] = getBreakpoints();
+
+    breakpoints(idcs) = breakpointsNew;
+
+    if (!checkIncreasing(breakpoints))
+      throw std::invalid_argument(
+          "Breakpoints not aranged in strictly increasing order.");
+
+    m_knots = toKnots({breakpoints, conts}, m_order);
+  }
 
   /**
    * @brief Determine basis breakpoints and continuities at breakpoints.
