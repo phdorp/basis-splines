@@ -102,7 +102,7 @@ TEST_F(BasisTest, GrevilleO3) {
  */
 TEST_F(BasisTest, BreakpointsO3) {
   const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesEst{
-      m_basisO3->breakpoints()};
+      m_basisO3->getBreakpoints()};
   const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesGtr{{{0.0, 0.5, 1.0}},
                                                             {{0, 2, 0}}};
 
@@ -133,7 +133,7 @@ TEST_F(BasisTest, CombineO3O2) {
  *
  */
 TEST_F(BasisTest, ToKnotsO3) {
-  const auto [bps, conts] = m_basisO3->breakpoints();
+  const auto [bps, conts] = m_basisO3->getBreakpoints();
 
   const Eigen::ArrayXd valuesEst{
       Basis::toKnots(bps, conts, m_basisO3->order())};

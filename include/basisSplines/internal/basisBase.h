@@ -55,22 +55,8 @@ public:
    * continuities.
    */
   std::pair<Eigen::ArrayXd, Eigen::ArrayXi>
-  breakpoints(double accuracy = 1e-6) const {
-    int idxBps{};
-    Eigen::ArrayXd breakpoints(m_knots.size());
-    breakpoints(0) = m_knots(0);
-    Eigen::ArrayXi continuities{Eigen::ArrayXi::Zero(m_knots.size()) + m_order};
-    --continuities(0);
-
-    auto curKnot{m_knots.begin() + 1};
-    for (; curKnot != m_knots.end(); ++curKnot) {
-      if (*curKnot > breakpoints(idxBps) + accuracy)
-        breakpoints(++idxBps) = *curKnot;
-      --continuities(idxBps);
-    }
-
-    return {breakpoints(Eigen::seqN(0, idxBps + 1)),
-            continuities(Eigen::seqN(0, idxBps + 1))};
+  getBreakpoints(double accuracy = 1e-6) const {
+    return toBreakpoints(m_knots, m_order, accuracy);
   }
 
   /**
@@ -173,6 +159,26 @@ public:
   static Eigen::ArrayXd
   toKnots(const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> &bps, int order) {
     return toKnots(bps.first, bps.second, order);
+  }
+
+  static std::pair<Eigen::ArrayXd, Eigen::ArrayXi>
+  toBreakpoints(const Eigen::ArrayXd &knots, int order,
+                double accuracy = 1e-6) {
+    int idxBps{};
+    Eigen::ArrayXd breakpoints(knots.size());
+    breakpoints(0) = knots(0);
+    Eigen::ArrayXi continuities{Eigen::ArrayXi::Zero(knots.size()) + order};
+    --continuities(0);
+
+    auto curKnot{knots.begin() + 1};
+    for (; curKnot != knots.end(); ++curKnot) {
+      if (*curKnot > breakpoints(idxBps) + accuracy)
+        breakpoints(++idxBps) = *curKnot;
+      --continuities(idxBps);
+    }
+
+    return {breakpoints(Eigen::seqN(0, idxBps + 1)),
+            continuities(Eigen::seqN(0, idxBps + 1))};
   }
 
 private:

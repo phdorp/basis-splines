@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
                 std::vector<double>{coeffs.begin(), coeffs.end()}, "-o");
 
   // plot breakpoints along spline
-  const auto [bps, conts] = basis->breakpoints();
+  const auto [bps, conts] = basis->getBreakpoints();
   const Eigen::ArrayXd splineValsBps{spline(bps)};
   matplot::scatter(
       std::vector<double>{bps.begin(), bps.end()},

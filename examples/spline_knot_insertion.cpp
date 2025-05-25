@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
                   "-o");
 
     // plot breakpoints along spline
-    const auto [bps, conts] = spline.basis()->breakpoints();
+    const auto [bps, conts] = spline.basis()->getBreakpoints();
     const Eigen::ArrayXd splineValsBps{spline(bps)};
     matplot::scatter(
         std::vector<double>{bps.begin(), bps.end()},
