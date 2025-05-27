@@ -1,46 +1,55 @@
 #include <Eigen/Core>
 #include <matplot/matplot.h>
+#include <string>
 
 #include "basisSplines/basis.h"
 #include "basisSplines/spline.h"
+#include "helper.h"
 
 namespace Bs = BasisSplines;
+namespace Mt = matplot;
 
 int main(int argc, char *argv[]) {
+
+  std::vector<Bs::Spline> splines(2);
+
   // basis of order 3 with 4 breakpoints
-  const Eigen::ArrayXd knots{{0.0, 0.0, 0.0, 0.4, 0.7, 0.7, 1.0, 1.0, 1.0}};
-  std::shared_ptr<Bs::Basis> basis{std::make_shared<Bs::Basis>(knots, 3)};
+  std::shared_ptr<Bs::Basis> basis{std::make_shared<Bs::Basis>(
+      Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.4, 0.7, 0.7, 1.0, 1.0, 1.0}}, 3)};
 
-  // spline definition
-  const Eigen::ArrayXd coeffs{{0.0, 0.5, 0.25, -0.3, -1.0, 0.75}};
-  const Bs::Spline spline{basis, coeffs};
+  // first spline definition
+  splines[0] =
+      Bs::Spline{basis, Eigen::ArrayXd{{0.0, 0.5, 0.25, -0.3, -1.0, 0.75}}};
 
-  // evaluate spline at points between -0.1 and 1.1
-  const Eigen::ArrayXd points{Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1)};
-  const Eigen::ArrayXd splineVals{spline(points)};
+  // second spline definition
+  splines[1] =
+      Bs::Spline{basis, Eigen::ArrayXd{{1.0, 0.5, 2, -3, -1.0, 0.75}}};
 
-  // plot spline at evaluation points
-  matplot::hold(true);
-  matplot::plot(std::vector<double>{points.begin(), points.end()},
-                std::vector<double>{splineVals.begin(), splineVals.end()});
+  // plot splines
+  int cSpline{};
+  for (const Bs::Spline &spline : splines) {
+    auto axesHandle{matplot::subplot(splines.size(), 2, cSpline)};
+    axesHandle->hold(true);
+    axesHandle->grid(true);
+    axesHandle->title(std::format("Spline {}", splines.size() % ++cSpline));
 
-  // plot coefficients at greville sites
-  const Eigen::ArrayXd greville{basis->greville()};
-  matplot::plot(std::vector<double>{greville.begin(), greville.end()},
-                std::vector<double>{coeffs.begin(), coeffs.end()}, "-o");
+    plotSpline(spline, Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle);
+  }
 
-  // plot breakpoints along spline
-  const auto [bps, conts] = basis->getBreakpoints();
-  const Eigen::ArrayXd splineValsBps{spline(bps)};
-  matplot::scatter(
-      std::vector<double>{bps.begin(), bps.end()},
-      std::vector<double>{splineValsBps.begin(), splineValsBps.end()})
-      ->marker_style(matplot::line_spec::marker_style::diamond)
-      .marker_color({0.0, 0.0, 1.0})
-      .marker_face_color({0.0, 0.0, 1.0});
+  // change breakpoint at 0 to 0.3 and breakpoint at 2 to 0.8
+  basis->setBreakpoints({{0.3, 0.8}}, {{0, 2}});
 
-  // enable grid, save and show figure
-  matplot::grid(true);
+  // plot splines with new basis
+  for (const Bs::Spline &spline : splines) {
+    auto axesHandle{matplot::subplot(splines.size(), 2, cSpline)};
+    axesHandle->hold(true);
+    axesHandle->grid(true);
+    axesHandle->title(std::format("Spline new basis {}", splines.size() % ++cSpline));
+
+    plotSpline(spline, Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle);
+  }
+
+  // save and show figure
   matplot::save(*(argv + 1));
   matplot::show();
 

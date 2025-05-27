@@ -13,10 +13,13 @@ foreach(ITEM ${SOURCE_FILES})
     add_executable(${EXECUTABLE}
         ${ITEM}
     )
+
     target_include_directories(${EXECUTABLE}
         PRIVATE
         "${PROJECT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
     )
+
     target_link_libraries(${EXECUTABLE}
         PRIVATE
         matplot
