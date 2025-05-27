@@ -3,6 +3,7 @@
 
 #include "basisSplines/basis.h"
 #include "basisSplines/spline.h"
+#include "helper.h"
 
 namespace Bs = BasisSplines;
 namespace Mt = matplot;
@@ -18,45 +19,21 @@ int main(int argc, char *argv[]) {
       Eigen::ArrayXd{{0.0, 0.5, 0.25, -0.3, -1.0, 0.75}}};
 
   // definition spline with inserted knots
-  const Eigen::ArrayXd knotsInsert {{0.3, 0.4, 0.8, 0.8}};
+  const Eigen::ArrayXd knotsInsert{{0.3, 0.4, 0.8, 0.8}};
   splines[1] = Bs::Spline{splines[0].insertKnots(knotsInsert)};
 
   // definition spline with inserted knots
-  const Eigen::ArrayXd knotsInsert1 {{0.3, 0.4, 0.7, 0.8, 0.8}};
+  const Eigen::ArrayXd knotsInsert1{{0.3, 0.4, 0.7, 0.8, 0.8}};
   splines[2] = Bs::Spline{splines[0].insertKnots(knotsInsert1)};
-
-  // evaluate spline at points between -0.1 and 1.1
-  const Eigen::ArrayXd points{Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1)};
 
   int cSpline{};
   for (const Bs::Spline &spline : splines) {
-    const Eigen::ArrayXd splineVals{spline(points)};
-
     // plot spline at evaluation points
-    matplot::subplot(3, 1, cSpline);
-    matplot::hold(true);
-    matplot::plot(std::vector<double>{points.begin(), points.end()},
-                  std::vector<double>{splineVals.begin(), splineVals.end()});
+    auto axesHandle{matplot::subplot(splines.size(), 1, cSpline++)};
+    axesHandle->hold(true);
+    axesHandle->grid(true);
 
-    // plot coefficients at greville sites
-    const Eigen::ArrayXd greville{spline.basis()->greville()};
-    matplot::plot(std::vector<double>{greville.begin(), greville.end()},
-                  std::vector<double>{spline.coefficients().begin(),
-                                      spline.coefficients().end()},
-                  "-o");
-
-    // plot breakpoints along spline
-    const auto [bps, conts] = spline.basis()->getBreakpoints();
-    const Eigen::ArrayXd splineValsBps{spline(bps)};
-    matplot::scatter(
-        std::vector<double>{bps.begin(), bps.end()},
-        std::vector<double>{splineValsBps.begin(), splineValsBps.end()})
-        ->marker_style(matplot::line_spec::marker_style::diamond)
-        .marker_color({0.0, 0.0, 1.0})
-        .marker_face_color({0.0, 0.0, 1.0});
-    ++cSpline;
-
-    matplot::grid(true);
+    plotSpline(spline, Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle);
   }
 
   // enable grid, save and show figure
