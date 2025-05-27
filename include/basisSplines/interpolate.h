@@ -6,9 +6,10 @@
 #include <functional>
 #include <memory>
 
-#include "basisSplines/internal/basisBase.h"
+#include "basisSplines/basis.h"
 
 namespace BasisSplines {
+
 /**
  * @brief Determines the spline coefficients for a basis to approximate the
  * given observations.
@@ -21,7 +22,7 @@ public:
    *
    * @param basis spline basis.
    */
-  Interpolate(const std::shared_ptr<const BasisBase> basis) : m_basis{basis} {};
+  Interpolate(const std::shared_ptr<Basis> basis) : m_basis{basis} {};
 
   /**
    * @brief Determine coefficients that fit a spline function at the given
@@ -53,7 +54,7 @@ public:
   }
 
 private:
-  std::shared_ptr<const BasisBase> m_basis{}; /**<< spline basis */
+  std::shared_ptr<Basis> m_basis; /**<< spline basis */
 };
 }; // namespace BasisSplines
 #endif
