@@ -11,6 +11,18 @@ namespace Internal {
 class InterpolateTest : public TestBase {
 protected:
   void SetUp() {}
+
+  const Eigen::ArrayXd m_knotsO2{{0.0, 0.0, 0.5, 1.0, 1.0}};
+  std::shared_ptr<Basis> m_basisO2{std::make_shared<Basis>(m_knotsO2, 2)};
+  const Spline m_splineO2{m_basisO2, Eigen::VectorXd{{0.0, 1.0, 0.25}}};
+  const Interpolate m_interpO2{m_basisO2};
+
+  const Eigen::ArrayXd m_knotsO3{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0}};
+  std::shared_ptr<Basis> m_basisO3{std::make_shared<Basis>(m_knotsO3, 3)};
+  const Spline m_splineO3{
+      m_basisO3,
+      Eigen::VectorXd::Random(m_knotsO3.size() - m_basisO3->order())};
+  const Interpolate m_interpO3{m_basisO3};
 };
 
 /**
@@ -20,18 +32,10 @@ protected:
  *
  */
 TEST_F(InterpolateTest, InterpolateSplineO2) {
-  // setup basis of order 2 with continuity 0, 1, 0
-  const Eigen::ArrayXd knots{{0.0, 0.0, 0.5, 1.0, 1.0}};
-  const int order{2};
-  std::shared_ptr<Basis> basis{std::make_shared<Basis>(knots, order)};
+  const Eigen::ArrayXd coeffsEst{
+      m_interpO2.fit(m_splineO2(m_basisO2->greville()), m_basisO2->greville())};
 
-  const Eigen::ArrayXd coeffsGtr{{0.0, 1.0, 0.25}};
-  const Spline spline{basis, coeffsGtr};
-
-  const Interpolate interp{basis};
-
-  const Eigen::ArrayXd points{basis->greville()};
-  const Eigen::ArrayXd coeffsEst{interp.fit(spline(points), points)};
+  const Eigen::ArrayXd coeffsGtr{m_splineO2.coefficients()};
 
   expectAllClose(coeffsGtr, coeffsEst, 1e-6);
 }
@@ -41,17 +45,10 @@ TEST_F(InterpolateTest, InterpolateSplineO2) {
  *
  */
 TEST_F(InterpolateTest, InterpolateSplineO3) {
-  const Eigen::ArrayXd knots{{0.0, 0.0, 0.0, 0.5, 0.5, 0.75, 1.0, 1.0}};
-  const int order{3};
-  std::shared_ptr<Basis> basis{std::make_shared<Basis>(knots, order)};
+  const Eigen::ArrayXd coeffsEst{
+      m_interpO3.fit(m_splineO3(m_basisO3->greville()), m_basisO3->greville())};
 
-  const Eigen::ArrayXd coeffsGtr{Eigen::ArrayXd::Random(knots.size() - order)};
-  const Spline spline{basis, coeffsGtr};
-
-  const Interpolate interp{basis};
-
-  const Eigen::ArrayXd points{basis->greville()};
-  const Eigen::ArrayXd coeffsEst{interp.fit(spline(points), points)};
+  const Eigen::ArrayXd coeffsGtr{m_splineO3.coefficients()};
 
   expectAllClose(coeffsGtr, coeffsEst, 1e-6);
 }
