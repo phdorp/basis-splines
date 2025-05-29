@@ -101,9 +101,16 @@ public:
    * @return Basis basis with reduced order.
    */
   Basis orderDecrease(int orderDec = 1) const {
+    assert(orderDec >= 0 && "Order decrease must be positive.");
+
+    // base case: no order decrease, create new instance of current basis
+    if (orderDec == 0)
+      return Basis{*this};
+
+    // create new basis of lower order and reduced breakpoints
     Basis basis{knots()(Eigen::seqN(1, knots().size() - 2)), order() - 1};
-    if (orderDec == 1)
-      return basis;
+
+    // create basis of lower order
     return basis.orderDecrease(orderDec - 1);
   }
 
@@ -114,11 +121,18 @@ public:
    * @return Basis basis with increased order.
    */
   Basis orderIncrease(int orderInc = 1) const {
+    assert(orderInc >= 0 && "Order increase must be positive.");
+
+    // base case: no order increase, create new instance of current basis
+    if (orderInc == 0)
+      return Basis{*this};
+
+    // create new basis of lower order and additional breakpoints
     Eigen::ArrayXd knotsNew(knots().size() + 2);
     knotsNew << knots()(0), knots(), *(knots().end());
     Basis basis{knotsNew, order() + 1};
-    if (orderInc == 1)
-      return basis;
+
+    // create basis of higher order
     return basis.orderIncrease(orderInc - 1);
   }
 
@@ -133,6 +147,11 @@ public:
    * @return Eigen::MatrixXd transformation matrix.
    */
   Eigen::MatrixXd derivative(Basis &basis, int orderDer = 1) const {
+    if (orderDer == 0) {
+      basis = *this;
+      return Eigen::MatrixXd::Identity(dim(), dim());
+    }
+
     // determine transformation matrix
     Eigen::MatrixXd transform(Eigen::MatrixXd::Zero(dim() - 1, dim()));
     for (int cRow{}; cRow < transform.rows(); ++cRow) {
@@ -165,6 +184,11 @@ public:
    * @return Eigen::MatrixXd transformation matrix.
    */
   Eigen::MatrixXd integral(Basis &basis, int orderInt = 1) const {
+
+    if (orderInt == 0) {
+      basis = *this;
+      return Eigen::MatrixXd::Identity(dim(), dim());
+    }
 
     // initialize transformation matrix with zeros
     Eigen::MatrixXd transform(Eigen::MatrixXd::Zero(dim() + 1, dim()));
@@ -370,6 +394,11 @@ public:
     }
 
     return values;
+  }
+
+  Eigen::MatrixXd operator()(double point, double accDenum = 1e-6,
+                             double accDomain = 1e-6) const {
+    return (*this)({{point}});
   }
 
   /**
