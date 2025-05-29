@@ -17,7 +17,7 @@ protected:
   const Spline m_splineO2{m_basisO2, Eigen::VectorXd{{0.0, 1.0, 0.25}}};
   const Interpolate m_interpO2{m_basisO2};
 
-  const Eigen::ArrayXd m_knotsO3{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0}};
+  const Eigen::ArrayXd m_knotsO3{{0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0}};
   std::shared_ptr<Basis> m_basisO3{std::make_shared<Basis>(m_knotsO3, 3)};
   const Spline m_splineO3{
       m_basisO3,
@@ -52,6 +52,35 @@ TEST_F(InterpolateTest, InterpolateSplineO3) {
 
   expectAllClose(coeffsGtr, coeffsEst, 1e-6);
 }
+
+/**
+ * @brief Test interpolation of a piecewise quadratic spline function using
+ * derivatives
+ *
+ */
+TEST_F(InterpolateTest, InterpolateDerivSplineO3) {
+  // breakpoints are evaluation points
+  const auto [bps, conts] = m_basisO3->getBreakpoints();
+
+  // determine spline derivatives at breakpoints
+  std::vector<Eigen::VectorXd> observations{
+      Eigen::VectorXd{{m_splineO3(bps(0)), m_splineO3.derivative()(bps(0))}},
+      Eigen::VectorXd{{m_splineO3(bps(1))}},
+      Eigen::VectorXd{{m_splineO3(bps(2)), m_splineO3.derivative()(bps(2))}}};
+
+  // specify derivative orders
+  std::vector<Eigen::VectorXi> derivOrders{
+      Eigen::VectorXi{{0, 1}}, Eigen::VectorXi{{0}}, Eigen::VectorXi{{0, 1}}};
+
+  // fit coefficients
+  const Eigen::ArrayXd coeffsEst{
+      m_interpO3.fit(observations, derivOrders, bps)};
+
+  const Eigen::ArrayXd coeffsGtr{m_splineO3.coefficients()};
+
+  expectAllClose(coeffsGtr, coeffsEst, 1e-6);
+}
+
 }; // namespace Internal
 }; // namespace BasisSplines
 
