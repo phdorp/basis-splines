@@ -26,7 +26,8 @@ public:
    * @param basis spline basis.
    * @param coefficients spline coefficients.
    */
-  Spline(const std::shared_ptr<Basis> basis, const Eigen::VectorXd &coefficients)
+  Spline(const std::shared_ptr<Basis> basis,
+         const Eigen::VectorXd &coefficients)
       : m_basis{basis}, m_coefficients{coefficients} {}
 
   /**
@@ -53,6 +54,14 @@ public:
     return (m_basis->operator()(points).matrix() * m_coefficients.matrix())
         .array();
   }
+
+  /**
+   * @brief Evaluate spline at given point.
+   *
+   * @param point evaluation point.
+   * @return double spline fucntion value at "point".
+   */
+  double operator()(double point) const { return (*this)({{point}})(0); }
 
   /**
    * @brief Create new spline with negative spline coefficients.
@@ -100,7 +109,7 @@ public:
   Spline integral(int order = 1) const {
     // basis for integral spline of order + 1
     std::shared_ptr<Basis> basis{
-      std::make_shared<Basis>(m_basis->orderIncrease())};
+        std::make_shared<Basis>(m_basis->orderIncrease())};
 
     // coefficients of derivative spline coeffs_i+1 = c_i * (k_i+o -
     // k_i) / o + coeffs_i
@@ -185,7 +194,7 @@ public:
 
 private:
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
-  Eigen::VectorXd m_coefficients{};  /**<< spline coefficients */
+  Eigen::VectorXd m_coefficients{}; /**<< spline coefficients */
 };
 }; // namespace BasisSplines
 
