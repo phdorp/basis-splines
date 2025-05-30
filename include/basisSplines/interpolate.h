@@ -61,12 +61,14 @@ public:
     std::vector<Eigen::MatrixXd> transforms(m_basis->order() - 1);
     std::vector<Basis> bases(m_basis->order() - 1);
 
-    // TODO: iterative application of derivative based on previous result
+    // initialize transformations and bases with current
+    transforms[0] = Eigen::MatrixXd::Identity(m_basis->dim(), m_basis->dim());
+    bases[0] = *m_basis;
+
+    // create higher order derivatives based on previous one
     int cOrder{};
-    for (Eigen::MatrixXd &transform : transforms) {
-      transform = m_basis->derivative(bases[cOrder], cOrder);
-      ++cOrder;
-    }
+    for (int cOrder{1}; cOrder < m_basis->order() - 1; ++cOrder)
+      transforms[cOrder] = bases[cOrder - 1].derivative(bases[cOrder], 1);
 
     // evaluate basis functions at "points" and transform according to given
     // derivartive
