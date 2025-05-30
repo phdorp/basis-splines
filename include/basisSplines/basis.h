@@ -107,11 +107,9 @@ public:
     if (orderDec == 0)
       return Basis{*this};
 
-    // create new basis of lower order and reduced breakpoints
-    Basis basis{knots()(Eigen::seqN(1, knots().size() - 2)), order() - 1};
-
     // create basis of lower order
-    return basis.orderDecrease(orderDec - 1);
+    return {knots()(Eigen::seqN(orderDec, knots().size() - 2 * orderDec)),
+            order() - orderDec};
   }
 
   /**
@@ -128,12 +126,12 @@ public:
       return Basis{*this};
 
     // create new basis of lower order and additional breakpoints
-    Eigen::ArrayXd knotsNew(knots().size() + 2);
-    knotsNew << knots()(0), knots(), *(knots().end());
-    Basis basis{knotsNew, order() + 1};
+    Eigen::ArrayXd knotsNew(knots().size() + 2 * orderInc);
+    knotsNew << Eigen::ArrayXd::Zero(orderInc) + knots()(0), knots(), Eigen::ArrayXd::Zero(orderInc) + *(knots().end());
+    Basis basis{knotsNew, order() + orderInc};
 
     // create basis of higher order
-    return basis.orderIncrease(orderInc - 1);
+    return {knotsNew, order() + orderInc};
   }
 
   /**
