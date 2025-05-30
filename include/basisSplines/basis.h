@@ -172,6 +172,42 @@ public:
   };
 
   /**
+   * @brief Transforms the given values, which are basis spline values or
+   * coefficients, to the derivative of this basis.
+   *
+   * @param basis basis of reduced order.
+   * @param values basis values or spline coefficients.
+   * @param orderDer derivative order.
+   * @return Eigen::VectorXd derivative values.
+   */
+  Eigen::VectorXd derivative(Basis &basis, const Eigen::VectorXd &values,
+                             int orderDer = 1) const {
+    if (orderDer == 0) {
+      basis = *this;
+      return values;
+    }
+
+    // provide basis derivative basis with decreased order
+    Basis basisDeriv{orderDecrease()};
+
+    // values transformed to derivative valuesNew = o * (values_i+1 - values_i)
+    // / (k_i+o - k_i+1)
+    Eigen::VectorXd valuesNew(basisDeriv.dim());
+    for (int idx{}; idx < valuesNew.size(); ++idx)
+      valuesNew(idx) = (order() - 1) * (values(idx + 1) - values(idx)) /
+                       (knots()(idx + order()) - knots()(idx + 1));
+
+    // base case order 1 derivative
+    if (orderDer == 1) {
+      basis = basisDeriv;
+      return valuesNew;
+    }
+
+    // recursion higher order derivative
+    return basisDeriv.derivative(basis, valuesNew, orderDer - 1);
+  };
+
+  /**
    * @brief Dertermines a matrix A to transform the spline coefficients c to
    * integral coefficients ic.
    *
@@ -212,6 +248,43 @@ public:
     // recursion higher order integral
     return basisDeriv.integral(basis, orderInt - 1) * transform;
   }
+
+  /**
+   * @brief Transforms the given values, which are basis spline values or
+   * coefficients, to the integral of this basis.
+   *
+   * @param basis basis of increased order.
+   * @param values basis values or spline coefficients.
+   * @param orderInt integral order.
+   * @return Eigen::VectorXd integral values.
+   */
+  Eigen::VectorXd integral(Basis &basis, const Eigen::VectorXd &values,
+                           int orderInt = 1) const {
+    if (orderInt == 0) {
+      basis = *this;
+      return values;
+    }
+
+    // provide basis integral basis with decreased order
+    Basis basisInt{orderIncrease()};
+
+    // values transformed to integral valuesNew_i+1 = values_i * (k_i+o -
+    // k_i) / o + valuesNew_i
+    Eigen::VectorXd valuesNew(basisInt.dim());
+    for (int idx{}; idx < valuesNew.size() - 1; ++idx)
+      valuesNew(idx + 1) =
+          values(idx) * (knots()(idx + order()) - knots()(idx)) / order() +
+          valuesNew(idx);
+
+    // base case order 1 integral
+    if (orderInt == 1) {
+      basis = basisInt;
+      return valuesNew;
+    }
+
+    // recursion higher order integral
+    return basisInt.integral(basis, valuesNew, orderInt - 1);
+  };
 
   /**
    * @brief Determine transformation matrices Tl and Tr for left and right
