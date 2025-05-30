@@ -77,27 +77,12 @@ public:
    * @return Spline as derivative of "order".
    */
   Spline derivative(int order = 1) const {
-    // basis for derivative spline of order - 1
-    std::shared_ptr<Basis> basis{
-        std::make_shared<Basis>(m_basis->orderDecrease())};
+    // create derivative basis and determine coefficients
+    Basis basisNew {};
+    Eigen::VectorXd coeffsNew(m_basis->derivative(basisNew, m_coefficients, order));
 
-    // coefficients of derivative spline coeffs = o * (c_i+1 - c_i) / (k_i+o -
-    // k_i+1)
-    Eigen::VectorXd coeffs(basis->dim());
-    for (int idx{}; idx < coeffs.size(); ++idx)
-      coeffs(idx) = (m_basis->order() - 1) *
-                    (m_coefficients(idx + 1) - m_coefficients(idx)) /
-                    (m_basis->knots()(idx + m_basis->order()) -
-                     m_basis->knots()(idx + 1));
-
-    // result spline
-    Spline spline{basis, coeffs};
-    // base case
-    if (order == 1)
-      return spline;
-    // reduce order
-    else
-      return spline.derivative(order - 1);
+    // return derivative spline
+    return {std::make_shared<Basis>(basisNew), coeffsNew};
   }
 
   /**
@@ -107,28 +92,12 @@ public:
    * @return Spline as integral of "order".
    */
   Spline integral(int order = 1) const {
-    // basis for integral spline of order + 1
-    std::shared_ptr<Basis> basis{
-        std::make_shared<Basis>(m_basis->orderIncrease())};
+    // create derivative basis and determine coefficients
+    Basis basisNew {};
+    Eigen::VectorXd coeffsNew(m_basis->integral(basisNew, m_coefficients, order));
 
-    // coefficients of derivative spline coeffs_i+1 = c_i * (k_i+o -
-    // k_i) / o + coeffs_i
-    Eigen::VectorXd coeffs(basis->dim());
-    for (int idx{}; idx < coeffs.size() - 1; ++idx)
-      coeffs(idx + 1) = m_coefficients(idx) *
-                            (m_basis->knots()(idx + m_basis->order()) -
-                             m_basis->knots()(idx)) /
-                            m_basis->order() +
-                        coeffs(idx);
-
-    // result spline
-    Spline spline{basis, coeffs};
-    // base case
-    if (order == 1)
-      return spline;
-    // reduce order
-    else
-      return spline.integral(order - 1);
+    // return derivative spline
+    return {std::make_shared<Basis>(basisNew), coeffsNew};
   }
 
   /**
