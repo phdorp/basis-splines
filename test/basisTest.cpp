@@ -193,6 +193,56 @@ TEST_F(BasisTest, DderivMatO3) {
 }
 
 /**
+ * @brief Test generation of derivative value transformation.
+ *
+ */
+TEST_F(BasisTest, DerivTransformO3) {
+  // ground truth from spline fit to derivative
+  const Eigen::ArrayXd valuesGtr{m_splineO3Der.coefficients()};
+
+  // get estimate from result spline
+  Basis basisEst{};
+  const Eigen::ArrayXd valuesEst{
+      m_basisO3->derivative(basisEst, m_splineO3.coefficients(), 1)};
+
+  // test if coefficients are almost equal
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+
+  // ground truth basis
+  Basis basisGtr{*m_basisO3Der.get()};
+
+  // test if knots are almost equal
+  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
+  // test if order is equal
+  EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
+/**
+ * @brief Test generation of second derivative v
+ *
+ */
+TEST_F(BasisTest, DderivTransformO3) {
+  // ground truth from spline fit to derivative
+  const Eigen::ArrayXd valuesGtr{m_splineO3Dder.coefficients()};
+
+  // get estimate from result spline
+  Basis basisEst{};
+  const Eigen::ArrayXd valuesEst{
+      m_basisO3->derivative(basisEst, m_splineO3.coefficients(), 2)};
+
+  // test if coefficients are almost equal
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+
+  // ground truth basis
+  Basis basisGtr{*m_basisO3Dder.get()};
+
+  // test if knots are almost equal
+  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
+  // test if order is equal
+  EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
+/**
  * @brief Test generation of integral transformation matrix.
  *
  */
@@ -229,6 +279,56 @@ TEST_F(BasisTest, IintMatO3) {
   Basis basisEst{};
   const Eigen::ArrayXd valuesEst{m_basisO3->integral(basisEst, 2) *
                                  m_splineO3.coefficients().matrix()};
+
+  // test if coefficients are almost equal
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+
+  // ground truth basis
+  Basis basisGtr{*m_basisO3Iint.get()};
+
+  // test if knots are almost equal
+  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
+  // test if order is equal
+  EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
+/**
+ * @brief Test generation of integral value transformation.
+ *
+ */
+TEST_F(BasisTest, IntTransformO3) {
+  // ground truth from spline fit to integral
+  const Eigen::ArrayXd valuesGtr{m_splineO3Int.coefficients()};
+
+  // get estimate from result spline
+  Basis basisEst{};
+  const Eigen::ArrayXd valuesEst{
+      m_basisO3->integral(basisEst, m_splineO3.coefficients(), 1)};
+
+  // test if coefficients are almost equal
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+
+  // ground truth basis
+  Basis basisGtr{*m_basisO3Int.get()};
+
+  // test if knots are almost equal
+  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
+  // test if order is equal
+  EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
+/**
+ * @brief Test generation of second integral value transformation.
+ *
+ */
+TEST_F(BasisTest, IintTransformO3) {
+  // ground truth from spline fit to integral
+  const Eigen::ArrayXd valuesGtr{m_splineO3Iint.coefficients()};
+
+  // get estimate from result spline
+  Basis basisEst{};
+  const Eigen::ArrayXd valuesEst{
+      m_basisO3->integral(basisEst, m_splineO3.coefficients(), 2)};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
@@ -395,7 +495,8 @@ TEST_F(BasisTest, SetContinuitiesNegativeInvalidValue) {
   Eigen::ArrayXi invalidContinuities{{-1}};
 
   // Expect: setting invalid continuity throws invalid_argument
-  EXPECT_THROW(m_basisO3->setContinuities(invalidContinuities, continuityIdcs), std::invalid_argument);
+  EXPECT_THROW(m_basisO3->setContinuities(invalidContinuities, continuityIdcs),
+               std::invalid_argument);
 
   // Ensure basis is unchanged
   auto [breakpointsEst, contsEst] = m_basisO3->getBreakpoints();
@@ -415,7 +516,8 @@ TEST_F(BasisTest, SetContinuitiesNegativeTooHigh) {
   Eigen::ArrayXi invalidContinuities{{5}};
 
   // Expect: setting invalid continuity throws invalid_argument
-  EXPECT_THROW(m_basisO3->setContinuities(invalidContinuities, continuityIdcs), std::invalid_argument);
+  EXPECT_THROW(m_basisO3->setContinuities(invalidContinuities, continuityIdcs),
+               std::invalid_argument);
 
   // Ensure basis is unchanged
   auto [breakpointsEst, contsEst] = m_basisO3->getBreakpoints();
