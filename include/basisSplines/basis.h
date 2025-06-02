@@ -495,6 +495,23 @@ public:
     return grevilleSites;
   }
 
+  Basis getSegment(int segment) const {
+    int nKnots{2 * m_order};
+
+    auto segmentEnd{std::find(m_knots.begin(), m_knots.end(),
+                              getBreakpoints().first(segment+1)) + m_order};
+    auto segmentBegin{segmentEnd - (2 * m_order)};
+
+    Eigen::ArrayXd knots(2 * m_order);
+    int cElem{};
+    for (; segmentBegin < segmentEnd; ++segmentBegin)
+      knots(cElem++) = *segmentBegin;
+
+    return {knots, m_order};
+  }
+
+  // MARK: public statics
+
   /**
    * @brief Convert breakpoints to knots.
    *
