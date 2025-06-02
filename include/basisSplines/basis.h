@@ -21,6 +21,7 @@ class Interpolate;
  */
 class Basis {
 public:
+  // MARK: public methods
   Basis() = default;
 
   /**
@@ -546,9 +547,11 @@ public:
   }
 
 private:
+  // MARK: private properties
   Eigen::ArrayXd m_knots; /**<< basis knots */
   int m_order{};          /**<< basis order */
 
+  // MARK: private methods
   bool inKnotSeg(double knotL, double knotR, double point,
                  double accuracy = 1e-6) const {
     if (knotL == m_knots(0))
@@ -558,6 +561,7 @@ private:
     return point > knotL && point <= knotR;
   }
 
+  // MARK: private statics
   static bool checkIncreasing(const Eigen::ArrayXd &sequence) {
     for (auto elemPtr{sequence.begin() + 1}; elemPtr < sequence.end();
          ++elemPtr)
