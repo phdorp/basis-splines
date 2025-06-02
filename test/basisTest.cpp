@@ -110,6 +110,31 @@ TEST_F(BasisTest, BreakpointsO3) {
   expectAllClose(valuesEst.second, valuesGtr.second, 1e-10);
 }
 
+TEST_F(BasisTest, GetSegment0O3) {
+  const Basis basisSeg{m_basisO3->getSegment(0)};
+
+  expectAllClose(basisSeg.knots(),
+                 Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0}}, 1e-10);
+  EXPECT_EQ(basisSeg.order(), m_basisO3->order());
+
+  expectAllClose(
+      Eigen::ArrayXXd{(*m_basisO3)(
+          m_points)(Eigen::all, Eigen::seqN(0, basisSeg.order()))},
+      Eigen::ArrayXXd{basisSeg(m_points)}, 1e-10);
+}
+
+TEST_F(BasisTest, GetSegment1O3) {
+  const Basis basisSeg{m_basisO3->getSegment(1)};
+
+  expectAllClose(basisSeg.knots(),
+                 Eigen::ArrayXd{{0.0, 0.0, 0.5, 1.0, 1.0, 1.0}}, 1e-10);
+  EXPECT_EQ(basisSeg.order(), m_basisO3->order());
+
+  expectAllClose(Eigen::ArrayXXd{(*m_basisO3)(
+                     m_points)(Eigen::all, Eigen::seqN(1, basisSeg.order()))},
+                 Eigen::ArrayXXd{basisSeg(m_points)}, 1e-10);
+}
+
 /**
  * @brief Combine a basis of order 3 with a basis of order 2.
  *
@@ -137,7 +162,7 @@ TEST_F(BasisTest, ToKnotsO3) {
 
   const Eigen::ArrayXd valuesEst{
       Basis::toKnots(bps, conts, m_basisO3->order())};
-  const Eigen::ArrayXd valuesGtr{m_knotsO3};
+  const Eigen::ArrayXd valuesGtr{m_basisO3->knots()};
 
   expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
