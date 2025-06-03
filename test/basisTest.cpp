@@ -81,6 +81,11 @@ protected:
       m_basisO3Iint,
       m_interpolateO3Iint.fit(&polyO3Iint)}; /** order 3 integral spline */
 
+  // create basis of order 3
+  std::shared_ptr<Basis> m_basisO3Seg3{std::make_shared<Basis>(
+      Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.4, 0.6, 0.6, 1.0, 1.0, 1.0}},
+      3)}; /**<< order 3 basis */
+
   const Eigen::ArrayXd m_points{Eigen::ArrayXd::LinSpaced(101, 0.0, 1.0)};
 };
 
@@ -111,6 +116,49 @@ TEST_F(BasisTest, BreakpointsO3) {
 }
 
 /**
+ * @brief Test retrieving first 2 segments from basis functions of order 3.
+ *
+ */
+TEST_F(BasisTest, GetSegment01O3) {
+  // retrieve segment basis
+  const Basis basisSeg{m_basisO3Seg3->getSegment(0, 1)};
+
+  // test knots and order of segment basis
+  expectAllClose(basisSeg.knots(),
+                 Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.4, 0.6, 0.6, 1.0}}, 1e-10);
+  EXPECT_EQ(basisSeg.order(), m_basisO3Seg3->order());
+
+  // test evaluation of segment basis
+  expectAllClose(
+      Eigen::ArrayXXd{(*m_basisO3Seg3)(
+          m_points)(Eigen::all, Eigen::seqN(0, basisSeg.knots().size() -
+                                                   basisSeg.order()))},
+      Eigen::ArrayXXd{basisSeg(m_points)}, 1e-10);
+}
+
+/**
+ * @brief Test retrieving last 2 segments from basis functions of order 3.
+ *
+ */
+TEST_F(BasisTest, GetSegment12O3) {
+  // retrieve segment basis
+  const Basis basisSeg{m_basisO3Seg3->getSegment(1, 2)};
+
+  // test knots and order of segment basis
+  expectAllClose(basisSeg.knots(),
+                 Eigen::ArrayXd{{0.0, 0.0, 0.4, 0.6, 0.6, 1.0, 1.0, 1.0}},
+                 1e-10);
+  EXPECT_EQ(basisSeg.order(), m_basisO3Seg3->order());
+
+  // test evaluation of segment basis
+  expectAllClose(
+      Eigen::ArrayXXd{(*m_basisO3Seg3)(
+          m_points)(Eigen::all, Eigen::seqN(1, basisSeg.knots().size() -
+                                                   basisSeg.order()))},
+      Eigen::ArrayXXd{basisSeg(m_points)}, 1e-10);
+}
+
+/**
  * @brief Combine a basis of order 3 with a basis of order 2.
  *
  */
@@ -137,7 +185,7 @@ TEST_F(BasisTest, ToKnotsO3) {
 
   const Eigen::ArrayXd valuesEst{
       Basis::toKnots(bps, conts, m_basisO3->order())};
-  const Eigen::ArrayXd valuesGtr{m_knotsO3};
+  const Eigen::ArrayXd valuesGtr{m_basisO3->knots()};
 
   expectAllClose(valuesEst, valuesGtr, 1e-10);
 }

@@ -21,6 +21,7 @@ class Interpolate;
  */
 class Basis {
 public:
+  // MARK: public methods
   Basis() = default;
 
   /**
@@ -495,6 +496,39 @@ public:
   }
 
   /**
+   * @brief Determine a basis representing the "first" to the "last" segment of
+   * "this" basis.
+   *
+   * @param first index of the first segment.
+   * @param last index of the last segment.
+   * @return Basis segment basis.
+   */
+  Basis getSegment(int first, int last) const {
+
+    const auto breakpoints{getBreakpoints()};
+
+    // find first and last knots of the given segments
+    auto end{
+        std::find(m_knots.begin(), m_knots.end(), breakpoints.first(last + 1)) +
+        m_order};
+    auto begin{(std::find(std::make_reverse_iterator(m_knots.end()),
+                          std::make_reverse_iterator(m_knots.begin()),
+                          breakpoints.first(first)))
+                   .base() -
+               m_order};
+
+    // copy knots to new variable
+    Eigen::ArrayXd knots(end - begin);
+    int cElem{};
+    for (; begin < end; ++begin)
+      knots(cElem++) = *begin;
+
+    return {knots, m_order};
+  }
+
+  // MARK: public statics
+
+  /**
    * @brief Convert breakpoints to knots.
    *
    * @param bps breakpoints for conversion.
@@ -546,9 +580,11 @@ public:
   }
 
 private:
+  // MARK: private properties
   Eigen::ArrayXd m_knots; /**<< basis knots */
   int m_order{};          /**<< basis order */
 
+  // MARK: private methods
   bool inKnotSeg(double knotL, double knotR, double point,
                  double accuracy = 1e-6) const {
     if (knotL == m_knots(0))
@@ -558,6 +594,7 @@ private:
     return point > knotL && point <= knotR;
   }
 
+  // MARK: private statics
   static bool checkIncreasing(const Eigen::ArrayXd &sequence) {
     for (auto elemPtr{sequence.begin() + 1}; elemPtr < sequence.end();
          ++elemPtr)
