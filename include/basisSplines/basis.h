@@ -495,17 +495,33 @@ public:
     return grevilleSites;
   }
 
-  Basis getSegment(int segment) const {
-    int nKnots{2 * m_order};
+  /**
+   * @brief Determine a basis representing the "first" to the "last" segment of
+   * "this" basis.
+   *
+   * @param first index of the first segment.
+   * @param last index of the last segment.
+   * @return Basis segment basis.
+   */
+  Basis getSegment(int first, int last) const {
 
-    auto segmentEnd{std::find(m_knots.begin(), m_knots.end(),
-                              getBreakpoints().first(segment+1)) + m_order};
-    auto segmentBegin{segmentEnd - (2 * m_order)};
+    const auto breakpoints{getBreakpoints()};
 
-    Eigen::ArrayXd knots(2 * m_order);
+    // find first and last knots of the given segments
+    auto end{
+        std::find(m_knots.begin(), m_knots.end(), breakpoints.first(last + 1)) +
+        m_order};
+    auto begin{(std::find(std::make_reverse_iterator(m_knots.end()),
+                          std::make_reverse_iterator(m_knots.begin()),
+                          breakpoints.first(first)))
+                   .base() -
+               m_order};
+
+    // copy knots to new variable
+    Eigen::ArrayXd knots(end - begin);
     int cElem{};
-    for (; segmentBegin < segmentEnd; ++segmentBegin)
-      knots(cElem++) = *segmentBegin;
+    for (; begin < end; ++begin)
+      knots(cElem++) = *begin;
 
     return {knots, m_order};
   }
