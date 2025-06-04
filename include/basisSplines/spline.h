@@ -52,7 +52,7 @@ public:
    * @return Eigen::ArrayXd spline function values at "points".
    */
   Eigen::ArrayXd operator()(const Eigen::ArrayXd &points) const {
-    return (m_basis->operator()(points).matrix() * m_coefficients.matrix())
+    return (m_basis->operator()(points) * m_coefficients)
         .array();
   }
 
@@ -185,6 +185,26 @@ public:
 
     // new spline
     return {basisSeg, m_coefficients(Eigen::seq(firstCoeff, lastCoeff))};
+  }
+
+  /**
+   * @brief Determine spline with knots clamped to spline segment.
+   *
+   * @tparam Interp type of interpolation.
+   * @return Spline clamped spline.
+   */
+  Spline getClamped() const {
+    // determine clamped basis
+    const std::shared_ptr<Basis> basisClamped{
+        std::make_shared<Basis>(m_basis->getClamped())};
+
+    // set first and last coefficients to spline values
+    Eigen::ArrayXd coefficients {m_coefficients};
+    *(coefficients.begin()) = (*this)(*(basisClamped->knots().begin()));
+    *(coefficients.end() - 1) = (*this)(*(basisClamped->knots().end() - 1));
+
+    // determine clamped spline coefficients by fitting to this spline
+    return {basisClamped, coefficients};
   }
 
 private:
