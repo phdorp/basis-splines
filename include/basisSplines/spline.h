@@ -162,6 +162,30 @@ public:
             })};
   }
 
+  /**
+   * @brief Determine a spline representing the "first" and the "last" segment
+   * of "this" spline.
+   *
+   * @param first index of the first segment.
+   * @param last index of the last segment.
+   * @return Spline segment spline.
+   */
+  Spline getSegment(int first, int last) const {
+    // determine basis representation of segments
+    const std::shared_ptr<Basis> basisSeg{
+        std::make_shared<Basis>(m_basis->getSegment(first, last))};
+
+    // points to fit segment on this spline
+    // TODO: segment wise linear spacing
+    const auto breakpoints{m_basis->getBreakpoints()};
+    const Eigen::ArrayXd points{
+        Eigen::ArrayXd::LinSpaced(basisSeg->dim(), breakpoints.first(first),
+                                  breakpoints.first(last + 1))};
+
+    // determine new coefficients by fitting
+    return {basisSeg, Interpolate{basisSeg}.fit((*this)(points), points)};
+  }
+
 private:
   // MARK: private properties
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
