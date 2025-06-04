@@ -18,6 +18,7 @@ namespace BasisSplines {
  */
 class Spline {
 public:
+  // MARK: public methods
   Spline() = default;
 
   /**
@@ -162,6 +163,7 @@ public:
   }
 
 private:
+  // MARK: private properties
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
   Eigen::VectorXd m_coefficients{}; /**<< spline coefficients */
 };
