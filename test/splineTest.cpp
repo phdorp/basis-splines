@@ -4,46 +4,15 @@
 #include "basisSplines/basis.h"
 #include "basisSplines/interpolate.h"
 #include "basisSplines/spline.h"
-#include "testBase.h"
+#include "basisTest.h"
 
 namespace BasisSplines {
 namespace Internal {
-class SplineTest : public TestBase {
-
-public:
-  static Eigen::ArrayXd polyO3(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{points.pow(2)};
-  }
-
-  static Eigen::ArrayXd polyO3Der(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{2 * points};
-  }
-
-  static Eigen::ArrayXd polyO3Dder(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd::Zero(points.size()) + 2;
-  }
-
-  static Eigen::ArrayXd polyO3Int(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{points.pow(3) / 3};
-  }
-
-  static Eigen::ArrayXd polyO3Iint(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{points.pow(4) / 12};
-  }
+class SplineTest : public BasisTest {
 
 protected:
-  void SetUp() { m_splineO3 = Spline{m_basisO3, m_interpO3.fit(&polyO3)}; }
-
   const Eigen::ArrayXd m_knotsO2{{0.0, 0.0, 0.5, 1.0, 1.0}};
   std::shared_ptr<Basis> m_basisO2{std::make_shared<Basis>(m_knotsO2, 2)};
-
-  const Eigen::ArrayXd m_knotsO3{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0}};
-  std::shared_ptr<Basis> m_basisO3{std::make_shared<Basis>(m_knotsO3, 3)};
-  const Interpolate m_interpO3{m_basisO3};
-
-  Spline m_splineO3{};
-
-  const Eigen::ArrayXd m_points{Eigen::ArrayXd::LinSpaced(101, 0.0, 1.0)};
 };
 
 /**
