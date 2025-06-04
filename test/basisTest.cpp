@@ -129,11 +129,11 @@ TEST_F(BasisTest, GetSegment01O3) {
   EXPECT_EQ(basisSeg.order(), m_basisO3Seg3->order());
 
   // test evaluation of segment basis
-  expectAllClose(
-      Eigen::ArrayXXd{(*m_basisO3Seg3)(
-          m_points)(Eigen::all, Eigen::seqN(0, basisSeg.knots().size() -
-                                                   basisSeg.order()))},
-      Eigen::ArrayXXd{basisSeg(m_points)}, 1e-10);
+  const Eigen::ArrayXXd valuesEst{basisSeg(basisSeg.greville())};
+  const Eigen::ArrayXXd valuesGtr{(*m_basisO3Seg3)(basisSeg.greville())(
+      Eigen::all, Eigen::seqN(0, basisSeg.knots().size() - basisSeg.order()))};
+
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
 
 /**
