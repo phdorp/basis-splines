@@ -558,6 +558,30 @@ public:
     return {begin, end};
   }
 
+  /**
+   * @brief Determine basis with knots clamped to basis segment.
+   *
+   * @return Basis clamped basis.
+   */
+  Basis getClamped() const {
+    // later clamped basis knots
+    Eigen::ArrayXd knots{m_knots};
+
+    // first m_order knots clamped to segment start
+    auto knotPtr{knots.begin()};
+    auto endPtr{knots.begin() + m_order - 1};
+    for (; knotPtr < endPtr; ++knotPtr)
+      *knotPtr = *endPtr;
+
+    // last m_order knots clamped to segment end
+    knotPtr = {knots.end()};
+    endPtr = {knots.end() - m_order + 1};
+    for (; knotPtr > endPtr; --knotPtr)
+      *knotPtr = *endPtr;
+
+    return {knots, m_order};
+  }
+
   // MARK: public statics
 
   /**
