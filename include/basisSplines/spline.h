@@ -207,6 +207,25 @@ public:
     return {basisClamped, coefficients};
   }
 
+  /**
+   * @brief Determine spline with knots clamped to spline segment.
+   *
+   * @tparam Interp type of interpolation.
+   * @return Spline clamped spline.
+   */
+  template <typename Interp = Interpolate> Spline getClamped() const {
+    // determine clamped basis
+    const std::shared_ptr<Basis> basisClamped{
+        std::make_shared<Basis>(m_basis->getClamped())};
+
+    // determine clamped spline coefficients by fitting to this spline
+    const Interp interp{basisClamped};
+    return {basisClamped, interp.fit([&](const Eigen::ArrayXd &points) {
+              Eigen::VectorXd process{(*this)(points)};
+              return process;
+            })};
+  }
+
 private:
   // MARK: private properties
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
