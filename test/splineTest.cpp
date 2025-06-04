@@ -13,6 +13,9 @@ class SplineTest : public BasisTest {
 protected:
   const Eigen::ArrayXd m_knotsO2{{0.0, 0.0, 0.5, 1.0, 1.0}};
   std::shared_ptr<Basis> m_basisO2{std::make_shared<Basis>(m_knotsO2, 2)};
+
+  const Spline m_splineO3Seg3{m_basisO3Seg3,
+                              Eigen::VectorXd::Random(m_basisO3Seg3->dim())};
 };
 
 /**
@@ -169,6 +172,42 @@ TEST_F(SplineTest, InsertKnots) {
   const Eigen::ArrayXd valuesEst{splineInsert(m_points)};
 
   expectAllClose(valuesGtr, valuesEst, 1e-6);
+}
+
+/**
+ * @brief Test retrieving first 2 segments from spline function of order 3.
+ *
+ */
+TEST_F(SplineTest, GetSegment01O3) {
+  const Spline splineSeg{m_splineO3Seg3.getSegment(0, 1)};
+
+  const auto breakpoints{splineSeg.basis()->getBreakpoints()};
+
+  const Eigen::ArrayXd pointsSubset{
+      getPointsSubset(breakpoints.first(0), breakpoints.first(2))};
+
+  const Eigen::ArrayXd valuesEst{splineSeg(pointsSubset)};
+  const Eigen::ArrayXd valuesGtr{m_splineO3Seg3(pointsSubset)};
+
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
+}
+
+/**
+ * @brief Test retrieving last 2 segments from spline of order 3.
+ *
+ */
+TEST_F(SplineTest, GetSegment12O3) {
+  const Spline splineSeg{m_splineO3Seg3.getSegment(1, 2)};
+
+  const auto breakpoints{splineSeg.basis()->getBreakpoints()};
+
+  const Eigen::ArrayXd pointsSubset{
+      getPointsSubset(breakpoints.first(1), breakpoints.first(3))};
+
+  const Eigen::ArrayXd valuesEst{splineSeg(pointsSubset)};
+  const Eigen::ArrayXd valuesGtr{m_splineO3Seg3(pointsSubset)};
+
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
 
 }; // namespace Internal
