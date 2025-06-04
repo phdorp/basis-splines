@@ -4,46 +4,18 @@
 #include "basisSplines/basis.h"
 #include "basisSplines/interpolate.h"
 #include "basisSplines/spline.h"
-#include "testBase.h"
+#include "basisTest.h"
 
 namespace BasisSplines {
 namespace Internal {
-class SplineTest : public TestBase {
-
-public:
-  static Eigen::ArrayXd polyO3(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{points.pow(2)};
-  }
-
-  static Eigen::ArrayXd polyO3Der(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{2 * points};
-  }
-
-  static Eigen::ArrayXd polyO3Dder(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd::Zero(points.size()) + 2;
-  }
-
-  static Eigen::ArrayXd polyO3Int(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{points.pow(3) / 3};
-  }
-
-  static Eigen::ArrayXd polyO3Iint(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{points.pow(4) / 12};
-  }
+class SplineTest : public BasisTest {
 
 protected:
-  void SetUp() { m_splineO3 = Spline{m_basisO3, m_interpO3.fit(&polyO3)}; }
-
   const Eigen::ArrayXd m_knotsO2{{0.0, 0.0, 0.5, 1.0, 1.0}};
   std::shared_ptr<Basis> m_basisO2{std::make_shared<Basis>(m_knotsO2, 2)};
 
-  const Eigen::ArrayXd m_knotsO3{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0}};
-  std::shared_ptr<Basis> m_basisO3{std::make_shared<Basis>(m_knotsO3, 3)};
-  const Interpolate m_interpO3{m_basisO3};
-
-  Spline m_splineO3{};
-
-  const Eigen::ArrayXd m_points{Eigen::ArrayXd::LinSpaced(101, 0.0, 1.0)};
+  const Spline m_splineO3Seg3{m_basisO3Seg3,
+                              Eigen::VectorXd::Random(m_basisO3Seg3->dim())};
 };
 
 /**
@@ -200,6 +172,42 @@ TEST_F(SplineTest, InsertKnots) {
   const Eigen::ArrayXd valuesEst{splineInsert(m_points)};
 
   expectAllClose(valuesGtr, valuesEst, 1e-6);
+}
+
+/**
+ * @brief Test retrieving first 2 segments from spline function of order 3.
+ *
+ */
+TEST_F(SplineTest, GetSegment01O3) {
+  const Spline splineSeg{m_splineO3Seg3.getSegment(0, 1)};
+
+  const auto breakpoints{splineSeg.basis()->getBreakpoints()};
+
+  const Eigen::ArrayXd pointsSubset{
+      getPointsSubset(breakpoints.first(0), breakpoints.first(2))};
+
+  const Eigen::ArrayXd valuesEst{splineSeg(pointsSubset)};
+  const Eigen::ArrayXd valuesGtr{m_splineO3Seg3(pointsSubset)};
+
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
+}
+
+/**
+ * @brief Test retrieving last 2 segments from spline of order 3.
+ *
+ */
+TEST_F(SplineTest, GetSegment12O3) {
+  const Spline splineSeg{m_splineO3Seg3.getSegment(1, 2)};
+
+  const auto breakpoints{splineSeg.basis()->getBreakpoints()};
+
+  const Eigen::ArrayXd pointsSubset{
+      getPointsSubset(breakpoints.first(1), breakpoints.first(3))};
+
+  const Eigen::ArrayXd valuesEst{splineSeg(pointsSubset)};
+  const Eigen::ArrayXd valuesGtr{m_splineO3Seg3(pointsSubset)};
+
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
 
 }; // namespace Internal
