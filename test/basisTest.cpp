@@ -37,6 +37,8 @@ TEST_F(BasisTest, BreakpointsO3) {
 
 /**
  * @brief Test retrieving first 2 segments from basis functions of order 3.
+ * Determine clamped basis fro segment basis and test for correct knots and
+ * order.
  *
  */
 TEST_F(BasisTest, GetSegment01O3) {
@@ -54,10 +56,23 @@ TEST_F(BasisTest, GetSegment01O3) {
       Eigen::all, Eigen::seqN(0, basisSeg.knots().size() - basisSeg.order()))};
 
   expectAllClose(valuesEst, valuesGtr, 1e-10);
+
+  // determine clamped basis from segment basis
+  const Basis basisClamped{basisSeg.getClamped()};
+
+  // test breakpoints
+  const auto [bps, conts] = basisClamped.getBreakpoints();
+  expectAllClose(bps, Eigen::ArrayXd{{0.0, 0.4, 0.6}}, 1e-10);
+  expectAllClose(conts, Eigen::ArrayXi{{0, 2, 0}}, 1e-10);
+
+  // test order
+  EXPECT_EQ(basisClamped.order(), basisSeg.order());
 }
 
 /**
  * @brief Test retrieving last 2 segments from basis functions of order 3.
+ * Determine clamped basis fro segment basis and test for correct knots and
+ * order.
  *
  */
 TEST_F(BasisTest, GetSegment12O3) {
@@ -76,6 +91,17 @@ TEST_F(BasisTest, GetSegment12O3) {
           m_points)(Eigen::all, Eigen::seqN(1, basisSeg.knots().size() -
                                                    basisSeg.order()))},
       Eigen::ArrayXXd{basisSeg(m_points)}, 1e-10);
+
+  // determine clamped basis from segment basis
+  const Basis basisClamped{basisSeg.getClamped()};
+
+  // test breakpoints
+  const auto [bps, conts] = basisClamped.getBreakpoints();
+  expectAllClose(bps, Eigen::ArrayXd{{0.4, 0.6, 1.0}}, 1e-10);
+  expectAllClose(conts, Eigen::ArrayXi{{0, 1, 0}}, 1e-10);
+
+  // test order
+  EXPECT_EQ(basisClamped.order(), basisSeg.order());
 }
 
 /**
