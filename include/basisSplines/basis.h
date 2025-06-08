@@ -504,7 +504,46 @@ public:
    * @return Basis segment basis.
    */
   Basis getSegment(int first, int last) const {
+    // find first and last knots of the given segments
+    auto [begin, end] = getSegmentKnots(first, last);
+    return getSegment(begin, end);
+  }
 
+  /**
+   * @brief Determine a basis representing the segment marked by "begin" and
+   * "end" of this basis knots.
+   *
+   * @param begin iterator pointing to the first knot of a segment.
+   * @param end iterator pointing to the last knot of a segment.
+   * @return Basis segment basis.
+   */
+  Basis getSegment(
+      Eigen::internal::pointer_based_stl_iterator<const Eigen::ArrayXd> begin,
+      Eigen::internal::pointer_based_stl_iterator<const Eigen::ArrayXd> end)
+      const {
+    // copy knots to new variable
+    Eigen::ArrayXd knots(end - begin);
+    int cElem{};
+    for (; begin < end; ++begin)
+      knots(cElem++) = *begin;
+
+    return {knots, m_order};
+  }
+
+  /**
+   * @brief Determine iterators pointing to the begin and end of knots
+   * corresponding to the "first" to the "last" segment of "this" basis.
+   *
+   * @param first index of the first segment.
+   * @param last index of the last segment.
+   * @return std::pair<Eigen::internal::pointer_based_stl_iterator<const
+   * Eigen::ArrayXd>, Eigen::internal::pointer_based_stl_iterator<const
+   * Eigen::ArrayXd>> Iterators pointing to the begin and end of a knot
+   * sequence.
+   */
+  std::pair<Eigen::internal::pointer_based_stl_iterator<const Eigen::ArrayXd>,
+            Eigen::internal::pointer_based_stl_iterator<const Eigen::ArrayXd>>
+  getSegmentKnots(int first, int last) const {
     const auto breakpoints{getBreakpoints()};
 
     // find first and last knots of the given segments
@@ -516,14 +555,7 @@ public:
                           breakpoints.first(first)))
                    .base() -
                m_order};
-
-    // copy knots to new variable
-    Eigen::ArrayXd knots(end - begin);
-    int cElem{};
-    for (; begin < end; ++begin)
-      knots(cElem++) = *begin;
-
-    return {knots, m_order};
+    return {begin, end};
   }
 
   // MARK: public statics

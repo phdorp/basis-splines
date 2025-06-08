@@ -171,19 +171,20 @@ public:
    * @return Spline segment spline.
    */
   Spline getSegment(int first, int last) const {
+    // determine "begin" and "end" knot iterators of segment
+    auto [begin, end] = m_basis->getSegmentKnots(first, last);
+
     // determine basis representation of segments
     const std::shared_ptr<Basis> basisSeg{
-        std::make_shared<Basis>(m_basis->getSegment(first, last))};
+        std::make_shared<Basis>(m_basis->getSegment(begin, end))};
 
-    // points to fit segment on this spline
-    // TODO: segment wise linear spacing
-    const auto breakpoints{m_basis->getBreakpoints()};
-    const Eigen::ArrayXd points{
-        Eigen::ArrayXd::LinSpaced(basisSeg->dim(), breakpoints.first(first),
-                                  breakpoints.first(last + 1))};
+    // determine indices of coefficients of semgnet
+    int firstCoeff{static_cast<int>(begin - m_basis->knots().begin())};
+    int lastCoeff{static_cast<int>(end - m_basis->knots().begin()) -
+                  m_basis->order() - 1};
 
-    // determine new coefficients by fitting
-    return {basisSeg, Interpolate{basisSeg}.fit((*this)(points), points)};
+    // new spline
+    return {basisSeg, m_coefficients(Eigen::seq(firstCoeff, lastCoeff))};
   }
 
 private:
