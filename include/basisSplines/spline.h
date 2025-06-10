@@ -52,7 +52,7 @@ public:
    * @return Eigen::ArrayXd spline function values at "points".
    */
   Eigen::ArrayXd operator()(const Eigen::ArrayXd &points) const {
-    return (m_basis->operator()(points).matrix() * m_coefficients.matrix())
+    return (m_basis->operator()(points) * m_coefficients)
         .array();
   }
 
@@ -171,19 +171,59 @@ public:
    * @return Spline segment spline.
    */
   Spline getSegment(int first, int last) const {
+    // determine "begin" and "end" knot iterators of segment
+    auto [begin, end] = m_basis->getSegmentKnots(first, last);
+
     // determine basis representation of segments
     const std::shared_ptr<Basis> basisSeg{
-        std::make_shared<Basis>(m_basis->getSegment(first, last))};
+        std::make_shared<Basis>(m_basis->getSegment(begin, end))};
 
-    // points to fit segment on this spline
-    // TODO: segment wise linear spacing
-    const auto breakpoints{m_basis->getBreakpoints()};
-    const Eigen::ArrayXd points{
-        Eigen::ArrayXd::LinSpaced(basisSeg->dim(), breakpoints.first(first),
-                                  breakpoints.first(last + 1))};
+    // determine indices of coefficients of semgnet
+    int firstCoeff{static_cast<int>(begin - m_basis->knots().begin())};
+    int lastCoeff{static_cast<int>(end - m_basis->knots().begin()) -
+                  m_basis->order() - 1};
 
-    // determine new coefficients by fitting
-    return {basisSeg, Interpolate{basisSeg}.fit((*this)(points), points)};
+    // new spline
+    return {basisSeg, m_coefficients(Eigen::seq(firstCoeff, lastCoeff))};
+  }
+
+  /**
+   * @brief Determine spline with knots clamped to spline segment.
+   *
+   * @tparam Interp type of interpolation.
+   * @return Spline clamped spline.
+   */
+  Spline getClamped() const {
+    // determine clamped basis
+    const std::shared_ptr<Basis> basisClamped{
+        std::make_shared<Basis>(m_basis->getClamped())};
+
+    // set first and last coefficients to spline values
+    Eigen::ArrayXd coefficients {m_coefficients};
+    *(coefficients.begin()) = (*this)(*(basisClamped->knots().begin()));
+    *(coefficients.end() - 1) = (*this)(*(basisClamped->knots().end() - 1));
+
+    // determine clamped spline coefficients by fitting to this spline
+    return {basisClamped, coefficients};
+  }
+
+  /**
+   * @brief Determine spline with knots clamped to spline segment.
+   *
+   * @tparam Interp type of interpolation.
+   * @return Spline clamped spline.
+   */
+  template <typename Interp = Interpolate> Spline getClamped() const {
+    // determine clamped basis
+    const std::shared_ptr<Basis> basisClamped{
+        std::make_shared<Basis>(m_basis->getClamped())};
+
+    // determine clamped spline coefficients by fitting to this spline
+    const Interp interp{basisClamped};
+    return {basisClamped, interp.fit([&](const Eigen::ArrayXd &points) {
+              Eigen::VectorXd process{(*this)(points)};
+              return process;
+            })};
   }
 
 private:

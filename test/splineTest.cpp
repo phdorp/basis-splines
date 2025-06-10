@@ -176,37 +176,79 @@ TEST_F(SplineTest, InsertKnots) {
 
 /**
  * @brief Test retrieving first 2 segments from spline function of order 3.
+ * Determine clamped spline from spline segment and test for equality.
  *
  */
 TEST_F(SplineTest, GetSegment01O3) {
+  // determine spline representing first 2 spline segments
   const Spline splineSeg{m_splineO3Seg3.getSegment(0, 1)};
 
+  // test equality spline equality at points in the first 2 segments
   const auto breakpoints{splineSeg.basis()->getBreakpoints()};
-
   const Eigen::ArrayXd pointsSubset{
       getPointsSubset(breakpoints.first(0), breakpoints.first(2))};
 
-  const Eigen::ArrayXd valuesEst{splineSeg(pointsSubset)};
+  Eigen::ArrayXd valuesEst{splineSeg(pointsSubset)};
   const Eigen::ArrayXd valuesGtr{m_splineO3Seg3(pointsSubset)};
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
 
+  // determine clamped equivalent spline
+  const Spline splineClamped{splineSeg.getClamped()};
+
+  // test equality of clamped spline and spline segment
+  valuesEst = splineClamped(pointsSubset);
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
+}
+
+/**
+ * @brief Test retrieving mid segment from spline function of order 3.
+ * Determine clamped spline from spline segment and test for equality.
+ *
+ */
+TEST_F(SplineTest, GetSegment1O3) {
+  // determine spline representing mid spline segments
+  const Spline splineSeg{m_splineO3Seg3.getSegment(1, 1)};
+
+  // test equality spline equality at points in the first 2 segments
+  const auto breakpoints{splineSeg.basis()->getBreakpoints()};
+  const Eigen::ArrayXd pointsSubset{
+      getPointsSubset(breakpoints.first(1), breakpoints.first(2))};
+
+  Eigen::ArrayXd valuesEst{splineSeg(pointsSubset)};
+  const Eigen::ArrayXd valuesGtr{m_splineO3Seg3(pointsSubset)};
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
+
+  // determine clamped equivalent spline
+  const Spline splineClamped{splineSeg.getClamped()};
+
+  // test equality of clamped spline and spline segment
+  valuesEst = splineClamped(pointsSubset);
   expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
 
 /**
  * @brief Test retrieving last 2 segments from spline of order 3.
+ * Determine clamped spline from spline segment and test for equality.
  *
  */
 TEST_F(SplineTest, GetSegment12O3) {
+  // determine spline representing last spline segments
   const Spline splineSeg{m_splineO3Seg3.getSegment(1, 2)};
 
+  // test equality spline equality at points in the first 2 segments
   const auto breakpoints{splineSeg.basis()->getBreakpoints()};
-
   const Eigen::ArrayXd pointsSubset{
       getPointsSubset(breakpoints.first(1), breakpoints.first(3))};
 
-  const Eigen::ArrayXd valuesEst{splineSeg(pointsSubset)};
+  Eigen::ArrayXd valuesEst{splineSeg(pointsSubset)};
   const Eigen::ArrayXd valuesGtr{m_splineO3Seg3(pointsSubset)};
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
 
+  // determine clamped equivalent spline
+  const Spline splineClamped{splineSeg.getClamped()};
+
+  // test equality of clamped spline and spline segment
+  valuesEst = splineClamped(pointsSubset);
   expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
 
