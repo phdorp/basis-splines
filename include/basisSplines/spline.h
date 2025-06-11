@@ -28,7 +28,7 @@ public:
    * @param coefficients spline coefficients.
    */
   Spline(const std::shared_ptr<Basis> basis,
-         const Eigen::VectorXd &coefficients)
+         const Eigen::MatrixXd &coefficients)
       : m_basis{basis}, m_coefficients{coefficients} {}
 
   /**
@@ -36,7 +36,7 @@ public:
    *
    * @return const Eigen::ArrayXd& spline coefficients.
    */
-  const Eigen::VectorXd &coefficients() const { return m_coefficients; }
+  const Eigen::MatrixXd &coefficients() const { return m_coefficients; }
 
   /**
    * @brief Returns the spline basis.
@@ -80,7 +80,7 @@ public:
   Spline derivative(int order = 1) const {
     // create derivative basis and determine coefficients
     Basis basisNew {};
-    Eigen::VectorXd coeffsNew(m_basis->derivative(basisNew, m_coefficients, order));
+    Eigen::MatrixXd coeffsNew(m_basis->derivative(basisNew, m_coefficients, order));
 
     // return derivative spline
     return {std::make_shared<Basis>(basisNew), coeffsNew};
@@ -95,7 +95,7 @@ public:
   Spline integral(int order = 1) const {
     // create derivative basis and determine coefficients
     Basis basisNew {};
-    Eigen::VectorXd coeffsNew(m_basis->integral(basisNew, m_coefficients, order));
+    Eigen::MatrixXd coeffsNew(m_basis->integral(basisNew, m_coefficients, order));
 
     // return derivative spline
     return {std::make_shared<Basis>(basisNew), coeffsNew};
@@ -115,7 +115,7 @@ public:
                          std::max(m_basis->order(), spline.basis()->order())))};
     const Interp interp{basis};
     return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::VectorXd procSum{(*this)(points) + spline(points)};
+              Eigen::MatrixXd procSum{(*this)(points) + spline(points)};
               return procSum;
             })};
   }
@@ -134,7 +134,7 @@ public:
                          m_basis->order() + spline.basis()->order() - 1))};
     const Interp interp{basis};
     return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::VectorXd procProd{(*this)(points)*spline(points)};
+              Eigen::MatrixXd procProd{(*this)(points)*spline(points)};
               return procProd;
             })};
   }
@@ -157,7 +157,7 @@ public:
     // determine new coefficients via interpolation
     const Interp interp{basis};
     return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::VectorXd procInsert{(*this)(points)};
+              Eigen::MatrixXd procInsert{(*this)(points)};
               return procInsert;
             })};
   }
@@ -184,7 +184,7 @@ public:
                   m_basis->order() - 1};
 
     // new spline
-    return {basisSeg, m_coefficients(Eigen::seq(firstCoeff, lastCoeff))};
+    return {basisSeg, m_coefficients(Eigen::seq(firstCoeff, lastCoeff), Eigen::all)};
   }
 
   /**
@@ -221,7 +221,7 @@ public:
     // determine clamped spline coefficients by fitting to this spline
     const Interp interp{basisClamped};
     return {basisClamped, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::VectorXd process{(*this)(points)};
+              Eigen::MatrixXd process{(*this)(points)};
               return process;
             })};
   }
@@ -229,7 +229,7 @@ public:
 private:
   // MARK: private properties
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
-  Eigen::VectorXd m_coefficients{}; /**<< spline coefficients */
+  Eigen::MatrixXd m_coefficients{}; /**<< spline coefficients */
 };
 }; // namespace BasisSplines
 

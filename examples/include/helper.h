@@ -29,8 +29,8 @@ void plotSpline(const Bs::Spline &spline, const Eigen::ArrayXd &points,
   // plot coefficients at greville sites
   const Eigen::ArrayXd greville{spline.basis()->greville()};
   matplot::plot(std::vector<double>{greville.begin(), greville.end()},
-                std::vector<double>{spline.coefficients().begin(),
-                                    spline.coefficients().end()},
+                std::vector<double>{spline.coefficients()(Eigen::all, 0).begin(),
+                                    spline.coefficients()(Eigen::all, 0).end()},
                 "-o");
 
   // plot breakpoints along spline
