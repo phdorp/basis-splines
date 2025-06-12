@@ -22,7 +22,9 @@ public:
   Spline() = default;
 
   /**
-   * @brief Construct a new Spline in basis form.
+   * @brief Construct a new Spline in basis form from a "basis" spline and the "coefficients".
+   * The number of "coefficients" rows must correspond with the "basis" dimensionality.
+   * The number of "coefficients" columns corresponds with the spline output dimensionality.
    *
    * @param basis spline basis.
    * @param coefficients spline coefficients.
@@ -33,6 +35,8 @@ public:
 
   /**
    * @brief Returns the spline coefficients.
+   * The number of rows corresponds with the basis spline dimensionality.
+   * The number of columns corresponds with the spline output dimensionality.
    *
    * @return const Eigen::ArrayXd& spline coefficients.
    */
@@ -46,7 +50,9 @@ public:
   const std::shared_ptr<Basis> basis() const { return m_basis; }
 
   /**
-   * @brief Evaluate spline at given points.
+   * @brief Evaluate spline at given "points".
+   * The number of output rows corresponds with the number of "points".
+   * The number of output columns corresponds with the spline output dimensionality.
    *
    * @param points evaluation points.
    * @return Eigen::ArrayXd spline function values at "points".
