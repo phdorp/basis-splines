@@ -51,9 +51,8 @@ public:
    * @param points evaluation points.
    * @return Eigen::ArrayXd spline function values at "points".
    */
-  Eigen::ArrayXd operator()(const Eigen::ArrayXd &points) const {
-    return (m_basis->operator()(points) * m_coefficients)
-        .array();
+  Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points) const {
+    return (m_basis->operator()(points) * m_coefficients).array();
   }
 
   /**
@@ -62,7 +61,7 @@ public:
    * @param point evaluation point.
    * @return double spline fucntion value at "point".
    */
-  double operator()(double point) const { return (*this)({{point}})(0); }
+  Eigen::ArrayXd operator()(double point) const { return (*this)({{point}})(0, Eigen::all); }
 
   /**
    * @brief Create new spline with negative spline coefficients.
@@ -184,7 +183,8 @@ public:
                   m_basis->order() - 1};
 
     // new spline
-    return {basisSeg, m_coefficients(Eigen::seq(firstCoeff, lastCoeff), Eigen::all)};
+    return {basisSeg,
+            m_coefficients(Eigen::seq(firstCoeff, lastCoeff), Eigen::all)};
   }
 
   /**
@@ -199,9 +199,9 @@ public:
         std::make_shared<Basis>(m_basis->getClamped())};
 
     // set first and last coefficients to spline values
-    Eigen::ArrayXd coefficients {m_coefficients};
-    *(coefficients.begin()) = (*this)(*(basisClamped->knots().begin()));
-    *(coefficients.end() - 1) = (*this)(*(basisClamped->knots().end() - 1));
+    Eigen::ArrayXXd coefficients{m_coefficients};
+    *(coefficients.rowwise().begin()) = (*this)(*(basisClamped->knots().begin()));
+    *(coefficients.rowwise().end() - 1) = (*this)(*(basisClamped->knots().end() - 1));
 
     // determine clamped spline coefficients by fitting to this spline
     return {basisClamped, coefficients};
