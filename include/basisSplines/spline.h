@@ -22,21 +22,25 @@ public:
   Spline() = default;
 
   /**
-   * @brief Construct a new Spline in basis form.
+   * @brief Construct a new Spline in basis form from a "basis" spline and the "coefficients".
+   * The number of "coefficients" rows must correspond with the "basis" dimensionality.
+   * The number of "coefficients" columns corresponds with the spline output dimensionality.
    *
    * @param basis spline basis.
    * @param coefficients spline coefficients.
    */
   Spline(const std::shared_ptr<Basis> basis,
-         const Eigen::VectorXd &coefficients)
+         const Eigen::MatrixXd &coefficients)
       : m_basis{basis}, m_coefficients{coefficients} {}
 
   /**
    * @brief Returns the spline coefficients.
+   * The number of rows corresponds with the basis spline dimensionality.
+   * The number of columns corresponds with the spline output dimensionality.
    *
    * @return const Eigen::ArrayXd& spline coefficients.
    */
-  const Eigen::VectorXd &coefficients() const { return m_coefficients; }
+  const Eigen::MatrixXd &coefficients() const { return m_coefficients; }
 
   /**
    * @brief Returns the spline basis.
@@ -46,14 +50,22 @@ public:
   const std::shared_ptr<Basis> basis() const { return m_basis; }
 
   /**
-   * @brief Evaluate spline at given points.
+   * @brief Returns the spline output dimensionality.
+   *
+   * @return int spline output dimensionality.
+   */
+  int dim() const { return m_coefficients.cols(); }
+
+  /**
+   * @brief Evaluate spline at given "points".
+   * The number of output rows corresponds with the number of "points".
+   * The number of output columns corresponds with the spline output dimensionality.
    *
    * @param points evaluation points.
    * @return Eigen::ArrayXd spline function values at "points".
    */
-  Eigen::ArrayXd operator()(const Eigen::ArrayXd &points) const {
-    return (m_basis->operator()(points) * m_coefficients)
-        .array();
+  Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points) const {
+    return (m_basis->operator()(points) * m_coefficients).array();
   }
 
   /**
@@ -62,7 +74,7 @@ public:
    * @param point evaluation point.
    * @return double spline fucntion value at "point".
    */
-  double operator()(double point) const { return (*this)({{point}})(0); }
+  Eigen::ArrayXd operator()(double point) const { return (*this)({{point}})(0, Eigen::all); }
 
   /**
    * @brief Create new spline with negative spline coefficients.
@@ -80,7 +92,7 @@ public:
   Spline derivative(int order = 1) const {
     // create derivative basis and determine coefficients
     Basis basisNew {};
-    Eigen::VectorXd coeffsNew(m_basis->derivative(basisNew, m_coefficients, order));
+    Eigen::MatrixXd coeffsNew(m_basis->derivative(basisNew, m_coefficients, order));
 
     // return derivative spline
     return {std::make_shared<Basis>(basisNew), coeffsNew};
@@ -95,7 +107,7 @@ public:
   Spline integral(int order = 1) const {
     // create derivative basis and determine coefficients
     Basis basisNew {};
-    Eigen::VectorXd coeffsNew(m_basis->integral(basisNew, m_coefficients, order));
+    Eigen::MatrixXd coeffsNew(m_basis->integral(basisNew, m_coefficients, order));
 
     // return derivative spline
     return {std::make_shared<Basis>(basisNew), coeffsNew};
@@ -115,7 +127,7 @@ public:
                          std::max(m_basis->order(), spline.basis()->order())))};
     const Interp interp{basis};
     return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::VectorXd procSum{(*this)(points) + spline(points)};
+              Eigen::MatrixXd procSum{(*this)(points) + spline(points)};
               return procSum;
             })};
   }
@@ -134,7 +146,7 @@ public:
                          m_basis->order() + spline.basis()->order() - 1))};
     const Interp interp{basis};
     return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::VectorXd procProd{(*this)(points)*spline(points)};
+              Eigen::MatrixXd procProd{(*this)(points)*spline(points)};
               return procProd;
             })};
   }
@@ -157,7 +169,7 @@ public:
     // determine new coefficients via interpolation
     const Interp interp{basis};
     return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::VectorXd procInsert{(*this)(points)};
+              Eigen::MatrixXd procInsert{(*this)(points)};
               return procInsert;
             })};
   }
@@ -184,7 +196,8 @@ public:
                   m_basis->order() - 1};
 
     // new spline
-    return {basisSeg, m_coefficients(Eigen::seq(firstCoeff, lastCoeff))};
+    return {basisSeg,
+            m_coefficients(Eigen::seq(firstCoeff, lastCoeff), Eigen::all)};
   }
 
   /**
@@ -199,9 +212,9 @@ public:
         std::make_shared<Basis>(m_basis->getClamped())};
 
     // set first and last coefficients to spline values
-    Eigen::ArrayXd coefficients {m_coefficients};
-    *(coefficients.begin()) = (*this)(*(basisClamped->knots().begin()));
-    *(coefficients.end() - 1) = (*this)(*(basisClamped->knots().end() - 1));
+    Eigen::ArrayXXd coefficients{m_coefficients};
+    *(coefficients.rowwise().begin()) = (*this)(*(basisClamped->knots().begin()));
+    *(coefficients.rowwise().end() - 1) = (*this)(*(basisClamped->knots().end() - 1));
 
     // determine clamped spline coefficients by fitting to this spline
     return {basisClamped, coefficients};
@@ -221,7 +234,7 @@ public:
     // determine clamped spline coefficients by fitting to this spline
     const Interp interp{basisClamped};
     return {basisClamped, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::VectorXd process{(*this)(points)};
+              Eigen::MatrixXd process{(*this)(points)};
               return process;
             })};
   }
@@ -229,7 +242,7 @@ public:
 private:
   // MARK: private properties
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
-  Eigen::VectorXd m_coefficients{}; /**<< spline coefficients */
+  Eigen::MatrixXd m_coefficients{}; /**<< spline coefficients */
 };
 }; // namespace BasisSplines
 

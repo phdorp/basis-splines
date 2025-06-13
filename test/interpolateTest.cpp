@@ -64,9 +64,9 @@ TEST_F(InterpolateTest, InterpolateDerivSplineO3) {
 
   // determine spline derivatives at breakpoints
   std::vector<Eigen::VectorXd> observations{
-      Eigen::VectorXd{{m_splineO3(bps(0)), m_splineO3.derivative()(bps(0))}},
-      Eigen::VectorXd{{m_splineO3(bps(1))}},
-      Eigen::VectorXd{{m_splineO3(bps(2)), m_splineO3.derivative()(bps(2))}}};
+      Eigen::VectorXd{{m_splineO3(bps(0))(0), m_splineO3.derivative()(bps(0))(0)}},
+      Eigen::VectorXd{{m_splineO3(bps(1))(0)}},
+      Eigen::VectorXd{{m_splineO3(bps(2))(0), m_splineO3.derivative()(bps(2))(0)}}};
 
   // specify derivative orders
   std::vector<Eigen::VectorXi> derivOrders{
