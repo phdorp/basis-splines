@@ -15,7 +15,7 @@ protected:
   std::shared_ptr<Basis> m_basisO2{std::make_shared<Basis>(m_knotsO2, 2)};
 
   const Spline m_splineO3Seg3{m_basisO3Seg3,
-                              Eigen::VectorXd::Random(m_basisO3Seg3->dim())};
+                              Eigen::MatrixXd::Random(m_basisO3Seg3->dim(), 2)};
 };
 
 /**
@@ -32,7 +32,8 @@ TEST_F(SplineTest, SplineEvalO2) {
   const Eigen::ArrayXXd valuesEst{spline(points)};
 
   // ground truth assumes picewise linear function between coefficients
-  const Eigen::ArrayXXd valuesGtr{Eigen::ArrayXXd{{0.0, 0.5, 1.0, 0.25}}.transpose()};
+  const Eigen::ArrayXXd valuesGtr{
+      Eigen::ArrayXXd{{0.0, 0.5, 1.0, 0.25}}.transpose()};
 
   expectAllClose(valuesEst, valuesGtr, 1e-6);
 }
@@ -51,7 +52,9 @@ TEST_F(SplineTest, SplineEvalO2D2) {
   const Eigen::ArrayXXd valuesEst{spline(points)};
 
   // ground truth assumes picewise linear function between coefficients
-  const Eigen::ArrayXXd valuesGtr{Eigen::ArrayXXd{{0.0, 0.5, 1.0, 0.25}, {0.0, 0.5, 1.0, 0.25}}.transpose()};
+  const Eigen::ArrayXXd valuesGtr{Eigen::ArrayXXd{
+      {0.0, 0.5, 1.0, 0.25},
+      {0.0, 0.5, 1.0, 0.25}}.transpose()};
 
   expectAllClose(valuesEst, valuesGtr, 1e-6);
 }
@@ -62,14 +65,12 @@ TEST_F(SplineTest, SplineEvalO2D2) {
  */
 TEST_F(SplineTest, SplineSumO3) {
   // instatiate left operand spline of order 3
-  const Eigen::ArrayXd coeffsL{Eigen::ArrayXd::Random(m_basisO3->dim())};
-  const Spline splineL{m_basisO3, coeffsL};
+  const Spline splineL{m_basisO3, Eigen::MatrixXd::Random(m_basisO3->dim(), 2)};
 
   // instantiate right operand spline of order 3
   const Eigen::ArrayXd knotsR{{0.0, 0.0, 0.0, 0.25, 0.5, 0.8, 1.0, 1.0}};
   std::shared_ptr<Basis> basisR{std::make_shared<Basis>(knotsR, 3)};
-  const Eigen::ArrayXd coeffsR{Eigen::ArrayXd::Random(basisR->dim())};
-  const Spline splineR{basisR, coeffsR};
+  const Spline splineR{basisR, Eigen::MatrixXd::Random(basisR->dim(), 2)};
 
   // get gt from spline sum
   const Eigen::ArrayXXd valuesGtr{splineL(m_points) + splineR(m_points)};
@@ -87,14 +88,12 @@ TEST_F(SplineTest, SplineSumO3) {
  */
 TEST_F(SplineTest, SplineProdO3) {
   // instatiate left operand spline of order 3
-  const Eigen::ArrayXd coeffsL{Eigen::ArrayXd::Random(m_basisO3->dim())};
-  const Spline splineL{m_basisO3, coeffsL};
+  const Spline splineL{m_basisO3, Eigen::MatrixXd::Random(m_basisO3->dim(), 2)};
 
   // instantiate right operand spline of order 3
   const Eigen::ArrayXd knotsR{{0.0, 0.0, 0.0, 0.25, 0.5, 0.8, 1.0, 1.0}};
   std::shared_ptr<Basis> basisR{std::make_shared<Basis>(knotsR, 3)};
-  const Eigen::ArrayXd coeffsR{Eigen::ArrayXd::Random(basisR->dim())};
-  const Spline splineR{basisR, coeffsR};
+  const Spline splineR{basisR, Eigen::MatrixXd::Random(basisR->dim(), 2)};
 
   // get gt from spline product
   const Eigen::ArrayXXd valuesGtr{splineL(m_points) * splineR(m_points)};
@@ -112,14 +111,12 @@ TEST_F(SplineTest, SplineProdO3) {
  */
 TEST_F(SplineTest, SplineProdO3O4) {
   // instatiate left operand spline of order 3
-  const Eigen::ArrayXd coeffsL{Eigen::ArrayXd::Random(m_basisO3->dim())};
-  const Spline splineL{m_basisO3, coeffsL};
+  const Spline splineL{m_basisO3, Eigen::MatrixXd::Random(m_basisO3->dim(), 2)};
 
   // instantiate right operand spline of order 4
   const Eigen::ArrayXd knotsR{{0.0, 0.0, 0.0, 0.25, 0.5, 0.8, 1.0, 1.0}};
   std::shared_ptr<Basis> basisR{std::make_shared<Basis>(knotsR, 4)};
-  const Eigen::ArrayXd coeffsR{Eigen::ArrayXd::Random(basisR->dim())};
-  const Spline splineR{basisR, coeffsR};
+  const Spline splineR{basisR, Eigen::MatrixXd::Random(basisR->dim(), 2)};
 
   // get gt from spline product
   const Eigen::ArrayXXd valuesGtr{splineL(m_points) * splineR(m_points)};
@@ -177,8 +174,7 @@ TEST_F(SplineTest, SplineIintO3) {
 
 TEST_F(SplineTest, InsertKnots) {
   // instantiate spline of order 3
-  const Eigen::ArrayXd coeffs{Eigen::ArrayXd::Random(m_basisO3->dim())};
-  const Spline spline{m_basisO3, coeffs};
+  const Spline spline{m_basisO3, Eigen::MatrixXd::Random(m_basisO3->dim(), 2)};
 
   // insert knots
   const Eigen::ArrayXd knotsInsert{{0.4, 0.5, 0.6}};
