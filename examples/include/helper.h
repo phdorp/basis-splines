@@ -18,24 +18,26 @@ namespace Mt = matplot;
  * @param spline spline object to plot.
  * @param points function evaluation points.
  * @param axesHandle axis handle for plotting.
+ * @param dim output dimension to plot.
  */
 void plotSpline(const Bs::Spline &spline, const Eigen::ArrayXd &points,
-                const Mt::axes_handle axesHandle) {
+                const Mt::axes_handle axesHandle, int dim = 0) {
   // plot spline at evaluation points
-  const Eigen::ArrayXd splineVals{spline(points)};
+  const Eigen::ArrayXd splineVals{spline(points)(Eigen::all, dim)};
   axesHandle->plot(std::vector<double>{points.begin(), points.end()},
                    std::vector<double>{splineVals.begin(), splineVals.end()});
 
   // plot coefficients at greville sites
   const Eigen::ArrayXd greville{spline.basis()->greville()};
-  matplot::plot(std::vector<double>{greville.begin(), greville.end()},
-                std::vector<double>{spline.coefficients()(Eigen::all, 0).begin(),
-                                    spline.coefficients()(Eigen::all, 0).end()},
-                "-o");
+  matplot::plot(
+      std::vector<double>{greville.begin(), greville.end()},
+      std::vector<double>{spline.coefficients()(Eigen::all, dim).begin(),
+                          spline.coefficients()(Eigen::all, dim).end()},
+      "-o");
 
   // plot breakpoints along spline
   const Eigen::ArrayXd bps = spline.basis()->getBreakpoints().first;
-  const Eigen::ArrayXd splineValsBps{spline(bps)};
+  const Eigen::ArrayXd splineValsBps{spline(bps)(Eigen::all, dim)};
   matplot::scatter(
       std::vector<double>{bps.begin(), bps.end()},
       std::vector<double>{splineValsBps.begin(), splineValsBps.end()})
