@@ -50,6 +50,13 @@ public:
   const std::shared_ptr<Basis> basis() const { return m_basis; }
 
   /**
+   * @brief Returns the spline output dimensionality.
+   *
+   * @return int spline output dimensionality.
+   */
+  int dim() const { return m_coefficients.cols(); }
+
+  /**
    * @brief Evaluate spline at given "points".
    * The number of output rows corresponds with the number of "points".
    * The number of output columns corresponds with the spline output dimensionality.
