@@ -368,28 +368,6 @@ public:
   const Eigen::ArrayXd &knots() const { return m_knots; }
 
   /**
-   * @brief Set breakpoint continuities at given breakpoint indices.
-   *
-   * @param continuityNew new continuities.
-   * @param idcs breakpoint indices to set.
-   */
-  void setContinuities(const Eigen::ArrayXi &continuityNew,
-                       const Eigen::ArrayXi &idcs) {
-    auto [breakpoints, conts] = getBreakpoints();
-
-    if ((continuityNew < 0).any())
-      throw std::invalid_argument("Breakpoint continuity must be positive.");
-
-    if ((continuityNew >= m_order).any())
-      throw std::invalid_argument(
-          "Breakpoint continuity must not exceed basis order.");
-
-    conts(idcs) = continuityNew;
-
-    m_knots = toKnots({breakpoints, conts}, m_order);
-  }
-
-  /**
    * @brief Set breakpoints at given breakpoint indices.
    *
    * @param breakpointsNew new breakpoints.
