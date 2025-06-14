@@ -162,6 +162,36 @@ TEST_F(BasisTest, DerivMatO3) {
 }
 
 /**
+ * @brief Test generation of derivative transformation matrix with scaled basis.
+ *
+ */
+TEST_F(BasisTest, DerivMatO3Scaled) {
+  // scale basis with m_scalingFactor
+  Basis basisO3Scale2{*m_basisO3};
+  basisO3Scale2.setScale(m_scalingFactor);
+
+  // get derivative of scaled basis
+  Basis basisEst{};
+  const Eigen::ArrayXd valuesEst{m_basisO3->derivative(basisEst, 1) *
+                                 m_splineO3.coefficients().matrix()};
+
+  // scale breakpoints with 2
+  Basis basisO3Bps2{*m_basisO3};
+  const Eigen::ArrayXd breakpoints{basisO3Bps2.getBreakpoints().first};
+  basisO3Bps2.setBreakpoints(
+      breakpoints * m_scalingFactor,
+      Eigen::ArrayXi::LinSpaced(breakpoints.size(), 0, breakpoints.size()));
+
+  // get derivative of breakpoint scaled basis
+  Basis basisGtr{};
+  const Eigen::ArrayXd valuesGtr{m_basisO3->derivative(basisGtr, 1) *
+                                 m_splineO3.coefficients().matrix()};
+
+  // test if coefficients are almost equal
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
+}
+
+/**
  * @brief Test generation of second derivative transformation matrix.
  *
  */
@@ -212,28 +242,34 @@ TEST_F(BasisTest, DerivTransformO3) {
 }
 
 /**
- * @brief Test generation of second derivative v
+ * @brief Test generation of second derivative value transformation with scaled
+ * basis.
  *
  */
-TEST_F(BasisTest, DderivTransformO3) {
-  // ground truth from spline fit to derivative
-  const Eigen::ArrayXd valuesGtr{m_splineO3Dder.coefficients()};
+TEST_F(BasisTest, DerivTransformO3Scaled) {
+  // scale basis with m_scalingFactor
+  Basis basisO3Scale2{*m_basisO3};
+  basisO3Scale2.setScale(m_scalingFactor);
 
-  // get estimate from result spline
+  // get derivative of scaled basis
   Basis basisEst{};
   const Eigen::ArrayXd valuesEst{
-      m_basisO3->derivative(basisEst, m_splineO3.coefficients(), 2)};
+      basisO3Scale2.derivative(basisEst, m_splineO3.coefficients(), 1)};
+
+  // scale breakpoints with m_scalingFactor
+  Basis basisO3Bps2{*m_basisO3};
+  const Eigen::ArrayXd breakpoints{basisO3Bps2.getBreakpoints().first};
+  basisO3Bps2.setBreakpoints(
+      breakpoints * m_scalingFactor,
+      Eigen::ArrayXi::LinSpaced(breakpoints.size(), 0, breakpoints.size()));
+
+  // get derivative of breakpoint scaled basis
+  Basis basisGtr{};
+  const Eigen::ArrayXd valuesGtr{
+      basisO3Bps2.derivative(basisEst, m_splineO3.coefficients(), 1)};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
-
-  // ground truth basis
-  Basis basisGtr{*m_basisO3Dder.get()};
-
-  // test if knots are almost equal
-  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
-  // test if order is equal
-  EXPECT_EQ(basisGtr.order(), basisEst.order());
 }
 
 /**
@@ -259,6 +295,36 @@ TEST_F(BasisTest, IntMatO3) {
   expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
   // test if order is equal
   EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
+/**
+ * @brief Test generation of integral transformation matrix with scaled basis.
+ *
+ */
+TEST_F(BasisTest, IntMatO3Scaled) {
+  // scale basis with m_scalingFactor
+  Basis basisO3Scale2{*m_basisO3};
+  basisO3Scale2.setScale(m_scalingFactor);
+
+  // get estimate from result spline
+  Basis basisEst{};
+  const Eigen::ArrayXd valuesEst{basisO3Scale2.integral(basisEst, 1) *
+                                 m_splineO3.coefficients().matrix()};
+
+  // scale breakpoints with m_scalingFactor
+  Basis basisO3Bps2{*m_basisO3};
+  const Eigen::ArrayXd breakpoints{basisO3Bps2.getBreakpoints().first};
+  basisO3Bps2.setBreakpoints(
+      breakpoints * m_scalingFactor,
+      Eigen::ArrayXi::LinSpaced(breakpoints.size(), 0, breakpoints.size()));
+
+  // get derivative of breakpoint scaled basis
+  Basis basisGtr{};
+  const Eigen::ArrayXd valuesGtr{basisO3Bps2.integral(basisGtr, 1) *
+                                 m_splineO3.coefficients().matrix()};
+
+  // test if coefficients are almost equal
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
 
 /**
@@ -309,6 +375,36 @@ TEST_F(BasisTest, IntTransformO3) {
   expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
   // test if order is equal
   EXPECT_EQ(basisGtr.order(), basisEst.order());
+}
+
+/**
+ * @brief Test generation of integral value transformation with scaled basis.
+ *
+ */
+TEST_F(BasisTest, IntTransformO3Scaled) {
+  // scale basis with m_scalingFactor
+  Basis basisO3Scale2{*m_basisO3};
+  basisO3Scale2.setScale(m_scalingFactor);
+
+  // get estimate from result spline
+  Basis basisEst{};
+  const Eigen::ArrayXd valuesEst{
+      basisO3Scale2.integral(basisEst, m_splineO3.coefficients(), 1)};
+
+  // scale breakpoints with m_scalingFactor
+  Basis basisO3Bps2{*m_basisO3};
+  const Eigen::ArrayXd breakpoints{basisO3Bps2.getBreakpoints().first};
+  basisO3Bps2.setBreakpoints(
+      breakpoints * m_scalingFactor,
+      Eigen::ArrayXi::LinSpaced(breakpoints.size(), 0, breakpoints.size()));
+
+  // get derivative of breakpoint scaled basis
+  Basis basisGtr{};
+  const Eigen::ArrayXd valuesGtr{
+      basisO3Bps2.integral(basisEst, m_splineO3.coefficients(), 1)};
+
+  // test if coefficients are almost equal
+  expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
 
 /**

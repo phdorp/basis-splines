@@ -110,6 +110,8 @@ protected:
       3)}; /**<< order 3 basis */
 
   const Eigen::ArrayXd m_points{Eigen::ArrayXd::LinSpaced(101, 0.0, 1.0)};
+
+  const double m_scalingFactor {2.0};
 };
 
 }; // namespace Internal

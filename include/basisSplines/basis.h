@@ -30,8 +30,8 @@ public:
    * @param knots locations of the BasisBase knots.
    * @param order basis order.
    */
-  Basis(const Eigen::ArrayXd &knots, int order)
-      : m_knots{knots}, m_order{order} {}
+  Basis(const Eigen::ArrayXd &knots, int order, double scale = 1.0)
+      : m_knots{knots}, m_order{order}, m_scale{scale} {}
 
   /**
    * @brief Create new basis including the given and this basis' knots.
@@ -55,6 +55,9 @@ public:
    * @return Eigen::ArrayXd knots as the combination of both bases.
    */
   Basis combine(const Basis &basis, int order, double accuracy = 1e-6) const {
+    assert(std::abs(m_scale - basis.getScale()) < accuracy &&
+           "Only basis with same scale can be combined.");
+
     Eigen::ArrayXd knotsThis{toKnots(getBreakpoints(), order)};
     Eigen::ArrayXd knotsOther{toKnots(basis.getBreakpoints(), order)};
 
@@ -154,8 +157,9 @@ public:
     // determine transformation matrix
     Eigen::MatrixXd transform(Eigen::MatrixXd::Zero(dim() - 1, dim()));
     for (int cRow{}; cRow < transform.rows(); ++cRow) {
-      transform(cRow, cRow) =
-          (order() - 1) / (knots()(cRow + 1) - knots()(order() + cRow));
+      transform(cRow, cRow) = (order() - 1) /
+                              (knots()(cRow + 1) - knots()(order() + cRow)) /
+                              m_scale;
       transform(cRow, cRow + 1) = -transform(cRow, cRow);
     }
 
@@ -196,7 +200,7 @@ public:
     Eigen::VectorXd valuesNew(basisDeriv.dim());
     for (int idx{}; idx < valuesNew.size(); ++idx)
       valuesNew(idx) = (order() - 1) * (values(idx + 1) - values(idx)) /
-                       (knots()(idx + order()) - knots()(idx + 1));
+                       (knots()(idx + order()) - knots()(idx + 1)) / m_scale;
 
     // base case order 1 derivative
     if (orderDer == 1) {
@@ -232,7 +236,8 @@ public:
     int cCol{};
     for (auto col : transform.colwise()) {
       for (int cRow{cCol + 1}; cRow < transform.rows(); ++cRow) {
-        col(cRow) = (knots()(order() + cCol) - knots()(cCol)) / order();
+        col(cRow) =
+            (knots()(order() + cCol) - knots()(cCol)) / order() * m_scale;
       }
       ++cCol;
     }
@@ -273,9 +278,10 @@ public:
     // k_i) / o + valuesNew_i
     Eigen::VectorXd valuesNew(basisInt.dim());
     for (int idx{}; idx < valuesNew.size() - 1; ++idx)
-      valuesNew(idx + 1) =
-          values(idx) * (knots()(idx + order()) - knots()(idx)) / order() +
-          valuesNew(idx);
+      valuesNew(idx + 1) = values(idx) *
+                               (knots()(idx + order()) - knots()(idx)) /
+                               order() * m_scale +
+                           valuesNew(idx);
 
     // base case order 1 integral
     if (orderInt == 1) {
@@ -396,6 +402,20 @@ public:
   getBreakpoints(double accuracy = 1e-6) const {
     return toBreakpoints(m_knots, m_order, accuracy);
   }
+
+  /**
+   * @brief Get the basis scaling factor.
+   *
+   * @return double scaling fator.
+   */
+  double getScale() const { return m_scale; }
+
+  /**
+   * @brief Set the basis scaling factor.
+   *
+   * @param scale scaling fator.
+   */
+  void setScale(double scale) { m_scale = scale; }
 
   /**
    * @brief Evaluate the truncated power basis at the given points.
@@ -546,16 +566,11 @@ public:
     Eigen::ArrayXd knots{m_knots};
 
     // first m_order knots clamped to segment start
-    auto knotPtr{knots.begin()};
-    auto endPtr{knots.begin() + m_order - 1};
-    for (; knotPtr < endPtr; ++knotPtr)
-      *knotPtr = *endPtr;
+    knots(Eigen::seqN(0, m_order - 1)) = knots(m_order - 1);
 
     // last m_order knots clamped to segment end
-    knotPtr = {knots.end()};
-    endPtr = {knots.end() - m_order + 1};
-    for (; knotPtr > endPtr; --knotPtr)
-      *knotPtr = *endPtr;
+    knots(Eigen::seqN(knots.size() - m_order + 1, m_order - 1)) =
+        knots(knots.size() - m_order + 1);
 
     return {knots, m_order};
   }
@@ -617,6 +632,7 @@ private:
   // MARK: private properties
   Eigen::ArrayXd m_knots; /**<< basis knots */
   int m_order{};          /**<< basis order */
+  double m_scale{};       /**<< basis knot scale */
 
   // MARK: private methods
   bool inKnotSeg(double knotL, double knotR, double point,
