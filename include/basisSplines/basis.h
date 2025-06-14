@@ -546,16 +546,11 @@ public:
     Eigen::ArrayXd knots{m_knots};
 
     // first m_order knots clamped to segment start
-    auto knotPtr{knots.begin()};
-    auto endPtr{knots.begin() + m_order - 1};
-    for (; knotPtr < endPtr; ++knotPtr)
-      *knotPtr = *endPtr;
+    knots(Eigen::seqN(0, m_order - 1)) = knots(m_order - 1);
 
     // last m_order knots clamped to segment end
-    knotPtr = {knots.end()};
-    endPtr = {knots.end() - m_order + 1};
-    for (; knotPtr > endPtr; --knotPtr)
-      *knotPtr = *endPtr;
+    knots(Eigen::seqN(knots.size() - m_order + 1, m_order - 1)) =
+        knots(knots.size() - m_order + 1);
 
     return {knots, m_order};
   }
