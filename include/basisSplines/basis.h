@@ -404,6 +404,20 @@ public:
   }
 
   /**
+   * @brief Get the basis scaling factor.
+   *
+   * @return double scaling fator.
+   */
+  double getScale() const { return m_scale; }
+
+  /**
+   * @brief Set the basis scaling factor.
+   *
+   * @param scale scaling fator.
+   */
+  void setScale(double scale) { m_scale = scale; }
+
+  /**
    * @brief Evaluate the truncated power basis at the given points.
    *
    * @param points evaluation points.
