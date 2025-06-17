@@ -21,7 +21,7 @@ protected:
   std::shared_ptr<Basis> m_basisO3{std::make_shared<Basis>(m_knotsO3, 3)};
   const Spline m_splineO3{
       m_basisO3,
-      Eigen::VectorXd::Random(m_knotsO3.size() - m_basisO3->order())};
+      Eigen::MatrixXd::Random(m_knotsO3.size() - m_basisO3->order(), 2)};
   const Interpolate m_interpO3{m_basisO3};
 };
 
@@ -45,10 +45,10 @@ TEST_F(InterpolateTest, InterpolateSplineO2) {
  *
  */
 TEST_F(InterpolateTest, InterpolateSplineO3) {
-  const Eigen::ArrayXd coeffsEst{
+  const Eigen::ArrayXXd coeffsEst{
       m_interpO3.fit(m_splineO3(m_basisO3->greville()), m_basisO3->greville())};
 
-  const Eigen::ArrayXd coeffsGtr{m_splineO3.coefficients()};
+  const Eigen::ArrayXXd coeffsGtr{m_splineO3.coefficients()};
 
   expectAllClose(coeffsGtr, coeffsEst, 1e-6);
 }
@@ -63,20 +63,28 @@ TEST_F(InterpolateTest, InterpolateDerivSplineO3) {
   const auto [bps, conts] = m_basisO3->getBreakpoints();
 
   // determine spline derivatives at breakpoints
-  std::vector<Eigen::VectorXd> observations{
-      Eigen::VectorXd{{m_splineO3(bps(0))(0), m_splineO3.derivative()(bps(0))(0)}},
-      Eigen::VectorXd{{m_splineO3(bps(1))(0)}},
-      Eigen::VectorXd{{m_splineO3(bps(2))(0), m_splineO3.derivative()(bps(2))(0)}}};
+  std::vector<Eigen::MatrixXd> observations(3);
+  observations[0] = Eigen::MatrixXd(m_splineO3.dim(), 2);
+  observations[0] << m_splineO3(bps(0)), m_splineO3.derivative()(bps(0));
+  observations[0].transposeInPlace();
+  observations[1] = Eigen::MatrixXd(m_splineO3.dim(), 1);
+  observations[1] << m_splineO3(bps(1));
+  observations[1].transposeInPlace();
+  observations[2] = Eigen::MatrixXd(m_splineO3.dim(), 2);
+  observations[2] << m_splineO3(bps(2)), m_splineO3.derivative()(bps(2));
+  observations[2].transposeInPlace();
 
-  // specify derivative orders
+  Eigen::MatrixXd a { m_splineO3.derivative()(bps(2))};
+
+  // // specify derivative orders
   std::vector<Eigen::VectorXi> derivOrders{
       Eigen::VectorXi{{0, 1}}, Eigen::VectorXi{{0}}, Eigen::VectorXi{{0, 1}}};
 
-  // fit coefficients
-  const Eigen::ArrayXd coeffsEst{
+  // // fit coefficients
+  const Eigen::ArrayXXd coeffsEst{
       m_interpO3.fit(observations, derivOrders, bps)};
 
-  const Eigen::ArrayXd coeffsGtr{m_splineO3.coefficients()};
+  const Eigen::ArrayXXd coeffsGtr{m_splineO3.coefficients()};
 
   expectAllClose(coeffsGtr, coeffsEst, 1e-6);
 }
