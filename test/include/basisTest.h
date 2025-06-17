@@ -34,24 +34,32 @@ protected:
     return subset;
   }
 
-  static Eigen::ArrayXd polyO3(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{points.pow(2)};
+  static Eigen::MatrixXd polyO3(const Eigen::ArrayXd &points) {
+    Eigen::MatrixXd values (points.size(), 2);
+    values << points.pow(2), points.pow(2);
+    return values;
   }
 
-  static Eigen::ArrayXd polyO3Der(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{2 * points};
+  static Eigen::MatrixXd polyO3Der(const Eigen::ArrayXd &points) {
+    Eigen::MatrixXd values (points.size(), 2);
+    values << 2 * points, 2 * points;
+    return values;
   }
 
-  static Eigen::ArrayXd polyO3Dder(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd::Zero(points.size()) + 2;
+  static Eigen::MatrixXd polyO3Dder(const Eigen::ArrayXd &points) {
+    return Eigen::ArrayXXd::Zero(points.size(), 2) + 2;
   }
 
-  static Eigen::ArrayXd polyO3Int(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{points.pow(3) / 3};
+  static Eigen::MatrixXd polyO3Int(const Eigen::ArrayXd &points) {
+    Eigen::MatrixXd values (points.size(), 2);
+    values << points.pow(3) / 3, points.pow(3) / 3;
+    return values;
   }
 
-  static Eigen::ArrayXd polyO3Iint(const Eigen::ArrayXd &points) {
-    return Eigen::ArrayXd{points.pow(4) / 12};
+  static Eigen::MatrixXd polyO3Iint(const Eigen::ArrayXd &points) {
+    Eigen::MatrixXd values (points.size(), 2);
+    values << points.pow(4) / 12, points.pow(4) / 12;
+    return values;
   }
 
   // create basis of order 3
