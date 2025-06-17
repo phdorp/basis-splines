@@ -131,7 +131,8 @@ public:
 
     // create new basis of lower order and additional breakpoints
     Eigen::ArrayXd knotsNew(knots().size() + 2 * orderInc);
-    knotsNew << Eigen::ArrayXd::Zero(orderInc) + knots()(0), knots(), Eigen::ArrayXd::Zero(orderInc) + *(knots().end());
+    knotsNew << Eigen::ArrayXd::Zero(orderInc) + knots()(0), knots(),
+        Eigen::ArrayXd::Zero(orderInc) + *(knots().end());
     Basis basis{knotsNew, order() + orderInc};
 
     // create basis of higher order
@@ -183,9 +184,9 @@ public:
    * @param basis basis of reduced order.
    * @param values basis values or spline coefficients.
    * @param orderDer derivative order.
-   * @return Eigen::VectorXd derivative values.
+   * @return Eigen::MatrixXd derivative values.
    */
-  Eigen::VectorXd derivative(Basis &basis, const Eigen::VectorXd &values,
+  Eigen::MatrixXd derivative(Basis &basis, const Eigen::MatrixXd &values,
                              int orderDer = 1) const {
     if (orderDer == 0) {
       basis = *this;
@@ -197,10 +198,12 @@ public:
 
     // values transformed to derivative valuesNew = o * (values_i+1 - values_i)
     // / (k_i+o - k_i+1)
-    Eigen::VectorXd valuesNew(basisDeriv.dim());
-    for (int idx{}; idx < valuesNew.size(); ++idx)
-      valuesNew(idx) = (order() - 1) * (values(idx + 1) - values(idx)) /
-                       (knots()(idx + order()) - knots()(idx + 1)) / m_scale;
+    Eigen::MatrixXd valuesNew(basisDeriv.dim(), values.cols());
+    for (int idx{}; idx < valuesNew.rows(); ++idx)
+      valuesNew(idx, Eigen::all) =
+          (order() - 1) *
+          (values(idx + 1, Eigen::all) - values(idx, Eigen::all)) /
+          (knots()(idx + order()) - knots()(idx + 1)) / m_scale;
 
     // base case order 1 derivative
     if (orderDer == 1) {
@@ -264,7 +267,7 @@ public:
    * @param orderInt integral order.
    * @return Eigen::VectorXd integral values.
    */
-  Eigen::VectorXd integral(Basis &basis, const Eigen::VectorXd &values,
+  Eigen::MatrixXd integral(Basis &basis, const Eigen::MatrixXd &values,
                            int orderInt = 1) const {
     if (orderInt == 0) {
       basis = *this;
@@ -276,12 +279,12 @@ public:
 
     // values transformed to integral valuesNew_i+1 = values_i * (k_i+o -
     // k_i) / o + valuesNew_i
-    Eigen::VectorXd valuesNew(basisInt.dim());
-    for (int idx{}; idx < valuesNew.size() - 1; ++idx)
-      valuesNew(idx + 1) = values(idx) *
-                               (knots()(idx + order()) - knots()(idx)) /
-                               order() * m_scale +
-                           valuesNew(idx);
+    Eigen::MatrixXd valuesNew{Eigen::MatrixXd::Zero(basisInt.dim(), values.cols())};
+    for (int idx{}; idx < valuesNew.rows() - 1; ++idx)
+      valuesNew(idx + 1, Eigen::all) =
+          values(idx, Eigen::all) * (knots()(idx + order()) - knots()(idx)) /
+              order() * m_scale +
+          valuesNew(idx, Eigen::all);
 
     // base case order 1 integral
     if (orderInt == 1) {

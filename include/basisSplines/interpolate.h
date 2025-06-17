@@ -53,7 +53,7 @@ public:
    */
   template <
       typename DecompositionType = Eigen::ColPivHouseholderQR<Eigen::MatrixXd>>
-  Eigen::ArrayXd fit(const std::vector<Eigen::VectorXd> &observations,
+  Eigen::MatrixXd fit(const std::vector<Eigen::MatrixXd> &observations,
                      const std::vector<Eigen::VectorXi> &derivOrders,
                      const Eigen::ArrayXd &points) const {
 
@@ -75,9 +75,9 @@ public:
     Eigen::MatrixXd basisValues(m_basis->dim(), m_basis->dim());
     int cObs{};
     int cRow{};
-    for (const Eigen::VectorXd &observation : observations) {
+    for (const Eigen::MatrixXd &observation : observations) {
       int cValue{};
-      for (double value : observation) {
+      for (auto row : observation.rowwise()) {
         basisValues(cRow++, Eigen::all) =
             bases[derivOrders[cObs](cValue)](points(cObs)) *
             transforms[derivOrders[cObs](cValue)];
@@ -87,11 +87,11 @@ public:
     }
 
     // arrange observation in array
-    Eigen::VectorXd splineValues(m_basis->dim());
+    Eigen::MatrixXd splineValues(m_basis->dim(), observations[0].cols());
     int cElem{};
     for (const auto &observation : observations)
-      for (double value : observation)
-        splineValues(cElem++) = value;
+      for (auto row : observation.rowwise())
+        splineValues(cElem++, Eigen::all) = row;
 
     // solve for spline coefficients
     return DecompositionType{basisValues}.solve(splineValues);
