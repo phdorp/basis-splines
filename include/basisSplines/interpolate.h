@@ -79,7 +79,7 @@ public:
       int cValue{};
       for (auto row : observation.rowwise()) {
         basisValues(cRow++, Eigen::all) =
-            bases[derivOrders[cObs](cValue)](points(cObs)) *
+            bases[derivOrders[cObs](cValue)]({{points(cObs)}}) *
             transforms[derivOrders[cObs](cValue)];
         ++cValue;
       }
