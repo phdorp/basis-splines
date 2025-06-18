@@ -83,14 +83,6 @@ public:
   }
 
   /**
-   * @brief Evaluate spline at given point.
-   *
-   * @param point evaluation point.
-   * @return double spline fucntion value at "point".
-   */
-  Eigen::ArrayXd operator()(double point) const { return (*this)({{point}})(0, Eigen::all); }
-
-  /**
    * @brief Create new spline with negative spline coefficients.
    *
    * @return Spline spline with negative spline coefficients.
@@ -227,8 +219,10 @@ public:
 
     // set first and last coefficients to spline values
     Eigen::ArrayXXd coefficients{m_coefficients};
-    *(coefficients.rowwise().begin()) = (*this)(*(basisClamped->knots().begin()));
-    *(coefficients.rowwise().end() - 1) = (*this)(*(basisClamped->knots().end() - 1));
+    *(coefficients.rowwise().begin()) =
+        (*this)({{*(basisClamped->knots().begin())}});
+    *(coefficients.rowwise().end() - 1) =
+        (*this)({{*(basisClamped->knots().end() - 1)}});
 
     // determine clamped spline coefficients by fitting to this spline
     return {basisClamped, coefficients};
