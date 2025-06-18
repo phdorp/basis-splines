@@ -170,6 +170,8 @@ public:
    * @return Eigen::MatrixXd transformation matrix.
    */
   Eigen::MatrixXd derivative(Basis &basis, int orderDer = 1) const {
+    assert(orderDer >= 0 && "Derivative order must be positive.");
+
     if (orderDer == 0) {
       basis = *this;
       return Eigen::MatrixXd::Identity(dim(), dim());
@@ -210,6 +212,8 @@ public:
    */
   Eigen::MatrixXd derivative(Basis &basis, const Eigen::MatrixXd &values,
                              int orderDer = 1) const {
+    assert(orderDer >= 0 && "Derivative order must be positive.");
+
     if (orderDer == 0) {
       basis = *this;
       return values;
@@ -250,6 +254,7 @@ public:
    * @return Eigen::MatrixXd transformation matrix.
    */
   Eigen::MatrixXd integral(Basis &basis, int orderInt = 1) const {
+    assert(orderInt >= 0 && "Integral order must be positive.");
 
     if (orderInt == 0) {
       basis = *this;
@@ -295,6 +300,8 @@ public:
    */
   Eigen::MatrixXd integral(Basis &basis, const Eigen::MatrixXd &values,
                            int orderInt = 1) const {
+    assert(orderInt >= 0 && "Integral order must be positive.");
+
     if (orderInt == 0) {
       basis = *this;
       return values;

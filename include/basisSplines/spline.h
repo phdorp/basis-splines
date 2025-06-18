@@ -92,13 +92,16 @@ public:
   /**
    * @brief Create new spline as derivative of this spline.
    *
-   * @param order derivative order.
-   * @return Spline as derivative of "order".
+   * @param orderDer derivative order.
+   * @return Spline as derivative of "orderDer".
    */
-  Spline derivative(int order = 1) const {
+  Spline derivative(int orderDer = 1) const {
+    assert(orderDer >= 0 && "Derivative order must be positive.");
+
     // create derivative basis and determine coefficients
-    Basis basisNew {};
-    Eigen::MatrixXd coeffsNew(m_basis->derivative(basisNew, m_coefficients, order));
+    Basis basisNew{};
+    Eigen::MatrixXd coeffsNew(
+        m_basis->derivative(basisNew, m_coefficients, orderDer));
 
     // return derivative spline
     return {std::make_shared<Basis>(basisNew), coeffsNew};
@@ -107,13 +110,16 @@ public:
   /**
    * @brief Create new spline as integral of this spline.
    *
-   * @param order integral order.
-   * @return Spline as integral of "order".
+   * @param orderInt integral order.
+   * @return Spline as integral of "orderInt".
    */
-  Spline integral(int order = 1) const {
+  Spline integral(int orderInt = 1) const {
+    assert(orderInt >= 0 && "Derivative order must be positive.");
+
     // create derivative basis and determine coefficients
-    Basis basisNew {};
-    Eigen::MatrixXd coeffsNew(m_basis->integral(basisNew, m_coefficients, order));
+    Basis basisNew{};
+    Eigen::MatrixXd coeffsNew(
+        m_basis->integral(basisNew, m_coefficients, orderInt));
 
     // return derivative spline
     return {std::make_shared<Basis>(basisNew), coeffsNew};
