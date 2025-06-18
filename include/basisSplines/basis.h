@@ -163,6 +163,8 @@ public:
    *
    * dc = A * c
    *
+   * [Boo01, B-spline prop. (viii)]
+   *
    * @param basis basis of reduced order.
    * @param orderDer derivative order.
    * @return Eigen::MatrixXd transformation matrix.
@@ -198,6 +200,8 @@ public:
   /**
    * @brief Transforms the given values, which are basis spline values or
    * coefficients, to the derivative of this basis.
+   *
+   * [Boo01, B-spline prop. (viii)]
    *
    * @param basis basis of reduced order.
    * @param values basis values or spline coefficients.
@@ -239,6 +243,8 @@ public:
    *
    * ic = A * c
    *
+   * [Boo01, eq. (31)]
+   *
    * @param basis basis spline.
    * @param orderInt integral order.
    * @return Eigen::MatrixXd transformation matrix.
@@ -279,6 +285,8 @@ public:
   /**
    * @brief Transforms the given values, which are basis spline values or
    * coefficients, to the integral of this basis.
+   *
+   * [Boo01, eq. (31)]
    *
    * @param basis basis of increased order.
    * @param values basis values or spline coefficients.
