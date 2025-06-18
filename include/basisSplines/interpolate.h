@@ -54,8 +54,8 @@ public:
   template <
       typename DecompositionType = Eigen::ColPivHouseholderQR<Eigen::MatrixXd>>
   Eigen::MatrixXd fit(const std::vector<Eigen::MatrixXd> &observations,
-                     const std::vector<Eigen::VectorXi> &derivOrders,
-                     const Eigen::ArrayXd &points) const {
+                      const std::vector<Eigen::VectorXi> &derivOrders,
+                      const Eigen::ArrayXd &points) const {
 
     // store transformation matrices and spline bases
     std::vector<Eigen::MatrixXd> transforms(m_basis->order() - 1);
