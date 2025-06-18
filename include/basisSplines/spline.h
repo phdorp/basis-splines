@@ -43,7 +43,21 @@ public:
   const Eigen::MatrixXd &getCoefficients() const { return m_coefficients; }
 
   /**
-   * @brief Returns the spline basis.
+   * @brief Set the spline coefficients.
+   * The coefficients' size must equal the spline's coefficients' size.
+   *
+   * @param coefficients new spline coefficients.
+   */
+  void setCoefficients(const Eigen::MatrixXd coefficients) {
+    assert(coefficients.rows() == m_coefficients.rows() &&
+           "Coefficients must have same rows as spline coefficients.");
+    assert(coefficients.cols() == m_coefficients.cols() &&
+           "Coefficients must have same columns as spline coefficients.");
+    m_coefficients = coefficients;
+  }
+
+  /**
+   * @brief Get the spline basis.
    *
    * @return const std::shared_ptr<Basis> spline basis.
    */
