@@ -35,7 +35,7 @@ TEST_F(InterpolateTest, InterpolateSplineO2) {
   const Eigen::ArrayXd coeffsEst{
       m_interpO2.fit(m_splineO2(m_basisO2->greville()), m_basisO2->greville())};
 
-  const Eigen::ArrayXd coeffsGtr{m_splineO2.coefficients()};
+  const Eigen::ArrayXd coeffsGtr{m_splineO2.getCoefficients()};
 
   expectAllClose(coeffsGtr, coeffsEst, 1e-6);
 }
@@ -48,7 +48,7 @@ TEST_F(InterpolateTest, InterpolateSplineO3) {
   const Eigen::ArrayXXd coeffsEst{
       m_interpO3.fit(m_splineO3(m_basisO3->greville()), m_basisO3->greville())};
 
-  const Eigen::ArrayXXd coeffsGtr{m_splineO3.coefficients()};
+  const Eigen::ArrayXXd coeffsGtr{m_splineO3.getCoefficients()};
 
   expectAllClose(coeffsGtr, coeffsEst, 1e-6);
 }
@@ -84,7 +84,7 @@ TEST_F(InterpolateTest, InterpolateDerivSplineO3) {
   const Eigen::ArrayXXd coeffsEst{
       m_interpO3.fit(observations, derivOrders, bps)};
 
-  const Eigen::ArrayXXd coeffsGtr{m_splineO3.coefficients()};
+  const Eigen::ArrayXXd coeffsGtr{m_splineO3.getCoefficients()};
 
   expectAllClose(coeffsGtr, coeffsEst, 1e-6);
 }

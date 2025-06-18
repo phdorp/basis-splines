@@ -142,12 +142,12 @@ TEST_F(BasisTest, ToKnotsO3) {
  */
 TEST_F(BasisTest, DerivMatO3) {
   // ground truth from spline fit to derivative
-  const Eigen::ArrayXXd valuesGtr{m_splineO3Der.coefficients()};
+  const Eigen::ArrayXXd valuesGtr{m_splineO3Der.getCoefficients()};
 
   // get estimate from result spline
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{m_basisO3->derivative(basisEst, 1) *
-                                 m_splineO3.coefficients().matrix()};
+                                 m_splineO3.getCoefficients().matrix()};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
@@ -173,7 +173,7 @@ TEST_F(BasisTest, DerivMatO3Scaled) {
   // get derivative of scaled basis
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{m_basisO3->derivative(basisEst, 1) *
-                                 m_splineO3.coefficients().matrix()};
+                                 m_splineO3.getCoefficients().matrix()};
 
   // scale breakpoints with 2
   Basis basisO3Bps2{*m_basisO3};
@@ -185,7 +185,7 @@ TEST_F(BasisTest, DerivMatO3Scaled) {
   // get derivative of breakpoint scaled basis
   Basis basisGtr{};
   const Eigen::ArrayXXd valuesGtr{m_basisO3->derivative(basisGtr, 1) *
-                                 m_splineO3.coefficients().matrix()};
+                                 m_splineO3.getCoefficients().matrix()};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
@@ -197,12 +197,12 @@ TEST_F(BasisTest, DerivMatO3Scaled) {
  */
 TEST_F(BasisTest, DderivMatO3) {
   // ground truth from spline fit to derivative
-  const Eigen::ArrayXXd valuesGtr{m_splineO3Dder.coefficients()};
+  const Eigen::ArrayXXd valuesGtr{m_splineO3Dder.getCoefficients()};
 
   // get estimate from result spline
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{m_basisO3->derivative(basisEst, 2) *
-                                 m_splineO3.coefficients().matrix()};
+                                 m_splineO3.getCoefficients().matrix()};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
@@ -222,12 +222,12 @@ TEST_F(BasisTest, DderivMatO3) {
  */
 TEST_F(BasisTest, DerivTransformO3) {
   // ground truth from spline fit to derivative
-  const Eigen::ArrayXXd valuesGtr{m_splineO3Der.coefficients()};
+  const Eigen::ArrayXXd valuesGtr{m_splineO3Der.getCoefficients()};
 
   // get estimate from result spline
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{
-      m_basisO3->derivative(basisEst, m_splineO3.coefficients(), 1)};
+      m_basisO3->derivative(basisEst, m_splineO3.getCoefficients(), 1)};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
@@ -254,7 +254,7 @@ TEST_F(BasisTest, DerivTransformO3Scaled) {
   // get derivative of scaled basis
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{
-      basisO3Scale2.derivative(basisEst, m_splineO3.coefficients(), 1)};
+      basisO3Scale2.derivative(basisEst, m_splineO3.getCoefficients(), 1)};
 
   // scale breakpoints with m_scalingFactor
   Basis basisO3Bps2{*m_basisO3};
@@ -266,7 +266,7 @@ TEST_F(BasisTest, DerivTransformO3Scaled) {
   // get derivative of breakpoint scaled basis
   Basis basisGtr{};
   const Eigen::ArrayXXd valuesGtr{
-      basisO3Bps2.derivative(basisEst, m_splineO3.coefficients(), 1)};
+      basisO3Bps2.derivative(basisEst, m_splineO3.getCoefficients(), 1)};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
@@ -278,12 +278,12 @@ TEST_F(BasisTest, DerivTransformO3Scaled) {
  */
 TEST_F(BasisTest, IntMatO3) {
   // ground truth from spline fit to integral
-  const Eigen::ArrayXXd valuesGtr{m_splineO3Int.coefficients()};
+  const Eigen::ArrayXXd valuesGtr{m_splineO3Int.getCoefficients()};
 
   // get estimate from result spline
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{m_basisO3->integral(basisEst, 1) *
-                                 m_splineO3.coefficients()};
+                                 m_splineO3.getCoefficients()};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
@@ -309,7 +309,7 @@ TEST_F(BasisTest, IntMatO3Scaled) {
   // get estimate from result spline
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{basisO3Scale2.integral(basisEst, 1) *
-                                 m_splineO3.coefficients()};
+                                 m_splineO3.getCoefficients()};
 
   // scale breakpoints with m_scalingFactor
   Basis basisO3Bps2{*m_basisO3};
@@ -321,7 +321,7 @@ TEST_F(BasisTest, IntMatO3Scaled) {
   // get derivative of breakpoint scaled basis
   Basis basisGtr{};
   const Eigen::ArrayXXd valuesGtr{basisO3Bps2.integral(basisGtr, 1) *
-                                 m_splineO3.coefficients()};
+                                 m_splineO3.getCoefficients()};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
@@ -333,12 +333,12 @@ TEST_F(BasisTest, IntMatO3Scaled) {
  */
 TEST_F(BasisTest, IintMatO3) {
   // ground truth from spline fit to integral
-  const Eigen::ArrayXXd valuesGtr{m_splineO3Iint.coefficients()};
+  const Eigen::ArrayXXd valuesGtr{m_splineO3Iint.getCoefficients()};
 
   // get estimate from result spline
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{m_basisO3->integral(basisEst, 2) *
-                                 m_splineO3.coefficients()};
+                                 m_splineO3.getCoefficients()};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
@@ -358,12 +358,12 @@ TEST_F(BasisTest, IintMatO3) {
  */
 TEST_F(BasisTest, IntTransformO3) {
   // ground truth from spline fit to integral
-  const Eigen::ArrayXXd valuesGtr{m_splineO3Int.coefficients()};
+  const Eigen::ArrayXXd valuesGtr{m_splineO3Int.getCoefficients()};
 
   // get estimate from result spline
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{
-      m_basisO3->integral(basisEst, m_splineO3.coefficients(), 1)};
+      m_basisO3->integral(basisEst, m_splineO3.getCoefficients(), 1)};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
@@ -389,7 +389,7 @@ TEST_F(BasisTest, IntTransformO3Scaled) {
   // get estimate from result spline
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{
-      basisO3Scale2.integral(basisEst, m_splineO3.coefficients(), 1)};
+      basisO3Scale2.integral(basisEst, m_splineO3.getCoefficients(), 1)};
 
   // scale breakpoints with m_scalingFactor
   Basis basisO3Bps2{*m_basisO3};
@@ -401,7 +401,7 @@ TEST_F(BasisTest, IntTransformO3Scaled) {
   // get derivative of breakpoint scaled basis
   Basis basisGtr{};
   const Eigen::ArrayXXd valuesGtr{
-      basisO3Bps2.integral(basisEst, m_splineO3.coefficients(), 1)};
+      basisO3Bps2.integral(basisEst, m_splineO3.getCoefficients(), 1)};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);
@@ -413,12 +413,12 @@ TEST_F(BasisTest, IntTransformO3Scaled) {
  */
 TEST_F(BasisTest, IintTransformO3) {
   // ground truth from spline fit to integral
-  const Eigen::ArrayXXd valuesGtr{m_splineO3Iint.coefficients()};
+  const Eigen::ArrayXXd valuesGtr{m_splineO3Iint.getCoefficients()};
 
   // get estimate from result spline
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{
-      m_basisO3->integral(basisEst, m_splineO3.coefficients(), 2)};
+      m_basisO3->integral(basisEst, m_splineO3.getCoefficients(), 2)};
 
   // test if coefficients are almost equal
   expectAllClose(valuesGtr, valuesEst, 1e-8);

@@ -40,7 +40,7 @@ public:
    *
    * @return const Eigen::ArrayXd& spline coefficients.
    */
-  const Eigen::MatrixXd &coefficients() const { return m_coefficients; }
+  const Eigen::MatrixXd &getCoefficients() const { return m_coefficients; }
 
   /**
    * @brief Returns the spline basis.
