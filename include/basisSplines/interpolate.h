@@ -17,6 +17,8 @@ namespace BasisSplines {
  */
 class Interpolate {
 public:
+  // MARK: public methods
+
   /**
    * @brief Construct a new Interpolate for the given Basis.
    *
@@ -29,7 +31,6 @@ public:
    * "points" to the given "observations".
    *
    * @tparam DecompositionType type of Eigen matrix decomposition
-   * https://eigen.tuxfamily.org/dox/group__DenseDecompositionBenchmark.html
    * @param observations values to fit the spline function.
    * @param points evaluation points corresponding to the "observations".
    * @return Eigen::MatrixXd spline coefficients fitting the observations.
@@ -43,9 +44,8 @@ public:
 
   /**
    * @brief Determine coefficients that fit a spline function at the given
-   * "points" and the given "observations". The observations consist of an n
-   x
-   * m-array with n observations and derivatives until order m - 1.
+   * "points" and the given "observations". The observations consist of an (n x
+   * m)-array with n observations and derivatives until order m - 1.
    *
    * @param observations values and derivatives to fit the spline function.
    * @param points evaluation points corresponding to the "observations".
@@ -54,8 +54,8 @@ public:
   template <
       typename DecompositionType = Eigen::ColPivHouseholderQR<Eigen::MatrixXd>>
   Eigen::MatrixXd fit(const std::vector<Eigen::MatrixXd> &observations,
-                     const std::vector<Eigen::VectorXi> &derivOrders,
-                     const Eigen::ArrayXd &points) const {
+                      const std::vector<Eigen::VectorXi> &derivOrders,
+                      const Eigen::ArrayXd &points) const {
 
     // store transformation matrices and spline bases
     std::vector<Eigen::MatrixXd> transforms(m_basis->order() - 1);
@@ -79,7 +79,7 @@ public:
       int cValue{};
       for (auto row : observation.rowwise()) {
         basisValues(cRow++, Eigen::all) =
-            bases[derivOrders[cObs](cValue)](points(cObs)) *
+            bases[derivOrders[cObs](cValue)]({{points(cObs)}}) *
             transforms[derivOrders[cObs](cValue)];
         ++cValue;
       }
@@ -110,6 +110,8 @@ public:
   }
 
 private:
+  // MARK: public properties
+
   std::shared_ptr<Basis> m_basis; /**<< spline basis */
 };
 }; // namespace BasisSplines

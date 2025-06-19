@@ -11,9 +11,10 @@ namespace BasisSplines {
 /**
  * @brief Polynomial spline in basis form.
  *
- * Represents a spline function for a given basis. The spline implements the
- * derivative, integral, product, and sum of two splines. Splines are
- * represented äquivalently by splines of higher order or with additional knots.
+ * Represents a multidimensional spline S(t) determined by its coefficients C
+ * for a given basis B(t).
+ *
+ * S(t) = C^T B(t)
  *
  */
 class Spline {
@@ -22,9 +23,10 @@ public:
   Spline() = default;
 
   /**
-   * @brief Construct a new Spline in basis form from a "basis" spline and the "coefficients".
-   * The number of "coefficients" rows must correspond with the "basis" dimensionality.
-   * The number of "coefficients" columns corresponds with the spline output dimensionality.
+   * @brief Construct a new spline in basis form from a "basis" spline and the
+   * "coefficients". The number of "coefficients" rows must correspond with the
+   * "basis" dimensionality. The number of "coefficients" columns corresponds
+   * with the spline output dimensionality.
    *
    * @param basis spline basis.
    * @param coefficients spline coefficients.
@@ -34,23 +36,37 @@ public:
       : m_basis{basis}, m_coefficients{coefficients} {}
 
   /**
-   * @brief Returns the spline coefficients.
+   * @brief Get the spline coefficients.
    * The number of rows corresponds with the basis spline dimensionality.
    * The number of columns corresponds with the spline output dimensionality.
    *
    * @return const Eigen::ArrayXd& spline coefficients.
    */
-  const Eigen::MatrixXd &coefficients() const { return m_coefficients; }
+  const Eigen::MatrixXd &getCoefficients() const { return m_coefficients; }
 
   /**
-   * @brief Returns the spline basis.
+   * @brief Set the spline coefficients.
+   * The coefficients' size must equal the spline's coefficients' size.
+   *
+   * @param coefficients new spline coefficients.
+   */
+  void setCoefficients(const Eigen::MatrixXd coefficients) {
+    assert(coefficients.rows() == m_coefficients.rows() &&
+           "Coefficients must have same rows as spline coefficients.");
+    assert(coefficients.cols() == m_coefficients.cols() &&
+           "Coefficients must have same columns as spline coefficients.");
+    m_coefficients = coefficients;
+  }
+
+  /**
+   * @brief Get the spline basis.
    *
    * @return const std::shared_ptr<Basis> spline basis.
    */
   const std::shared_ptr<Basis> basis() const { return m_basis; }
 
   /**
-   * @brief Returns the spline output dimensionality.
+   * @brief Get the spline output dimensionality.
    *
    * @return int spline output dimensionality.
    */
@@ -59,40 +75,37 @@ public:
   /**
    * @brief Evaluate spline at given "points".
    * The number of output rows corresponds with the number of "points".
-   * The number of output columns corresponds with the spline output dimensionality.
+   * The number of output columns corresponds with the spline output
+   * dimensionality.
+   * [Boo01, def. (51)]
    *
    * @param points evaluation points.
    * @return Eigen::ArrayXd spline function values at "points".
    */
   Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points) const {
-    return (m_basis->operator()(points) * m_coefficients).array();
+    return (m_basis->operator()(points) * m_coefficients);
   }
 
   /**
-   * @brief Evaluate spline at given point.
+   * @brief Create new spline with negated spline coefficients.
    *
-   * @param point evaluation point.
-   * @return double spline fucntion value at "point".
-   */
-  Eigen::ArrayXd operator()(double point) const { return (*this)({{point}})(0, Eigen::all); }
-
-  /**
-   * @brief Create new spline with negative spline coefficients.
-   *
-   * @return Spline spline with negative spline coefficients.
+   * @return Spline spline with negated spline coefficients.
    */
   Spline operator-() const { return {m_basis, -m_coefficients}; }
 
   /**
    * @brief Create new spline as derivative of this spline.
    *
-   * @param order derivative order.
-   * @return Spline as derivative of "order".
+   * @param orderDer derivative order.
+   * @return Spline as derivative of "orderDer".
    */
-  Spline derivative(int order = 1) const {
+  Spline derivative(int orderDer = 1) const {
+    assert(orderDer >= 0 && "Derivative order must be positive.");
+
     // create derivative basis and determine coefficients
-    Basis basisNew {};
-    Eigen::MatrixXd coeffsNew(m_basis->derivative(basisNew, m_coefficients, order));
+    Basis basisNew{};
+    Eigen::MatrixXd coeffsNew(
+        m_basis->derivative(basisNew, m_coefficients, orderDer));
 
     // return derivative spline
     return {std::make_shared<Basis>(basisNew), coeffsNew};
@@ -101,59 +114,82 @@ public:
   /**
    * @brief Create new spline as integral of this spline.
    *
-   * @param order integral order.
-   * @return Spline as integral of "order".
+   * @param orderInt integral order.
+   * @return Spline as integral of "orderInt".
    */
-  Spline integral(int order = 1) const {
+  Spline integral(int orderInt = 1) const {
+    assert(orderInt >= 0 && "Derivative order must be positive.");
+
     // create derivative basis and determine coefficients
-    Basis basisNew {};
-    Eigen::MatrixXd coeffsNew(m_basis->integral(basisNew, m_coefficients, order));
+    Basis basisNew{};
+    Eigen::MatrixXd coeffsNew(
+        m_basis->integral(basisNew, m_coefficients, orderInt));
 
     // return derivative spline
     return {std::make_shared<Basis>(basisNew), coeffsNew};
   }
 
   /**
-   * @brief Create new spline as sum of this and another spline.
+   * @brief Create new spline as sum of "this" and "other" spline.
+   * Combine basis of "this" and "other" splines to create the sum basis.
+   * Determine sum coefficients by interpolating the sum of this and other
+   * spline.
    *
    * @tparam Interp type of interpolation.
-   * @param spline function to add with.
+   * @param other right spline summand.
+   * @param accScale accepted difference between "this" and "other" splines'
+   * basis scaling.
+   * @param accBps tolerance for assigning knots to breakpoint.
    * @return Spline representation of spline sum.
    */
   template <typename Interp = Interpolate>
-  Spline add(const Spline &spline) const {
-    const std::shared_ptr<Basis> basis{std::make_shared<Basis>(
-        m_basis->combine(*spline.basis().get(),
-                         std::max(m_basis->order(), spline.basis()->order())))};
-    const Interp interp{basis};
-    return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::MatrixXd procSum{(*this)(points) + spline(points)};
-              return procSum;
+  Spline add(const Spline &other, double accScale = 1e-6,
+             double accBps = 1e-6) const {
+    // combine this and other basis to new basis
+    // new basis order is maximum of this and other basis order
+    const std::shared_ptr<Basis> newBasis{std::make_shared<Basis>(
+        m_basis->combine(*other.basis().get(),
+                         std::max(m_basis->order(), other.basis()->order()),
+                         accScale, accBps))};
+
+    // determine coefficients by interpolating sum of this and other spline
+    return {newBasis, Interp{newBasis}.fit([&](const Eigen::ArrayXd &points) {
+              return Eigen::MatrixXd{(*this)(points) + other(points)};
             })};
   }
 
   /**
-   * @brief Create new spline as product of this and another spline.
+   * @brief Create new spline as product of "this" and "other" spline.
+   * Combine basis of "this" and "other" splines to create the product basis.
+   * Determine product coefficients by interpolating the product of "this" and
+   * "other" spline.
    *
    * @tparam Interp type of interpolation.
-   * @param spline function to multiply with.
+   * @param other right product spline.
+   * @param accScale accepted difference between "this" and "other" splines'
+   * basis scaling.
+   * @param accBps tolerance for assigning knots to breakpoint.
    * @return Spline representation of spline product.
    */
   template <typename Interp = Interpolate>
-  Spline prod(const Spline &spline) const {
-    const std::shared_ptr<Basis> basis{std::make_shared<Basis>(
-        m_basis->combine(*spline.basis().get(),
-                         m_basis->order() + spline.basis()->order() - 1))};
-    const Interp interp{basis};
-    return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::MatrixXd procProd{(*this)(points)*spline(points)};
-              return procProd;
+  Spline prod(const Spline &other, double accScale = 1e-6,
+              double accBps = 1e-6) const {
+    // combine this and other basis to new basis
+    // new basis order is sum of this and other basis order - 1
+    const std::shared_ptr<Basis> newBasis{std::make_shared<Basis>(
+        m_basis->combine(*other.basis().get(),
+                         m_basis->order() + other.basis()->order() - 1,
+                         accScale, accBps))};
+
+    // determine coefficients by interpolating product of this and other spline
+    return {newBasis, Interp{newBasis}.fit([&](const Eigen::ArrayXd &points) {
+              return Eigen::MatrixXd{(*this)(points)*other(points)};
             })};
   }
 
   /**
-   * @brief Create new spline including the given and this splines' knots.
-   * The new spline coincides with this spline.
+   * @brief Create new spline including the given and "this" splines' knots.
+   * The new spline coincides with "this" spline.
    * The distance between coefficients and spline is decreased.
    * The knot multiplicity must remain smaller than the basis order.
    *
@@ -166,11 +202,10 @@ public:
     // create new basis with inserted knot
     const std::shared_ptr<Basis> basis{
         std::make_shared<Basis>(m_basis->insertKnots(knots))};
+
     // determine new coefficients via interpolation
-    const Interp interp{basis};
-    return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::MatrixXd procInsert{(*this)(points)};
-              return procInsert;
+    return {basis, Interp{basis}.fit([&](const Eigen::ArrayXd &points) {
+              return Eigen::MatrixXd{(*this)(points)};
             })};
   }
 
@@ -213,34 +248,18 @@ public:
 
     // set first and last coefficients to spline values
     Eigen::ArrayXXd coefficients{m_coefficients};
-    *(coefficients.rowwise().begin()) = (*this)(*(basisClamped->knots().begin()));
-    *(coefficients.rowwise().end() - 1) = (*this)(*(basisClamped->knots().end() - 1));
+    *(coefficients.rowwise().begin()) =
+        (*this)({{*(basisClamped->knots().begin())}});
+    *(coefficients.rowwise().end() - 1) =
+        (*this)({{*(basisClamped->knots().end() - 1)}});
 
     // determine clamped spline coefficients by fitting to this spline
     return {basisClamped, coefficients};
   }
 
-  /**
-   * @brief Determine spline with knots clamped to spline segment.
-   *
-   * @tparam Interp type of interpolation.
-   * @return Spline clamped spline.
-   */
-  template <typename Interp = Interpolate> Spline getClamped() const {
-    // determine clamped basis
-    const std::shared_ptr<Basis> basisClamped{
-        std::make_shared<Basis>(m_basis->getClamped())};
-
-    // determine clamped spline coefficients by fitting to this spline
-    const Interp interp{basisClamped};
-    return {basisClamped, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::MatrixXd process{(*this)(points)};
-              return process;
-            })};
-  }
-
 private:
   // MARK: private properties
+
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
   Eigen::MatrixXd m_coefficients{}; /**<< spline coefficients */
 };

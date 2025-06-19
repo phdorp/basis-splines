@@ -22,19 +22,22 @@ class Interpolate;
 class Basis {
 public:
   // MARK: public methods
+
   Basis() = default;
 
   /**
-   * @brief Construct a new BasisBase for the given knots and order.
+   * @brief Construct a new basis for the given "knots", "order", and knot "scale".
    *
-   * @param knots locations of the BasisBase knots.
+   * @param knots knot locations.
    * @param order basis order.
+   * @param scale knot scaling factor.
    */
   Basis(const Eigen::ArrayXd &knots, int order, double scale = 1.0)
       : m_knots{knots}, m_order{order}, m_scale{scale} {}
 
   /**
-   * @brief Create new basis including the given and this basis' knots.
+   * @brief Create a new basis with knots including "knotsIn" and "this" basis
+   * knots.
    *
    * @param knotsIn knots to insert to this basis' knots.
    * @return Basis new basis including the given knots.
@@ -43,25 +46,37 @@ public:
     // concatenate knots with this basis knots
     Eigen::ArrayXd knotsNew(knotsIn.size() + knots().size());
     knotsNew << knotsIn, knots();
+
     // sort for increasing knot sequence
     std::sort(knotsNew.begin(), knotsNew.end());
     return {knotsNew, order()};
   }
 
   /**
-   * @brief Combine the knots of this and another Basis.
+   * @brief Combine the knots of "this" and another "basis" to new
+   * basis of given "order" [Loo+15].
+   * The "order" cannot subceed maximum of "this" and other "basis" order.   *
+   * The new basis retains the breakpoints of the source bases.
    *
    * @param basis other basis to combine with.
+   * @param order result basis order.
+   * @param accScale accepted difference between "this" and other "basis"
+   * scaling.
+   * @param accBps tolerance for assigning knots to breakpoint.
    * @return Eigen::ArrayXd knots as the combination of both bases.
    */
-  Basis combine(const Basis &basis, int order, double accuracy = 1e-6) const {
-    assert(std::abs(m_scale - basis.getScale()) < accuracy &&
+  Basis combine(const Basis &basis, int order, double accScale = 1e-6,
+                double accBps = 1e-6) const {
+    assert(std::abs(m_scale - basis.getScale()) < accScale &&
            "Only basis with same scale can be combined.");
+    assert(order >= std::max(m_order, basis.order()) &&
+           "New basis cannot subceed maximum of this and other bases order.");
 
-    Eigen::ArrayXd knotsThis{toKnots(getBreakpoints(), order)};
-    Eigen::ArrayXd knotsOther{toKnots(basis.getBreakpoints(), order)};
+    // create this and other bases knots considering target order
+    Eigen::ArrayXd knotsThis{toKnots(getBreakpoints(accBps), order)};
+    Eigen::ArrayXd knotsOther{toKnots(basis.getBreakpoints(accBps), order)};
 
-    // create combined knots worst case length
+    // combined knots cannot exceed size of this and other basis knots
     Eigen::ArrayXd knotsComb(knotsThis.size() + knotsOther.size());
 
     // iterate over both knot arrays
@@ -71,23 +86,29 @@ public:
     auto knotOther{knotsOther.begin()};
     int numKnotsComb{};
     for (auto &knotComb : knotsComb) {
+      // test if terminal knot of this and other basis are reached
       bool atThisEnd{knotThis == (knotsThis.end())};
       bool atOtherEnd{knotOther == (knotsOther.end())};
 
+      // terminate since all knots are processed
       if (atThisEnd && atOtherEnd)
         break;
 
       // assign this knot if smaller or other end is reached
-      if (*knotThis < *knotOther - accuracy && !atThisEnd || atOtherEnd)
+      if (*knotThis < *knotOther - accScale && !atThisEnd || atOtherEnd)
         knotComb = *(knotThis++);
       // assign other knot if smaller or other end is reached
-      else if (*knotOther < *knotThis - accuracy && !atOtherEnd || atThisEnd)
+      else if (*knotOther < *knotThis - accScale && !atOtherEnd || atThisEnd)
         knotComb = *(knotOther++);
       // asign this and other knot, which are equal
       else {
         knotComb = *knotOther;
+
+        // count other knots since not fully processed
         if (!atOtherEnd)
           ++knotOther;
+
+        // count this knots since not fully processed
         if (!atThisEnd)
           ++knotThis;
       }
@@ -99,44 +120,44 @@ public:
   }
 
   /**
-   * @brief Determine new basis with decreased order.
+   * @brief Determine new basis with order decreased by "change".
    *
-   * @param orderDec order to decrease.
+   * @param change order to decrease.
    * @return Basis basis with reduced order.
    */
-  Basis orderDecrease(int orderDec = 1) const {
-    assert(orderDec >= 0 && "Order decrease must be positive.");
+  Basis orderDecrease(int change = 1) const {
+    assert(change >= 0 && "Order decrease must be positive.");
 
     // base case: no order decrease, create new instance of current basis
-    if (orderDec == 0)
+    if (change == 0)
       return Basis{*this};
 
     // create basis of lower order
-    return {knots()(Eigen::seqN(orderDec, knots().size() - 2 * orderDec)),
-            order() - orderDec};
+    return {knots()(Eigen::seqN(change, knots().size() - 2 * change)),
+            order() - change};
   }
 
   /**
-   * @brief Determine new basis with increased order.
+   * @brief Determine new basis with order increased by "change".
    *
-   * @param orderInc order to increase.
+   * @param change order to increase.
    * @return Basis basis with increased order.
    */
-  Basis orderIncrease(int orderInc = 1) const {
-    assert(orderInc >= 0 && "Order increase must be positive.");
+  Basis orderIncrease(int change = 1) const {
+    assert(change >= 0 && "Order increase must be positive.");
 
     // base case: no order increase, create new instance of current basis
-    if (orderInc == 0)
+    if (change == 0)
       return Basis{*this};
 
     // create new basis of lower order and additional breakpoints
-    Eigen::ArrayXd knotsNew(knots().size() + 2 * orderInc);
-    knotsNew << Eigen::ArrayXd::Zero(orderInc) + knots()(0), knots(),
-        Eigen::ArrayXd::Zero(orderInc) + *(knots().end());
-    Basis basis{knotsNew, order() + orderInc};
+    Eigen::ArrayXd knotsNew(knots().size() + 2 * change);
+    knotsNew << Eigen::ArrayXd::Zero(change) + knots()(0), knots(),
+        Eigen::ArrayXd::Zero(change) + *(knots().end());
+    Basis basis{knotsNew, order() + change};
 
     // create basis of higher order
-    return {knotsNew, order() + orderInc};
+    return {knotsNew, order() + change};
   }
 
   /**
@@ -145,11 +166,15 @@ public:
    *
    * dc = A * c
    *
+   * [Boo01, B-spline prop. (viii)]
+   *
    * @param basis basis of reduced order.
    * @param orderDer derivative order.
    * @return Eigen::MatrixXd transformation matrix.
    */
   Eigen::MatrixXd derivative(Basis &basis, int orderDer = 1) const {
+    assert(orderDer >= 0 && "Derivative order must be positive.");
+
     if (orderDer == 0) {
       basis = *this;
       return Eigen::MatrixXd::Identity(dim(), dim());
@@ -181,6 +206,8 @@ public:
    * @brief Transforms the given values, which are basis spline values or
    * coefficients, to the derivative of this basis.
    *
+   * [Boo01, B-spline prop. (viii)]
+   *
    * @param basis basis of reduced order.
    * @param values basis values or spline coefficients.
    * @param orderDer derivative order.
@@ -188,6 +215,8 @@ public:
    */
   Eigen::MatrixXd derivative(Basis &basis, const Eigen::MatrixXd &values,
                              int orderDer = 1) const {
+    assert(orderDer >= 0 && "Derivative order must be positive.");
+
     if (orderDer == 0) {
       basis = *this;
       return values;
@@ -221,11 +250,14 @@ public:
    *
    * ic = A * c
    *
+   * [Boo01, eq. (31)]
+   *
    * @param basis basis spline.
    * @param orderInt integral order.
    * @return Eigen::MatrixXd transformation matrix.
    */
   Eigen::MatrixXd integral(Basis &basis, int orderInt = 1) const {
+    assert(orderInt >= 0 && "Integral order must be positive.");
 
     if (orderInt == 0) {
       basis = *this;
@@ -262,6 +294,8 @@ public:
    * @brief Transforms the given values, which are basis spline values or
    * coefficients, to the integral of this basis.
    *
+   * [Boo01, eq. (31)]
+   *
    * @param basis basis of increased order.
    * @param values basis values or spline coefficients.
    * @param orderInt integral order.
@@ -269,6 +303,8 @@ public:
    */
   Eigen::MatrixXd integral(Basis &basis, const Eigen::MatrixXd &values,
                            int orderInt = 1) const {
+    assert(orderInt >= 0 && "Integral order must be positive.");
+
     if (orderInt == 0) {
       basis = *this;
       return values;
@@ -279,7 +315,8 @@ public:
 
     // values transformed to integral valuesNew_i+1 = values_i * (k_i+o -
     // k_i) / o + valuesNew_i
-    Eigen::MatrixXd valuesNew{Eigen::MatrixXd::Zero(basisInt.dim(), values.cols())};
+    Eigen::MatrixXd valuesNew{
+        Eigen::MatrixXd::Zero(basisInt.dim(), values.cols())};
     for (int idx{}; idx < valuesNew.rows() - 1; ++idx)
       valuesNew(idx + 1, Eigen::all) =
           values(idx, Eigen::all) * (knots()(idx + order()) - knots()(idx)) /
@@ -398,6 +435,7 @@ public:
   /**
    * @brief Determine basis breakpoints and continuities at breakpoints.
    *
+   * @param accuracy tolerance for assigning knots to breakpoint.
    * @return std::pair<Eigen::ArrayXd, Eigen::ArrayXi> breakpoints and
    * continuities.
    */
@@ -421,61 +459,74 @@ public:
   void setScale(double scale) { m_scale = scale; }
 
   /**
-   * @brief Evaluate the truncated power basis at the given points.
+   * @brief Evaluate the truncated power basis at the given "points".
+   * The basis values are computed iteratively using lower order evaluations
+   * [Boo01, B-spline prop. (i)] for each point.
+   *
    *
    * @param points evaluation points.
-   * @param accDenum accuracy basis denominator.
-   * @param accDomain point accuracy at domain limits.
+   * @param accBps minimum distance between breakpoints.
+   * @param accSegment accuracy point assignment to knot segment for order 1
+   * basis values.
    * @return Eigen::ArrayXd values of truncated powers with "points.size()" rows
    * and "self->dim()" columns.
    */
-  Eigen::MatrixXd operator()(const Eigen::ArrayXd &points,
-                             double accDenum = 1e-6,
-                             double accDomain = 1e-6) const {
-    Eigen::MatrixXd values{Eigen::MatrixXd::Zero(points.size(), dim())};
+  Eigen::MatrixXd operator()(const Eigen::ArrayXd &points, double accBps = 1e-6,
+                             double accSegment = 1e-6) const {
+    // stores evaluation of truncated powers at given points
+    Eigen::MatrixXd basisValues{Eigen::MatrixXd::Zero(points.size(), dim())};
 
+    // evaluate trunctated powers for each point
     int cPoint{};
     for (double point : points) {
-      std::vector<Eigen::VectorXd> valuesTmp(m_order);
+      // each VectorXd stores values of bases of increasing order
+      std::vector<Eigen::VectorXd> basesValues(m_order);
 
-      valuesTmp[0].resize(m_knots.size() - 1);
-      for (int cKnot{}; cKnot < m_knots.size() - 1; ++cKnot) {
-        valuesTmp[0](cKnot) =
-            inKnotSeg(m_knots(cKnot), m_knots(cKnot + 1), point, accDomain) ? 1
-                                                                            : 0;
-      }
+      // evaluate basis of order 1 which is eiter 1.0 or 0.0
+      basesValues[0].resize(m_knots.size() - 1);
+      for (int cKnot{}; cKnot < m_knots.size() - 1; ++cKnot)
+        basesValues[0](cKnot) =
+            inKnotSeg(m_knots(cKnot), m_knots(cKnot + 1), point, accSegment)
+                ? 1.0
+                : 0.0;
 
+      // evaluate bases of order > 1 in ascending order
       for (int cOrder{2}; cOrder <= m_order; ++cOrder) {
+        // get basis values of next higher order as weighted sum of neighboring
+        // basis values
         for (int cKnot{}; cKnot < m_knots.size() - cOrder; ++cKnot) {
-          const double denumL{m_knots(cKnot + cOrder - 1) - m_knots(cKnot)};
-          const double weightL{std::abs(denumL) > accDenum
-                                   ? (point - m_knots(cKnot)) / denumL
-                                   : 0};
-          const double denumR{m_knots(cKnot + cOrder) - m_knots(cKnot + 1)};
-          const double weightR{std::abs(denumR) > accDenum
-                                   ? (m_knots(cKnot + cOrder) - point) / denumR
-                                   : 0};
-          valuesTmp[cOrder - 1].resize(m_knots.size() - cOrder);
-          valuesTmp[cOrder - 1](cKnot) =
-              weightL * valuesTmp[cOrder - 2](cKnot) +
-              weightR * valuesTmp[cOrder - 2](cKnot + 1);
+          // determine basis weight based on current knot
+          const double denumCurr{m_knots(cKnot + cOrder - 1) - m_knots(cKnot)};
+          const double weightCurr{std::abs(denumCurr) > accBps
+                                      ? (point - m_knots(cKnot)) / denumCurr
+                                      : 0.0};
+
+          // determine basis weight based on next knot
+          const double denumNext{m_knots(cKnot + cOrder) - m_knots(cKnot + 1)};
+          const double weightNext{std::abs(denumNext) > accBps
+                                      ? (m_knots(cKnot + cOrder) - point) /
+                                            denumNext
+                                      : 0.0};
+
+          // basis value of higher order
+          basesValues[cOrder - 1].resize(m_knots.size() - cOrder);
+          basesValues[cOrder - 1](cKnot) =
+              weightCurr * basesValues[cOrder - 2](cKnot) +
+              weightNext * basesValues[cOrder - 2](cKnot + 1);
         }
       }
 
-      values(cPoint++, Eigen::seqN(0, dim())) =
-          valuesTmp[m_order - 1](Eigen::seqN(0, dim()));
+      // store maximum order basis values for current point
+      basisValues(cPoint++, Eigen::seqN(0, dim())) =
+          basesValues[m_order - 1](Eigen::seqN(0, dim()));
     }
 
-    return values;
-  }
-
-  Eigen::MatrixXd operator()(double point, double accDenum = 1e-6,
-                             double accDomain = 1e-6) const {
-    return (*this)({{point}});
+    return basisValues;
   }
 
   /**
-   * @brief Determine the Greville sites representing the knot averages.
+   * @brief Determine the Greville sites representing the knot averages [Boo01,
+   * prop. (v)].
    *
    * @return Eigen::ArrayXd greville sites.
    */
@@ -487,6 +538,7 @@ public:
     // higher order basis knot averages
     Eigen::ArrayXd grevilleSites(dim());
 
+    // assign greville sites as mean accumulation over knots
     for (int cKnot{}; cKnot < dim(); ++cKnot) {
       auto begin{m_knots.begin() + cKnot + 1};
       auto end{begin + m_order - 1};
@@ -545,6 +597,7 @@ public:
   std::pair<Eigen::internal::pointer_based_stl_iterator<const Eigen::ArrayXd>,
             Eigen::internal::pointer_based_stl_iterator<const Eigen::ArrayXd>>
   getSegmentKnots(int first, int last) const {
+    // store breakpoints to avoid recomputation
     const auto breakpoints{getBreakpoints()};
 
     // find first and last knots of the given segments
@@ -556,6 +609,7 @@ public:
                           breakpoints.first(first)))
                    .base() -
                m_order};
+
     return {begin, end};
   }
 
@@ -581,19 +635,23 @@ public:
   // MARK: public statics
 
   /**
-   * @brief Convert breakpoints to knots.
+   * @brief Map "breakpoints" and "continuities" to knots [Boo01, th. (44)].
    *
-   * @param bps breakpoints for conversion.
-   * @param conts continuity at the breakpoints.
+   * @param breakpoints breakpoints mapped to knots.
+   * @param continuities breakpoint continuities.
    * @param order basis order.
    * @return Eigen::ArrayXd knot representation of given breakpoints.
    */
-  static Eigen::ArrayXd toKnots(const Eigen::ArrayXd &bps,
-                                const Eigen::ArrayXi &conts, int order) {
-    Eigen::ArrayXi mults{order - conts};
-    Eigen::ArrayXd knots(bps.size() * order - conts.sum());
+  static Eigen::ArrayXd toKnots(const Eigen::ArrayXd &breakpoints,
+                                const Eigen::ArrayXi &continuities, int order) {
+    // instantiate counters for breakpoint knot multiplicity
+    Eigen::ArrayXi mults{order - continuities};
+    // instantiate knot result array
+    Eigen::ArrayXd knots(breakpoints.size() * order - continuities.sum());
+
+    // assign knots according to breakpoints and their multiplicity
     auto mult{mults.begin()};
-    auto bp{bps.begin()};
+    auto bp{breakpoints.begin()};
     for (double &knot : knots) {
       knot = *bp;
       --(*mult);
@@ -606,38 +664,79 @@ public:
     return knots;
   }
 
+  /**
+   * @brief Map a pair of breakpoints and continuities to knots [Boo01, th.
+   * (44)].
+   *
+   * @param breakpoints pair of breakpoints and continuties
+   * @param order basis order.
+   * @return Eigen::ArrayXd
+   */
   static Eigen::ArrayXd
-  toKnots(const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> &bps, int order) {
-    return toKnots(bps.first, bps.second, order);
+  toKnots(const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> &breakpoints,
+          int order) {
+    return toKnots(breakpoints.first, breakpoints.second, order);
   }
 
+  /**
+   * @brief Map "knots" to breakpoints and their order of continuity [Boo01, th.
+   * (44)]. Map all knots in [breakpoint, breakpoint + "accuracy"] to the same
+   * breakpoint.
+   *
+   * @param knots query points mapped to breakpoints.
+   * @param order basis order.
+   * @param accuracy tolerance for assigning knots to breakpoint.
+   * @return std::pair<Eigen::ArrayXd, Eigen::ArrayXi> breakpoints and their
+   * continuities.
+   */
   static std::pair<Eigen::ArrayXd, Eigen::ArrayXi>
   toBreakpoints(const Eigen::ArrayXd &knots, int order,
                 double accuracy = 1e-6) {
-    int idxBps{};
+    // instantiate breakpoints, which cannot exceed the number of breakpoints
     Eigen::ArrayXd breakpoints(knots.size());
+    // first breakpoint must equal first knot
     breakpoints(0) = knots(0);
+
+    // instantiate breakpoint continuities
     Eigen::ArrayXi continuities{Eigen::ArrayXi::Zero(knots.size()) + order};
+    // reduce first breakpoint continuity since it corresponds to first knot
     --continuities(0);
 
-    auto curKnot{knots.begin() + 1};
-    for (; curKnot != knots.end(); ++curKnot) {
-      if (*curKnot > breakpoints(idxBps) + accuracy)
-        breakpoints(++idxBps) = *curKnot;
+    // assign knots to breakpoints and reduce continuity per assigned knot
+    int idxBps{};
+    auto knot{knots.begin() + 1};
+    for (; knot != knots.end(); ++knot) {
+      // assign knot to breakpoint if in accuracy
+      if (*knot > breakpoints(idxBps) + accuracy)
+        breakpoints(++idxBps) = *knot;
       --continuities(idxBps);
     }
 
+    // return visited breakpoints and continuities
     return {breakpoints(Eigen::seqN(0, idxBps + 1)),
             continuities(Eigen::seqN(0, idxBps + 1))};
   }
 
 private:
   // MARK: private properties
-  Eigen::ArrayXd m_knots; /**<< basis knots */
-  int m_order{};          /**<< basis order */
-  double m_scale{};       /**<< basis knot scale */
+
+  Eigen::ArrayXd m_knots; /**<< basis knots m_knots(i) <= m_knots(i+1) */
+  int m_order{};          /**<< basis order = degree - 1 */
+  double m_scale{};       /**<< scaling factor for m_knots */
 
   // MARK: private methods
+
+  /**
+   * @brief Test if "point" is in a knot segment ["knotL" - "accuracy", "knotR"
+   * + "accuracy"].
+   *
+   * @param knotL left knot of the knot segment.
+   * @param knotR right knot of the knot segment.
+   * @param point query point.
+   * @param accuracy extension of the knot segment.
+   * @return true "point" is in knot segment.
+   * @return false "point" is not in knot segment.
+   */
   bool inKnotSeg(double knotL, double knotR, double point,
                  double accuracy = 1e-6) const {
     if (knotL == m_knots(0))
@@ -648,6 +747,14 @@ private:
   }
 
   // MARK: private statics
+
+  /**
+   * @brief Test if the given sequence is strictly increasing.
+   *
+   * @param sequence sequence to check for monotonicity.
+   * @return true sequence is strictly increasing.
+   * @return false sequence is not strictly increasing.
+   */
   static bool checkIncreasing(const Eigen::ArrayXd &sequence) {
     for (auto elemPtr{sequence.begin() + 1}; elemPtr < sequence.end();
          ++elemPtr)

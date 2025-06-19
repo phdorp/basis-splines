@@ -31,8 +31,8 @@ void plotSpline(const Bs::Spline &spline, const Eigen::ArrayXd &points,
   const Eigen::ArrayXd greville{spline.basis()->greville()};
   matplot::plot(
       std::vector<double>{greville.begin(), greville.end()},
-      std::vector<double>{spline.coefficients()(Eigen::all, dim).begin(),
-                          spline.coefficients()(Eigen::all, dim).end()},
+      std::vector<double>{spline.getCoefficients()(Eigen::all, dim).begin(),
+                          spline.getCoefficients()(Eigen::all, dim).end()},
       "-o");
 
   // plot breakpoints along spline
@@ -58,10 +58,10 @@ void plotSpline2d(const Bs::Spline &spline, const Eigen::ArrayXd &points,
 
   // plot coefficients
   matplot::plot(
-      std::vector<double>{spline.coefficients()(Eigen::all, dims[0]).begin(),
-                          spline.coefficients()(Eigen::all, dims[0]).end()},
-      std::vector<double>{spline.coefficients()(Eigen::all, dims[1]).begin(),
-                          spline.coefficients()(Eigen::all, dims[1]).end()},
+      std::vector<double>{spline.getCoefficients()(Eigen::all, dims[0]).begin(),
+                          spline.getCoefficients()(Eigen::all, dims[0]).end()},
+      std::vector<double>{spline.getCoefficients()(Eigen::all, dims[1]).begin(),
+                          spline.getCoefficients()(Eigen::all, dims[1]).end()},
       "-o");
 
   // plot breakpoints along spline
