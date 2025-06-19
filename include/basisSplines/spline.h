@@ -133,14 +133,18 @@ public:
    * @return Spline representation of spline sum.
    */
   template <typename Interp = Interpolate>
-  Spline add(const Spline &spline) const {
-    const std::shared_ptr<Basis> basis{std::make_shared<Basis>(
-        m_basis->combine(*spline.basis().get(),
-                         std::max(m_basis->order(), spline.basis()->order())))};
-    const Interp interp{basis};
-    return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::MatrixXd procSum{(*this)(points) + spline(points)};
-              return procSum;
+  Spline add(const Spline &other, double accScale = 1e-6,
+             double accBps = 1e-6) const {
+    // combine this and other basis to new basis
+    // new basis order is maximum of this and other basis order
+    const std::shared_ptr<Basis> newBasis{std::make_shared<Basis>(
+        m_basis->combine(*other.basis().get(),
+                         std::max(m_basis->order(), other.basis()->order()),
+                         accScale, accBps))};
+
+    // determine coefficients by interpolating sum of this and other spline
+    return {newBasis, Interp{newBasis}.fit([&](const Eigen::ArrayXd &points) {
+              return Eigen::MatrixXd{(*this)(points) + other(points)};
             })};
   }
 
@@ -152,14 +156,18 @@ public:
    * @return Spline representation of spline product.
    */
   template <typename Interp = Interpolate>
-  Spline prod(const Spline &spline) const {
-    const std::shared_ptr<Basis> basis{std::make_shared<Basis>(
-        m_basis->combine(*spline.basis().get(),
-                         m_basis->order() + spline.basis()->order() - 1))};
-    const Interp interp{basis};
-    return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::MatrixXd procProd{(*this)(points)*spline(points)};
-              return procProd;
+  Spline prod(const Spline &other, double accScale = 1e-6,
+              double accBps = 1e-6) const {
+    // combine this and other basis to new basis
+    // new basis order is sum of this and other basis order - 1
+    const std::shared_ptr<Basis> newBasis{std::make_shared<Basis>(
+        m_basis->combine(*other.basis().get(),
+                         m_basis->order() + other.basis()->order() - 1,
+                         accScale, accBps))};
+
+    // determine coefficients by interpolating product of this and other spline
+    return {newBasis, Interp{newBasis}.fit([&](const Eigen::ArrayXd &points) {
+              return Eigen::MatrixXd{(*this)(points)*other(points)};
             })};
   }
 
