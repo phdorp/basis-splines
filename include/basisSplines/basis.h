@@ -26,9 +26,9 @@ public:
   Basis() = default;
 
   /**
-   * @brief Construct a new BasisBase for the given knots and order.
+   * @brief Construct a new basis for the given "knots", "order", and knot "scale".
    *
-   * @param knots locations of the BasisBase knots.
+   * @param knots knot locations.
    * @param order basis order.
    * @param scale knot scaling factor.
    */
