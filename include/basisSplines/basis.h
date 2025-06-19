@@ -36,7 +36,7 @@ public:
       : m_knots{knots}, m_order{order}, m_scale{scale} {}
 
   /**
-   * @brief Create a new basis with knots including "knotsIn" and "this" basi's
+   * @brief Create a new basis with knots including "knotsIn" and "this" basis
    * knots.
    *
    * @param knotsIn knots to insert to this basis' knots.
@@ -46,6 +46,7 @@ public:
     // concatenate knots with this basis knots
     Eigen::ArrayXd knotsNew(knotsIn.size() + knots().size());
     knotsNew << knotsIn, knots();
+
     // sort for increasing knot sequence
     std::sort(knotsNew.begin(), knotsNew.end());
     return {knotsNew, order()};
@@ -314,7 +315,8 @@ public:
 
     // values transformed to integral valuesNew_i+1 = values_i * (k_i+o -
     // k_i) / o + valuesNew_i
-    Eigen::MatrixXd valuesNew{Eigen::MatrixXd::Zero(basisInt.dim(), values.cols())};
+    Eigen::MatrixXd valuesNew{
+        Eigen::MatrixXd::Zero(basisInt.dim(), values.cols())};
     for (int idx{}; idx < valuesNew.rows() - 1; ++idx)
       valuesNew(idx + 1, Eigen::all) =
           values(idx, Eigen::all) * (knots()(idx + order()) - knots()(idx)) /
