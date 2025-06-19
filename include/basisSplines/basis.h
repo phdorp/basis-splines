@@ -59,19 +59,21 @@ public:
    *
    * @param basis other basis to combine with.
    * @param order result basis order.
-   * @param accuracy accepted difference between "this" and other "basis"
+   * @param accScale accepted difference between "this" and other "basis"
    * scaling.
+   * @param accBps tolerance for assigning knots to breakpoint.
    * @return Eigen::ArrayXd knots as the combination of both bases.
    */
-  Basis combine(const Basis &basis, int order, double accuracy = 1e-6) const {
-    assert(std::abs(m_scale - basis.getScale()) < accuracy &&
+  Basis combine(const Basis &basis, int order, double accScale = 1e-6,
+                double accBps = 1e-6) const {
+    assert(std::abs(m_scale - basis.getScale()) < accScale &&
            "Only basis with same scale can be combined.");
     assert(order >= std::max(m_order, basis.order()) &&
            "New basis cannot subceed maximum of this and other bases order.");
 
     // create this and other bases knots considering target order
-    Eigen::ArrayXd knotsThis{toKnots(getBreakpoints(), order)};
-    Eigen::ArrayXd knotsOther{toKnots(basis.getBreakpoints(), order)};
+    Eigen::ArrayXd knotsThis{toKnots(getBreakpoints(accBps), order)};
+    Eigen::ArrayXd knotsOther{toKnots(basis.getBreakpoints(accBps), order)};
 
     // combined knots cannot exceed size of this and other basis knots
     Eigen::ArrayXd knotsComb(knotsThis.size() + knotsOther.size());
@@ -92,10 +94,10 @@ public:
         break;
 
       // assign this knot if smaller or other end is reached
-      if (*knotThis < *knotOther - accuracy && !atThisEnd || atOtherEnd)
+      if (*knotThis < *knotOther - accScale && !atThisEnd || atOtherEnd)
         knotComb = *(knotThis++);
       // assign other knot if smaller or other end is reached
-      else if (*knotOther < *knotThis - accuracy && !atOtherEnd || atThisEnd)
+      else if (*knotOther < *knotThis - accScale && !atOtherEnd || atThisEnd)
         knotComb = *(knotOther++);
       // asign this and other knot, which are equal
       else {
