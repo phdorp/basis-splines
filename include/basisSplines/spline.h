@@ -79,7 +79,7 @@ public:
    * @return Eigen::ArrayXd spline function values at "points".
    */
   Eigen::ArrayXXd operator()(const Eigen::ArrayXd &points) const {
-    return (m_basis->operator()(points) * m_coefficients).array();
+    return (m_basis->operator()(points) * m_coefficients);
   }
 
   /**
@@ -186,11 +186,10 @@ public:
     // create new basis with inserted knot
     const std::shared_ptr<Basis> basis{
         std::make_shared<Basis>(m_basis->insertKnots(knots))};
+
     // determine new coefficients via interpolation
-    const Interp interp{basis};
-    return {basis, interp.fit([&](const Eigen::ArrayXd &points) {
-              Eigen::MatrixXd procInsert{(*this)(points)};
-              return procInsert;
+    return {basis, Interp{basis}.fit([&](const Eigen::ArrayXd &points) {
+              return Eigen::MatrixXd{(*this)(points)};
             })};
   }
 
