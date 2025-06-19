@@ -7,7 +7,8 @@ include(FetchContent)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/include/basisSplines)
+set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/basisSplines)
+add_subdirectory(${PROJECT_INCLUDE_DIR})
 
 option(BUILD_TEST "Build tests for transformation." ON)
 option(BUILD_BENCHMARK "Build benchmarks for transformations." ON)
@@ -29,15 +30,15 @@ if(BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-# if(BUILD_DOCS)
-#     set(doxyfile_in ${PROJECT_SOURCE_DIR}/Doxyfile.in)
-#     set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile)
+if(BUILD_DOCS)
+    set(doxyfile_in ${PROJECT_SOURCE_DIR}/Doxyfile.in)
+    set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile)
 
-#     configure_file(${doxyfile_in} ${doxyfile} @ONLY)
+    configure_file(${doxyfile_in} ${doxyfile} @ONLY)
 
-#     add_custom_target(doc ALL
-#         COMMAND doxygen ${doxyfile}
-#         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-#         COMMENT "Generating API documentation with Doxygen"
-#         VERBATIM)
-# endif()
+    add_custom_target(doc ALL
+        COMMAND doxygen ${doxyfile}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM)
+endif()
