@@ -11,9 +11,10 @@ namespace BasisSplines {
 /**
  * @brief Polynomial spline in basis form.
  *
- * Represents a spline function for a given basis. The spline implements the
- * derivative, integral, product, and sum of two splines. Splines are
- * represented äquivalently by splines of higher order or with additional knots.
+ * Represents a multidimensional spline S(t) determined by its coefficients C
+ * for a given basis B(t).
+ *
+ * S(t) = C^T B(t)
  *
  */
 class Spline {
@@ -22,9 +23,10 @@ public:
   Spline() = default;
 
   /**
-   * @brief Construct a new Spline in basis form from a "basis" spline and the "coefficients".
-   * The number of "coefficients" rows must correspond with the "basis" dimensionality.
-   * The number of "coefficients" columns corresponds with the spline output dimensionality.
+   * @brief Construct a new spline in basis form from a "basis" spline and the
+   * "coefficients". The number of "coefficients" rows must correspond with the
+   * "basis" dimensionality. The number of "coefficients" columns corresponds
+   * with the spline output dimensionality.
    *
    * @param basis spline basis.
    * @param coefficients spline coefficients.
@@ -34,7 +36,7 @@ public:
       : m_basis{basis}, m_coefficients{coefficients} {}
 
   /**
-   * @brief Returns the spline coefficients.
+   * @brief Get the spline coefficients.
    * The number of rows corresponds with the basis spline dimensionality.
    * The number of columns corresponds with the spline output dimensionality.
    *
@@ -64,7 +66,7 @@ public:
   const std::shared_ptr<Basis> basis() const { return m_basis; }
 
   /**
-   * @brief Returns the spline output dimensionality.
+   * @brief Get the spline output dimensionality.
    *
    * @return int spline output dimensionality.
    */
@@ -73,7 +75,9 @@ public:
   /**
    * @brief Evaluate spline at given "points".
    * The number of output rows corresponds with the number of "points".
-   * The number of output columns corresponds with the spline output dimensionality.
+   * The number of output columns corresponds with the spline output
+   * dimensionality.
+   * [Boo01, def. (51)]
    *
    * @param points evaluation points.
    * @return Eigen::ArrayXd spline function values at "points".
@@ -83,9 +87,9 @@ public:
   }
 
   /**
-   * @brief Create new spline with negative spline coefficients.
+   * @brief Create new spline with negated spline coefficients.
    *
-   * @return Spline spline with negative spline coefficients.
+   * @return Spline spline with negated spline coefficients.
    */
   Spline operator-() const { return {m_basis, -m_coefficients}; }
 
@@ -126,10 +130,16 @@ public:
   }
 
   /**
-   * @brief Create new spline as sum of this and another spline.
+   * @brief Create new spline as sum of "this" and "other" spline.
+   * Combine basis of "this" and "other" splines to create the sum basis.
+   * Determine sum coefficients by interpolating the sum of this and other
+   * spline.
    *
    * @tparam Interp type of interpolation.
-   * @param spline function to add with.
+   * @param other right spline summand.
+   * @param accScale accepted difference between "this" and "other" splines'
+   * basis scaling.
+   * @param accBps tolerance for assigning knots to breakpoint.
    * @return Spline representation of spline sum.
    */
   template <typename Interp = Interpolate>
@@ -149,10 +159,16 @@ public:
   }
 
   /**
-   * @brief Create new spline as product of this and another spline.
+   * @brief Create new spline as product of "this" and "other" spline.
+   * Combine basis of "this" and "other" splines to create the product basis.
+   * Determine product coefficients by interpolating the product of "this" and
+   * "other" spline.
    *
    * @tparam Interp type of interpolation.
-   * @param spline function to multiply with.
+   * @param other right product spline.
+   * @param accScale accepted difference between "this" and "other" splines'
+   * basis scaling.
+   * @param accBps tolerance for assigning knots to breakpoint.
    * @return Spline representation of spline product.
    */
   template <typename Interp = Interpolate>
@@ -172,8 +188,8 @@ public:
   }
 
   /**
-   * @brief Create new spline including the given and this splines' knots.
-   * The new spline coincides with this spline.
+   * @brief Create new spline including the given and "this" splines' knots.
+   * The new spline coincides with "this" spline.
    * The distance between coefficients and spline is decreased.
    * The knot multiplicity must remain smaller than the basis order.
    *
@@ -243,6 +259,7 @@ public:
 
 private:
   // MARK: private properties
+
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
   Eigen::MatrixXd m_coefficients{}; /**<< spline coefficients */
 };
