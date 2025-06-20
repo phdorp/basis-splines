@@ -24,8 +24,10 @@ void plotSpline(const Bs::Spline &spline, const Eigen::ArrayXd &points,
                 const Mt::axes_handle axesHandle, int dim = 0) {
   // plot spline at evaluation points
   const Eigen::ArrayXd splineVals{spline(points)(Eigen::all, dim)};
-  axesHandle->plot(std::vector<double>{points.begin(), points.end()},
-                   std::vector<double>{splineVals.begin(), splineVals.end()});
+  axesHandle
+      ->plot(std::vector<double>{points.begin(), points.end()},
+             std::vector<double>{splineVals.begin(), splineVals.end()})
+      ->display_name("spline");
 
   // plot coefficients at greville sites
   const Eigen::ArrayXd greville{spline.basis()->greville()};
@@ -33,7 +35,8 @@ void plotSpline(const Bs::Spline &spline, const Eigen::ArrayXd &points,
       std::vector<double>{greville.begin(), greville.end()},
       std::vector<double>{spline.getCoefficients()(Eigen::all, dim).begin(),
                           spline.getCoefficients()(Eigen::all, dim).end()},
-      "-o");
+      "-o")
+      ->display_name("coefficients");
 
   // plot breakpoints along spline
   const Eigen::ArrayXd bps = spline.basis()->getBreakpoints().first;
@@ -43,7 +46,8 @@ void plotSpline(const Bs::Spline &spline, const Eigen::ArrayXd &points,
       std::vector<double>{splineValsBps.begin(), splineValsBps.end()})
       ->marker_style(matplot::line_spec::marker_style::diamond)
       .marker_color({0.0, 0.0, 1.0})
-      .marker_face_color({0.0, 0.0, 1.0});
+      .marker_face_color({0.0, 0.0, 1.0})
+      .display_name("breakpoints");
 }
 
 void plotSpline2d(const Bs::Spline &spline, const Eigen::ArrayXd &points,
@@ -51,10 +55,12 @@ void plotSpline2d(const Bs::Spline &spline, const Eigen::ArrayXd &points,
                   const std::array<int, 2> &dims) {
   // plot spline at evaluation points
   const Eigen::ArrayXXd splineVals{spline(points)(Eigen::all, dims)};
-  axesHandle->plot(std::vector<double>{splineVals(Eigen::all, dims[0]).begin(),
-                                       splineVals(Eigen::all, dims[0]).end()},
-                   std::vector<double>{splineVals(Eigen::all, dims[1]).begin(),
-                                       splineVals(Eigen::all, dims[1]).end()});
+  axesHandle
+      ->plot(std::vector<double>{splineVals(Eigen::all, dims[0]).begin(),
+                                 splineVals(Eigen::all, dims[0]).end()},
+             std::vector<double>{splineVals(Eigen::all, dims[1]).begin(),
+                                 splineVals(Eigen::all, dims[1]).end()})
+      ->display_name("spline");
 
   // plot coefficients
   matplot::plot(
@@ -62,7 +68,8 @@ void plotSpline2d(const Bs::Spline &spline, const Eigen::ArrayXd &points,
                           spline.getCoefficients()(Eigen::all, dims[0]).end()},
       std::vector<double>{spline.getCoefficients()(Eigen::all, dims[1]).begin(),
                           spline.getCoefficients()(Eigen::all, dims[1]).end()},
-      "-o");
+      "-o")
+      ->display_name("coefficients");
 
   // plot breakpoints along spline
   const Eigen::ArrayXd bps = spline.basis()->getBreakpoints().first;
@@ -74,7 +81,8 @@ void plotSpline2d(const Bs::Spline &spline, const Eigen::ArrayXd &points,
                           splineValsBps(Eigen::all, dims[1]).end()})
       ->marker_style(matplot::line_spec::marker_style::diamond)
       .marker_color({0.0, 0.0, 1.0})
-      .marker_face_color({0.0, 0.0, 1.0});
+      .marker_face_color({0.0, 0.0, 1.0})
+      .display_name("breakpoints");
 }
 
 #endif
