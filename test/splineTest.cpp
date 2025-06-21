@@ -172,6 +172,10 @@ TEST_F(SplineTest, SplineIintO3) {
   expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
 
+/**
+ * @brief Test knots insertion at {0.4, 0.5, 0.6}.
+ *
+ */
 TEST_F(SplineTest, InsertKnots) {
   // instantiate spline of order 3
   const Spline spline{m_basisO3, Eigen::MatrixXd::Random(m_basisO3->dim(), 2)};
@@ -186,6 +190,31 @@ TEST_F(SplineTest, InsertKnots) {
   // get estimate from result spline
   const Eigen::ArrayXXd valuesEst{splineInsert(m_points)};
 
+  expectAllClose(valuesGtr, valuesEst, 1e-6);
+}
+
+/**
+ * @brief Test order elevation by 2.
+ *
+ */
+TEST_F(SplineTest, OrderElevation) {
+  // instantiate spline of order 3
+  const Spline spline{m_basisO3, Eigen::MatrixXd::Random(m_basisO3->dim(), 2)};
+
+  // increase order
+  const int orderChange{2};
+  const Spline splineIncr{spline.orderElevation(orderChange)};
+
+  // test order increase
+  EXPECT_EQ(splineIncr.basis()->order(), m_basisO3->order() + orderChange);
+
+  // get ground truth from initial spline
+  const Eigen::ArrayXXd valuesGtr{spline(m_points)};
+
+  // get estimate from result spline
+  const Eigen::ArrayXXd valuesEst{splineIncr(m_points)};
+
+  // test spline equality
   expectAllClose(valuesGtr, valuesEst, 1e-6);
 }
 

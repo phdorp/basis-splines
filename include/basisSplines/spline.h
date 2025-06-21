@@ -210,6 +210,29 @@ public:
   }
 
   /**
+   * @brief Create new spline with order increased by "change".
+   * The new spline coincides with "this" spline.
+   * The distance between coefficients and spline is decreased.
+   *
+   * @tparam Interp type of interpolation.
+   * @param change positive order change.
+   * @return Spline new spline with increased order.
+   */
+  template <typename Interp = Interpolate>
+  Spline orderElevation(int change) const {
+    assert(change >= 0 && "Order change must be positive.");
+
+    // create new basis with increased order
+    const std::shared_ptr<Basis> basis{
+        std::make_shared<Basis>(m_basis->orderElevation(change))};
+
+    // determine new coefficients via interpolation
+    return {basis, Interp{basis}.fit([&](const Eigen::ArrayXd &points) {
+              return Eigen::MatrixXd{(*this)(points)};
+            })};
+  }
+
+  /**
    * @brief Determine a spline representing the "first" and the "last" segment
    * of "this" spline.
    *

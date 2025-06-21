@@ -26,7 +26,8 @@ public:
   Basis() = default;
 
   /**
-   * @brief Construct a new basis for the given "knots", "order", and knot "scale".
+   * @brief Construct a new basis for the given "knots", "order", and knot
+   * "scale".
    *
    * @param knots knot locations.
    * @param order basis order.
@@ -126,7 +127,7 @@ public:
    * @return Basis basis with reduced order.
    */
   Basis orderDecrease(int change = 1) const {
-    assert(change >= 0 && "Order decrease must be positive.");
+    assert(change >= 0 && "Order change must be positive.");
 
     // base case: no order decrease, create new instance of current basis
     if (change == 0)
@@ -138,23 +139,46 @@ public:
   }
 
   /**
-   * @brief Determine new basis with order increased by "change".
+   * @brief Determine new basis with order increased by "change". In contrast to
+   * Basis::orderElevation the knot multiplicity is preserved except for the
+   * first and last knots.
    *
    * @param change order to increase.
    * @return Basis basis with increased order.
    */
   Basis orderIncrease(int change = 1) const {
-    assert(change >= 0 && "Order increase must be positive.");
+    assert(change >= 0 && "Order change must be positive.");
 
     // base case: no order increase, create new instance of current basis
     if (change == 0)
       return Basis{*this};
 
-    // create new basis of lower order and additional breakpoints
+    // create new knots where the first and last knots are completed according
+    // to order change
     Eigen::ArrayXd knotsNew(knots().size() + 2 * change);
     knotsNew << Eigen::ArrayXd::Zero(change) + knots()(0), knots(),
-        Eigen::ArrayXd::Zero(change) + *(knots().end());
-    Basis basis{knotsNew, order() + change};
+        Eigen::ArrayXd::Zero(change) + *(knots().end() - 1);
+
+    // create basis of higher order
+    return {knotsNew, order() + change};
+  }
+
+  /**
+   * @brief Determine new basis with order increased by "change". In constrast
+   * to Basis::orderIncrease the breakpoint continuity is preserved.
+   *
+   * @param change order to increase.
+   * @return Basis basis with increased order.
+   */
+  Basis orderElevation(int change = 1) const {
+    assert(change >= 0 && "Order change must be positive.");
+
+    // base case: no order increase, create new instance of current basis
+    if (change == 0)
+      return Basis{*this};
+
+    // create new knots with increased multiplicity for higher order basis
+    Eigen::ArrayXd knotsNew{toKnots(getBreakpoints(), m_order + change)};
 
     // create basis of higher order
     return {knotsNew, order() + change};
