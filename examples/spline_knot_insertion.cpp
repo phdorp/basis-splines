@@ -22,22 +22,29 @@ int main(int argc, char *argv[]) {
   const Eigen::ArrayXd knotsInsert{{0.3, 0.4, 0.8, 0.8}};
   splines[1] = Bs::Spline{splines[0].insertKnots(knotsInsert)};
 
-  // definition spline with inserted knots
-  const Eigen::ArrayXd knotsInsert1{{0.3, 0.4, 0.7, 0.8, 0.8}};
-  splines[2] = Bs::Spline{splines[0].insertKnots(knotsInsert1)};
+  // definition spline with order increased by 2
+  splines[2] = Bs::Spline{splines[0].orderElevation(2)};
 
+  // setup figure
+  auto figureHandle{Mt::figure()};
+  figureHandle->size(800, 600);
+
+  // plot all splines
   int cSpline{};
   for (const Bs::Spline &spline : splines) {
-    // plot spline at evaluation points
-    auto axesHandle{matplot::subplot(splines.size(), 1, cSpline++)};
+    auto axesHandle{
+        matplot::subplot(figureHandle, splines.size(), 1, cSpline++)};
     axesHandle->hold(true);
     axesHandle->grid(true);
+    axesHandle->xlabel("x/1");
+    axesHandle->ylabel("s(x)/1");
+    Mt::legend(Mt::on)->location(Mt::legend::general_alignment::bottomleft);
 
     plotSpline(spline, Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle);
   }
 
-  // enable grid, save and show figure
-  matplot::save(*(argv + 1));
+  // save and show figure
+  saveFigure(figureHandle, getFileName(argc, argv), getFileEnding(argc, argv));
   matplot::show();
 
   return 0;
