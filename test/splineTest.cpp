@@ -172,6 +172,10 @@ TEST_F(SplineTest, SplineIintO3) {
   expectAllClose(valuesGtr, valuesEst, 1e-8);
 }
 
+/**
+ * @brief Test knots insertion at {0.4, 0.5, 0.6}.
+ *
+ */
 TEST_F(SplineTest, InsertKnots) {
   // instantiate spline of order 3
   const Spline spline{m_basisO3, Eigen::MatrixXd::Random(m_basisO3->dim(), 2)};
