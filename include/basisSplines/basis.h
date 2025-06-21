@@ -155,7 +155,7 @@ public:
     // create new basis of lower order and additional breakpoints
     Eigen::ArrayXd knotsNew(knots().size() + 2 * change);
     knotsNew << Eigen::ArrayXd::Zero(change) + knots()(0), knots(),
-        Eigen::ArrayXd::Zero(change) + *(knots().end());
+        Eigen::ArrayXd::Zero(change) + *(knots().end() - 1);
 
     // create basis of higher order
     return {knotsNew, order() + change};
