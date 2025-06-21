@@ -85,4 +85,34 @@ void plotSpline2d(const Bs::Spline &spline, const Eigen::ArrayXd &points,
       .display_name("breakpoints");
 }
 
+/**
+ * @brief Get output file name from arguments.
+ *
+ * @param argc argument counter.
+ * @param argv argument variables.
+ * @return std::string_view output file name.
+ */
+std::string_view getFileName(int argc, char *argv[]) { return *(argv + 1); }
+
+/**
+ * @brief Get output file ending from arguments.
+ *
+ * @param argc argument counter.
+ * @param argv argument variables.
+ * @return std::string_view output file ending.
+ */
+std::string_view getFileEnding(int argc, char *argv[]) { return (*argv + 2); }
+
+/**
+ * @brief Save "figureHandle" to file with "name" and "ending".
+ *
+ * @param figureHandle figure handle to save.
+ * @param name file name.
+ * @param ending file ending.
+ */
+void saveFigure(const Mt::figure_handle &figureHandle,
+                const std::string_view name, const std::string_view ending) {
+  Mt::save(figureHandle, std::format("{}.{}", name, ending));
+}
+
 #endif
