@@ -190,6 +190,31 @@ TEST_F(SplineTest, InsertKnots) {
 }
 
 /**
+ * @brief Test order elevation by 2.
+ *
+ */
+TEST_F(SplineTest, OrderElevation) {
+  // instantiate spline of order 3
+  const Spline spline{m_basisO3, Eigen::MatrixXd::Random(m_basisO3->dim(), 2)};
+
+  // increase order
+  const int orderChange{2};
+  const Spline splineIncr{spline.orderElevation(orderChange)};
+
+  // test order increase
+  EXPECT_EQ(splineIncr.basis()->order(), m_basisO3->order() + orderChange);
+
+  // get ground truth from initial spline
+  const Eigen::ArrayXXd valuesGtr{spline(m_points)};
+
+  // get estimate from result spline
+  const Eigen::ArrayXXd valuesEst{splineIncr(m_points)};
+
+  // test spline equality
+  expectAllClose(valuesGtr, valuesEst, 1e-6);
+}
+
+/**
  * @brief Test retrieving first 2 segments from spline function of order 3.
  * Determine clamped spline from spline segment and test for equality.
  *
