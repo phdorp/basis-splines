@@ -30,6 +30,12 @@ while [[ $# -gt 0 ]]; do
         echo "$HELP_STRING"
         shift
         ;;
+    -a|--all)
+        for f in ./examples/*.cpp; do
+            POSITIONAL_ARGS+=("$(basename "$f" .cpp)")
+        done
+        break
+        ;;
     -*|--*)
         echo "Unknown option $1"
         exit 1
