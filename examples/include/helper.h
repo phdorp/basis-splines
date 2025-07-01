@@ -92,7 +92,15 @@ void plotSpline2d(const Bs::Spline &spline, const Eigen::ArrayXd &points,
  * @param argv argument variables.
  * @return std::string_view output file name.
  */
-std::string_view getFileName(int argc, char *argv[]) { return *(argv + 1); }
+std::string_view getFileName(int argc, char *argv[]) {
+  switch (argc) {
+  case 3:
+    return *(argv + 1);
+    break;
+  default:
+    return "default";
+  }
+}
 
 /**
  * @brief Get output file ending from arguments.
@@ -101,7 +109,15 @@ std::string_view getFileName(int argc, char *argv[]) { return *(argv + 1); }
  * @param argv argument variables.
  * @return std::string_view output file ending.
  */
-std::string_view getFileEnding(int argc, char *argv[]) { return (*argv + 2); }
+std::string_view getFileEnding(int argc, char *argv[]) {
+  switch (argc) {
+  case 3:
+    return *(argv + 2);
+    break;
+  default:
+    return ".jpg";
+  }
+}
 
 /**
  * @brief Save "figureHandle" to file with "name" and "ending".
