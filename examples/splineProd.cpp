@@ -24,25 +24,29 @@ int main(int argc, char *argv[]) {
           4),
       Eigen::ArrayXd{{1.0, -1.0, 0.3, 0.4, -0.1, 0.0}}};
 
-  // add two splines
+  // product two splines
   splines[2] = splines[0].prod(splines[1]);
 
   // setup figure handle
   auto figureHandle{Mt::figure()};
   figureHandle->size(800, 600);
 
-  // plot all splines
-  int cSpline{};
-  for (const Bs::Spline &spline : splines) {
-    auto axesHandle{
-        matplot::subplot(figureHandle, splines.size(), 1, cSpline++)};
+  // y-axis labels for each y axis
+  std::array<std::string, 3> yLabels {"s_0(x)/1", "s_1(x)/1", "s_{0*1}(x)/1"};
+
+  for(int cSpline{}; cSpline < splines.size(); ++cSpline) {
+    // plot spline at evaluation points
+    auto axesHandle{matplot::subplot(figureHandle, splines.size(), 1, cSpline)};
     axesHandle->hold(true);
     axesHandle->grid(true);
+    axesHandle->xlabel("x/1");
+    axesHandle->ylabel(yLabels[cSpline]);
+    Mt::legend(Mt::on)->location(Mt::legend::general_alignment::bottom);
 
-    plotSpline(spline, Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle);
+    plotSpline(splines[cSpline], Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle);
   }
 
-  // enablesave and show figure
+  // enable grid, save and show figure
   saveFigure(figureHandle, getFileName(argc, argv), getFileEnding(argc, argv));
   matplot::show();
 
