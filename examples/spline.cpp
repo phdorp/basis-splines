@@ -22,16 +22,20 @@ int main(int argc, char *argv[]) {
       Bs::Spline{basis, Eigen::ArrayXd{{0.0, 0.5, 0.25, -0.3, -1.0, 0.75}}};
 
   // second spline definition
-  splines[1] =
-      Bs::Spline{basis, Eigen::ArrayXd{{1.0, 0.5, 2, -3, -1.0, 0.75}}};
+  splines[1] = Bs::Spline{basis, Eigen::ArrayXd{{1.0, 0.5, 2, -3, -1.0, 0.75}}};
 
   // plot splines
   int cSpline{};
+  auto figureHandle {Mt::figure()};
+  figureHandle->size(800, 600);
+
   for (const Bs::Spline &spline : splines) {
-    auto axesHandle{matplot::subplot(splines.size(), 2, cSpline)};
+    auto axesHandle{matplot::subplot(figureHandle, splines.size(), 2, cSpline)};
     axesHandle->hold(true);
     axesHandle->grid(true);
-    axesHandle->title(std::format("Spline {}", splines.size() % ++cSpline));
+    axesHandle->xlabel("x/1");
+    axesHandle->ylabel(std::format("s_{}(x)/1", splines.size() % ++cSpline));
+    Mt::legend(Mt::on)->location(Mt::legend::general_alignment::bottomleft);
 
     plotSpline(spline, Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle);
   }
@@ -41,16 +45,18 @@ int main(int argc, char *argv[]) {
 
   // plot splines with new basis
   for (const Bs::Spline &spline : splines) {
-    auto axesHandle{matplot::subplot(splines.size(), 2, cSpline)};
+    auto axesHandle{matplot::subplot(figureHandle, splines.size(), 2, cSpline)};
     axesHandle->hold(true);
     axesHandle->grid(true);
-    axesHandle->title(std::format("Spline new basis {}", splines.size() % ++cSpline));
+    axesHandle->xlabel("x/1");
+    axesHandle->ylabel(std::format("s_{{{},new}}(x)/1", splines.size() % ++cSpline));
+    Mt::legend(Mt::on)->location(Mt::legend::general_alignment::bottomleft);
 
     plotSpline(spline, Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle);
   }
 
   // save and show figure
-  matplot::save(*(argv + 1));
+  saveFigure(figureHandle, getFileName(argc, argv), getFileEnding(argc, argv));
   matplot::show();
 
   return 0;

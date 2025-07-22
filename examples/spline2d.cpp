@@ -23,27 +23,56 @@ int main(int argc, char *argv[]) {
                                                  {1.0, 0.6},
                                                  {0.0, 0.8}}};
 
+  // setup figure
+  auto figureHandle{Mt::figure()};
+  figureHandle->size(800, 600);
+
   // plot splines along each dimension
   for (int cDim{}; cDim < spline.dim(); ++cDim) {
-    auto axesHandle{matplot::subplot(spline.dim(), 1, cDim)};
+    // create axis handle for each spline dimension
+    auto axesHandle{Mt::subplot(figureHandle, spline.dim(), 1, cDim)};
+
+    // setup axes
     axesHandle->hold(true);
     axesHandle->grid(true);
-    axesHandle->title(std::format("Output {}", cDim));
+    axesHandle->xlabel("x/1");
+    axesHandle->ylabel(std::format("s_{}(x)/1", cDim));
+    axesHandle->ylim({-1.1, 1.1});
+    Mt::legend(Mt::on)->location(Mt::legend::general_alignment::bottomright);
 
+    // plot single spline dimension
     plotSpline(spline, Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle,
                cDim);
   }
 
+  // save figure with individual spline dimensions
+  std::string name{std::format("{}_singleDims", getFileName(argc, argv))};
+  saveFigure(figureHandle, name, getFileEnding(argc, argv));
+
   // plot 2-dimensional spline
-  auto axesHandle{Mt::figure()->current_axes()};
+  figureHandle = Mt::figure();
+  figureHandle->size(800, 600);
+
+  // setup axis
+  auto axesHandle{figureHandle->current_axes()};
   axesHandle->hold(true);
   axesHandle->grid(true);
+  axesHandle->xlabel("s_0(x)/1");
+  axesHandle->ylabel("s_1(x)/1");
+  axesHandle->xlim({-0.9, 1.1});
+  axesHandle->ylim({-0.7, 1.1});
+  Mt::legend(Mt::on)->location(Mt::legend::general_alignment::bottomleft);
+
+  // plot 2 spline dimensions
   plotSpline2d(spline, Eigen::ArrayXd::LinSpaced(121, 0.0, 1.0), axesHandle,
                {{0, 1}});
 
-  // save and show figure
-  matplot::save(*(argv + 1));
-  matplot::show();
+  // save figure with 2 spline dimensions
+  name = std::format("{}_allDims", getFileName(argc, argv));
+  saveFigure(figureHandle, name, getFileEnding(argc, argv));
+
+  // show figures
+  Mt::show();
 
   return 0;
 }

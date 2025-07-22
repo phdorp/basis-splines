@@ -30,6 +30,12 @@ while [[ $# -gt 0 ]]; do
         echo "$HELP_STRING"
         shift
         ;;
+    -a|--all)
+        for f in ./examples/*.cpp; do
+            POSITIONAL_ARGS+=("$(basename "$f" .cpp)")
+        done
+        break
+        ;;
     -*|--*)
         echo "Unknown option $1"
         exit 1
@@ -46,5 +52,5 @@ OUT_DIRECTORY=$WORKING_DIRECTORY/examples/out
 mkdir -p $OUT_DIRECTORY
 
 for FILE in "${POSITIONAL_ARGS[@]}"; do
-    $EXAMPLE_BINS/$FILE $OUT_DIRECTORY/$FILE.$EXTENSION
+    $EXAMPLE_BINS/$FILE $OUT_DIRECTORY/$FILE $EXTENSION
 done

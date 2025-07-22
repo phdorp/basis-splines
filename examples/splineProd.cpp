@@ -9,7 +9,6 @@ namespace Bs = BasisSplines;
 namespace Mt = matplot;
 
 int main(int argc, char *argv[]) {
-
   std::vector<Bs::Spline> splines(3);
 
   // definition first spline of order 3 with 4 breakpoints
@@ -28,19 +27,23 @@ int main(int argc, char *argv[]) {
   // add two splines
   splines[2] = splines[0].prod(splines[1]);
 
+  // setup figure handle
+  auto figureHandle{Mt::figure()};
+  figureHandle->size(800, 600);
+
+  // plot all splines
   int cSpline{};
   for (const Bs::Spline &spline : splines) {
-
-    // plot spline at evaluation points
-    auto axesHandle{matplot::subplot(splines.size(), 1, cSpline++)};
+    auto axesHandle{
+        matplot::subplot(figureHandle, splines.size(), 1, cSpline++)};
     axesHandle->hold(true);
     axesHandle->grid(true);
 
     plotSpline(spline, Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle);
   }
 
-  // enable grid, save and show figure
-  matplot::save(*(argv + 1));
+  // enablesave and show figure
+  saveFigure(figureHandle, getFileName(argc, argv), getFileEnding(argc, argv));
   matplot::show();
 
   return 0;

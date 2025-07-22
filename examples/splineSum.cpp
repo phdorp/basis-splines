@@ -28,19 +28,24 @@ int main(int argc, char *argv[]) {
   // add two splines
   splines[2] = splines[0].add(splines[1]);
 
-  int cSpline{};
-  for (const Bs::Spline &spline : splines) {
+  std::array<std::string, 3> yLabels {"s_0(x)/1", "s_1(x)/1", "s_{0+1}(x)/1"};
 
+  auto figureHandle {Mt::figure()};
+  figureHandle->size(800, 600);
+  for(int cSpline{}; cSpline < splines.size(); ++cSpline) {
     // plot spline at evaluation points
-    auto axesHandle{matplot::subplot(splines.size(), 1, cSpline++)};
+    auto axesHandle{matplot::subplot(figureHandle, splines.size(), 1, cSpline)};
     axesHandle->hold(true);
     axesHandle->grid(true);
+    axesHandle->xlabel("x/1");
+    axesHandle->ylabel(yLabels[cSpline]);
+    Mt::legend(Mt::on)->location(Mt::legend::general_alignment::bottom);
 
-    plotSpline(spline, Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle);
+    plotSpline(splines[cSpline], Eigen::ArrayXd::LinSpaced(121, -0.1, 1.1), axesHandle);
   }
 
   // enable grid, save and show figure
-  matplot::save(*(argv + 1));
+  saveFigure(figureHandle, getFileName(argc, argv), getFileEnding(argc, argv));
   matplot::show();
 
   return 0;
