@@ -403,7 +403,7 @@ public:
   template <typename Interp = Interpolate>
   Eigen::MatrixXd prod(const Basis &basis, Basis &basisOut) const {
     // combine this and other basis to sum basis
-    basisOut = combine(basis, order() + basis.order());
+    basisOut = combine(basis, order() + basis.order() - 1);
 
     // instantiate interpolate with sum basis
     const Interp interp{std::make_shared<Basis>(basisOut)};
