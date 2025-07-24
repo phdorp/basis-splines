@@ -502,7 +502,7 @@ TEST_F(BasisTest, ProdMatO3) {
 
   // ground truth basis
   const Basis basisGtr{
-      m_basisO3->combine(basisR, m_basisO3->order() + basisR.order())};
+      m_basisO3->combine(basisR, m_basisO3->order() + basisR.order() - 1)};
 
   // test if knots are almost equal
   expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
