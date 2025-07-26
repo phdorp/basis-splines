@@ -18,25 +18,31 @@ source setup.bash
 Basis splines are determine recursively on the knots
 
 ```math
+\begin{aligned}
 \mathbf{k}=\begin{bmatrix}\underbrace{\begin{matrix}\kappa_1&\kappa_1&\ldots&\kappa_1\end{matrix}}_{m_1}&\underbrace{\begin{matrix}\kappa_2&\kappa_2&\ldots&\kappa_2\end{matrix}}_{m_2}&\ldots&\kappa_{\breve{\mathbf{k}}}&\kappa_{\breve{\mathbf{k}}}\end{bmatrix}.
+\end{aligned}
 ```
 
-The knots are composed of the repeated breakpoints $\kappa_i<\kappa_{i+1}$, $i=1,2,\ldots,\breve{\boldsymbol{\kappa}}$.
-The multiplicity $m_i=\rho-\omega_i$ of the $i$-th breakpoint determines the spline's order of continuity $\omega_i$.
-The recursion's base case is the order $\rho=1$, considering $n=1,2,\ldots,\breve{\boldsymbol{k}}-1$ knot intervals [[1, Ch. IX eq. (11)]](#1)
+The knots are composed of the repeated breakpoints $`\kappa_i<\kappa_{i+1}`$, $`i=1,2,\ldots,\breve{\boldsymbol{\kappa}}`$.
+The multiplicity $`m_i=\rho-\omega_i`$ of the $`i`$-th breakpoint determines the spline's order of continuity $`\omega_i`$.
+The recursion's base case is the order $`\rho=1`$, considering $`n=1,2,\ldots,\breve{\boldsymbol{k}}-1`$ knot intervals [[1, Ch. IX eq. (11)]](#1)
 
 ```math
+\begin{aligned}
 b_{n,1,\mathbf{k}} =
     \begin{cases}
         1 & \text{if } k_n \leq t < k_{n+1}, \\
         0 & \text{otherwise.}
     \end{cases}
+\end{aligned}
 ```
 
-Higher orders $\rho>1$ are determined from lower orders, resulting in truncated power functions with $l=1,2,\ldots,\breve{\boldsymbol{k}}-\rho$ [[1, B-spline Prop. (i)]](#1)
+Higher orders $`\rho>1`$ are determined from lower orders, resulting in truncated power functions with $`l=1,2,\ldots,\breve{\boldsymbol{k}}-\rho`$ [[1, B-spline Prop. (i)]](#1)
 
 ```math
+\begin{aligned}
 b_{l,\rho,\mathbf{k}}(t)=\frac{t-k_l}{k_{l+\rho-1}-k_l}b_{l,\rho,\mathbf{k}}(t)+\frac{k_{l+\rho}-t}{k_{l+\rho}-k_{l+1}}b_{l+1,\rho,\mathbf{k}}(t).
+\end{aligned}
 ```
 
 ![Basis spline basis functions](docs/media/basis.jpg)
@@ -45,10 +51,12 @@ The exemplary B-spline is found under *examples/basis.cpp*.
 
 ### Spline functions
 
-Splines in basis form are a linear combination of basis functions weighted with the coefficients $c_n$ for $n=0,1,\ldots,\breve{\mathbf{c}}-1$ [[1, Def. (51)]](#1):
+Splines in basis form are a linear combination of basis functions weighted with the coefficients $`c_n`$ for $`n=0,1,\ldots,\breve{\mathbf{c}}-1`$ [[1, Def. (51)]](#1):
 
 ```math
+\begin{aligned}
 s(t)=\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(t).
+\end{aligned}
 ```
 
 The coefficients form a convex hull that contains the spline's graph.
@@ -59,23 +67,27 @@ The exemplary spline is found under *examples/spline2d.cpp*.
 
 ### Derivative
 
-The spline derivative $\dot{s}(t)\coloneqq\frac{\mathrm{d}}{\mathrm{d}t}s(t)$ has reduced order and continuity.
-The derivative coefficients are determined from the original coefficients $c_n$ [[1, B-spline Prop. (viii)]](#1):
+The spline derivative $`\dot{s}(t)=\frac{\mathrm{d}}{\mathrm{d}t}s(t)`$ has reduced order and continuity.
+The derivative coefficients are determined from the original coefficients $`c_n`$ [[1, B-spline Prop. (viii)]](#1):
 
 ```math
+\begin{aligned}
 \dot{s}(t)=\frac{\mathrm{d}}{\mathrm{d}t}\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(t)=(\rho-1)\sum_{n=1}^{\breve{\mathbf{c}}-1}\frac{c_n-c_{n-1}}{k_n-k_{n-1}}b_{n,\rho-1,\mathbf{k}}(t).
+\end{aligned}
 ```
 
-Thus, the derivative is the result of a linear transformation of the coefficients $\dot{s}(t)=\left(\mathbf{T}_{\dot{\mathbf{b}}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho-1,\mathbf{k}}(t)$:
+Thus, the derivative is the result of a linear transformation of the coefficients $`\dot{s}(t)=\left(\mathbf{T}_{\dot{\mathbf{b}}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho-1,\mathbf{k}}(t)`$:
 
 ```math
-\mathbf{T}_{\dot{\mathbf{b}}}^{\mathbf{b}}\coloneqq(\rho-1)
+\begin{aligned}
+\mathbf{T}_{\dot{\mathbf{b}}}^{\mathbf{b}}=(\rho-1)
 \begin{pmatrix}
 \frac{1}{k_1-k_\rho}&\frac{1}{k_\rho-k_1}&0&\ldots&0&0\\
 0&\frac{1}{k_2-k_\rho}&\frac{1}{k_\rho-k_2}&0&\ldots&0\\
 \vdots&\vdots&\vdots&\ddots&\vdots&\vdots\\
 0&0&0&\ldots&\frac{1}{k_{\breve{\mathbf{k}}-1}-k_{\breve{\mathbf{c}}}}&\frac{1}{k_{\breve{\mathbf{c}}}-k_{\breve{\mathbf{k}}-1}}\\
 \end{pmatrix}.
+\end{aligned}
 ```
 
 ![spline derivative](docs/media/splineDeriv.jpg)
@@ -85,17 +97,20 @@ The file *examples/splineDerivExplicit.cpp* shows the application of the transfo
 
 ### Integral
 
-The spline integral $s_\mathrm{I}(t)\coloneqq\int_{\kappa_0}^t s(\tau)\mathrm{d}\tau$ has increased order and continuity.
-The transformation to the integral coefficients $\mathbf{c}_{\mathrm{I}}$ is derived from the derivative definition and yields [[1, Ch. X eq. (31)]](#1):
+The spline integral $`s_\mathrm{I}(t)=\int_{\kappa_0}^t s(\tau)\mathrm{d}\tau`$ has increased order and continuity.
+The transformation to the integral coefficients $`\mathbf{c}_{\mathrm{I}}`$ is derived from the derivative definition and yields [[1, Ch. X eq. (31)]](#1):
 
 ```math
+\begin{aligned}
 c_{{n+1},\mathrm{I}}=c_{n,\mathrm{I}}+\frac{1}{\rho}(k_{n+\rho}-k_n)c_n
+\end{aligned}
 ```
 
-Assuming an initial condition $c_{0,\mathrm{I}}=0$, the spline integral is also determined by a linear transformation of the coefficients $s_\mathrm{I}(t)=\left(\mathbf{T}_{\mathbf{b}_\mathrm{I}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho+1,\mathbf{k}}(t)$ with
+Assuming an initial condition $`c_{0,\mathrm{I}}=0`$, the spline integral is also determined by a linear transformation of the coefficients $`s_\mathrm{I}(t)=\left(\mathbf{T}_{\mathbf{b}_\mathrm{I}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho+1,\mathbf{k}}(t)`$ with
 
 ```math
-\mathbf{T}_{\mathbf{b}_\mathrm{I}}^{\mathbf{b}}\coloneqq
+\begin{aligned}
+\mathbf{T}_{\mathbf{b}_\mathrm{I}}^{\mathbf{b}}=
 \begin{pmatrix}
 0&0&0&\ldots&0\\
 k_\rho-k_0&0&0&\ldots&0\\
@@ -103,6 +118,7 @@ k_\rho-k_0&k_{\rho+1}-k_1&0&\ldots&0\\
 \vdots&\vdots&\ldots&\ddots&\vdots\\
 k_\rho-k_0&k_{\rho+1}-k_1&k_{\rho+2}-k_2&\ldots&k_{\breve{\mathbf{k}}-1}-k_{\breve{\mathbf{c}}-1}\\
 \end{pmatrix}.
+\end{aligned}
 ```
 
 ![spline integral](docs/media/splineInteg.jpg)
@@ -112,8 +128,8 @@ The file *examples/splinentegExplicit.cpp* shows the application of the transfor
 
 ### Sum and product
 
-The sum and product of two splines $s_\square(t)$ and $s_\triangle(t)$ are exactly described by another spline.
-The coefficients of the sum $s_+(t)=s_\square(t)+s_\triangle(t)$ and the product $s_\times(t)=s_\square(t)\cdot s_\triangle(t)$ are described implicitly by an interpolation:
+The sum and product of two splines $`s_\square(t)`$ and $`s_\triangle(t)`$ are exactly described by another spline.
+The coefficients of the sum $`s_+(t)=s_\square(t)+s_\triangle(t)`$ and the product $`s_\times(t)=s_\square(t)\cdot s_\triangle(t)`$ are described implicitly by an interpolation:
 
 ```math
 \begin{aligned}
@@ -126,7 +142,7 @@ s_\times(\tau_{{i,\times}})&=s_\square(\tau_{{i,\times}})\cdot s_\triangle(\tau_
 
 ![2-dimensional spline in basis form with convex hull](docs/media/splineProd.jpg)
 
-The coefficients are also determined explicitly with two transformation matrices $\mathbf{T}_{\mathbf{b}_+}^{\mathbf{b}_{\square}}$ and $\mathbf{T}_{\mathbf{b}_+}^{\mathbf{b}_\triangle}$ in the sum case, and a single matrix in the product case $\mathbf{T}_{\mathbf{b}_\times}^{\mathbf{b}_{\square}\odot\mathbf{b}_{\triangle}}$ [[2, Property 2 and 3]]((#2)):
+The coefficients are also determined explicitly with two transformation matrices $`\mathbf{T}_{\mathbf{b}_+}^{\mathbf{b}_{\square}}`$ and $`\mathbf{T}_{\mathbf{b}_+}^{\mathbf{b}_\triangle}`$ in the sum case, and a single matrix in the product case $`\mathbf{T}_{\mathbf{b}_\times}^{\mathbf{b}_{\square}\odot\mathbf{b}_{\triangle}}`$ [[2, Property 2 and 3]]((#2)):
 
 ```math
 \begin{aligned}
