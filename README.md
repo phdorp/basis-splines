@@ -4,6 +4,23 @@ C++ library implementing polynomial splines in basis form and operations includi
 
 ## Installation
 
+If you desire an integration in a CMake project you may utilize the *FetchContent* module.
+
+```bash
+FetchContent_Declare(
+  basisSplines
+  GIT_REPOSITORY https://github.com/phdorp/basis-splines.git
+)
+set(BUILD_TEST OFF)
+set(BUILD_EXAMPLES OFF)
+set(BUILD_DOCS OFF)
+FetchContent_MakeAvailable(basisSplines)
+link_libraries(basisSplines)
+```
+
+Otherwise you can directly include the header files in your project.
+The project is complied with g++13.
+
 ## Examples
 
 Run the examples with:
@@ -12,6 +29,8 @@ Run the examples with:
 source setup.bash
 ./examples/launch.bash "example_name"
 ```
+
+The examples rely on [Matplot++](https://github.com/alandefreitas/matplotplusplus) for plotting, so make sure to have [gnuplot](http://www.gnuplot.info/) installed.
 
 ### Basis functions
 
