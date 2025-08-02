@@ -66,7 +66,7 @@ b_{l,\rho,\mathbf{k}}(t)=\frac{t-k_l}{k_{l+\rho-1}-k_l}b_{l,\rho,\mathbf{k}}(t)+
 
 ![Basis spline basis functions](docs/media/basis.jpg)
 
-The exemplary B-spline is found under *examples/basis.cpp*.
+The exemplary B-splines of order 3 with 3 breakpoints are found under *examples/basis.cpp*.
 
 ### Spline functions
 
@@ -82,7 +82,7 @@ The coefficients form a convex hull that contains the spline's graph.
 
 ![2-dimensional spline in basis form with convex hull](docs/media/spline2d_allDims.jpg)
 
-The exemplary spline is found under *examples/spline2d.cpp*.
+The example in *examples/spline2d.cpp* shows 2 splines of order 3 and 4 breakpoints.
 
 ### Derivative
 
@@ -111,7 +111,7 @@ Thus, the derivative is the result of a linear transformation of the coefficient
 
 ![spline derivative](docs/media/splineDeriv.jpg)
 
-The example for a spline derivative is found under *examples/splineDeriv.cpp*.
+The example fr differentiating a spline of order 3 is found under *examples/splineDeriv.cpp*.
 The file *examples/splineDerivExplicit.cpp* shows the application of the transformation matrix.
 
 ### Integral
@@ -142,7 +142,7 @@ k_\rho-k_0&k_{\rho+1}-k_1&k_{\rho+2}-k_2&\ldots&k_{\breve{\mathbf{k}}-1}-k_{\bre
 
 ![spline integral](docs/media/splineInteg.jpg)
 
-The example for a spline integral is found under *examples/splineInteg.cpp*.
+The example for integrating a spline of order 3 is found under *examples/splineInteg.cpp*.
 The file *examples/splinentegExplicit.cpp* shows the application of the transformation matrix.
 
 ### Sum and product
