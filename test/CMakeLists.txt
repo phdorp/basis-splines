@@ -28,7 +28,7 @@ foreach(item ${MAIN_FILES})
     target_link_libraries(
         ${LIB_FILE}
         PRIVATE
-        basisSpline
+        basisSplines
         GTest::gtest_main
         eigen
     )

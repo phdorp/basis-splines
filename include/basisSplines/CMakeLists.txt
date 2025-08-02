@@ -14,12 +14,13 @@ FetchContent_MakeAvailable(eigen)
 # make cache variables for install destinations
 include(GNUInstallDirs)
 
-add_library(basisSpline INTERFACE)
-target_link_libraries(basisSpline INTERFACE eigen)
+add_library(basisSplines INTERFACE)
+target_link_libraries(basisSplines INTERFACE eigen)
 
-target_include_directories(basisSpline
+target_include_directories(basisSplines
   INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
 )
 
 include(CMakePackageConfigHelpers)
@@ -29,8 +30,8 @@ configure_package_config_file (
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
 
-export (
-  TARGETS basisSpline eigen
+export(
+  TARGETS basisSplines eigen
   NAMESPACE BasisSplines::
   FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake
 )

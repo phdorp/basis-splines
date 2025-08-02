@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.31.6)
 
-project(BasisSplines VERSION 1.0.0)
+set(PACKAGE_VERSION 1.0.0)
+
+project(BasisSplines VERSION ${PACKAGE_VERSION})
 
 include(FetchContent)
 
@@ -11,7 +13,6 @@ set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/basisSplines)
 add_subdirectory(${PROJECT_INCLUDE_DIR})
 
 option(BUILD_TEST "Build tests for transformation." ON)
-option(BUILD_BENCHMARK "Build benchmarks for transformations." ON)
 option(BUILD_EXAMPLES "Build examples." ON)
 
 find_package(Doxygen)
@@ -21,10 +22,6 @@ if(BUILD_TEST)
     enable_testing()
     add_subdirectory(test)
 endif()
-
-# if(BUILD_BENCHMARK)
-#     add_subdirectory(benchmarks)
-# endif()
 
 if(BUILD_EXAMPLES)
     add_subdirectory(examples)
