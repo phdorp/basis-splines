@@ -36,7 +36,8 @@ void plotSpline(const Bs::Spline &spline, const Eigen::ArrayXd &points,
       std::vector<double>{spline.getCoefficients()(Eigen::all, dim).begin(),
                           spline.getCoefficients()(Eigen::all, dim).end()},
       "-o")
-      ->display_name("coefficients");
+      ->marker_size(10.0)
+      .display_name("coefficients");
 
   // plot breakpoints along spline
   const Eigen::ArrayXd bps = spline.basis()->getBreakpoints().first;
@@ -69,7 +70,8 @@ void plotSpline2d(const Bs::Spline &spline, const Eigen::ArrayXd &points,
       std::vector<double>{spline.getCoefficients()(Eigen::all, dims[1]).begin(),
                           spline.getCoefficients()(Eigen::all, dims[1]).end()},
       "-o")
-      ->display_name("coefficients");
+      ->marker_size(10.0)
+      .display_name("coefficients");
 
   // plot breakpoints along spline
   const Eigen::ArrayXd bps = spline.basis()->getBreakpoints().first;
