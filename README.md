@@ -63,7 +63,7 @@ Higher orders $`\rho>1`$ are determined from lower orders, resulting in truncate
 
 ```math
 \begin{aligned}
-b_{l,\rho,\mathbf{k}}(t)=\frac{t-k_l}{k_{l+\rho-1}-k_l}b_{l,\rho,\mathbf{k}}(t)+\frac{k_{l+\rho}-t}{k_{l+\rho}-k_{l+1}}b_{l+1,\rho,\mathbf{k}}(t).
+b_{l,\rho,\mathbf{k}}(x)=\frac{t-k_l}{k_{l+\rho-1}-k_l}b_{l,\rho,\mathbf{k}}(x)+\frac{k_{l+\rho}-t}{k_{l+\rho}-k_{l+1}}b_{l+1,\rho,\mathbf{k}}(x).
 \end{aligned}
 ```
 
@@ -77,7 +77,7 @@ Splines in basis form are a linear combination of basis functions weighted with 
 
 ```math
 \begin{aligned}
-s(t)=\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(t).
+s(x)=\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(x).
 \end{aligned}
 ```
 
@@ -89,16 +89,16 @@ The example in *examples/spline2d.cpp* shows 2 splines of order 3 and 4 breakpoi
 
 ### Derivative
 
-The spline derivative $`\dot{s}(t)=\frac{\mathrm{d}}{\mathrm{d}t}s(t)`$ has reduced order and continuity.
+The spline derivative $`\dot{s}(x)=\frac{\mathrm{d}}{\mathrm{d}t}s(x)`$ has reduced order and continuity.
 The derivative coefficients are determined from the original coefficients $`c_n`$ [[1, B-spline Prop. (viii)]](#1):
 
 ```math
 \begin{aligned}
-\dot{s}(t)=\frac{\mathrm{d}}{\mathrm{d}t}\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(t)=(\rho-1)\sum_{n=1}^{\breve{\mathbf{c}}-1}\frac{c_n-c_{n-1}}{k_n-k_{n-1}}b_{n,\rho-1,\mathbf{k}}(t).
+\dot{s}(x)=\frac{\mathrm{d}}{\mathrm{d}t}\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(x)=(\rho-1)\sum_{n=1}^{\breve{\mathbf{c}}-1}\frac{c_n-c_{n-1}}{k_n-k_{n-1}}b_{n,\rho-1,\mathbf{k}}(x).
 \end{aligned}
 ```
 
-Thus, the derivative is the result of a linear transformation of the coefficients $`\dot{s}(t)=\left(\mathbf{T}_{\dot{\mathbf{b}}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho-1,\mathbf{k}}(t)`$:
+Thus, the derivative is the result of a linear transformation of the coefficients $`\dot{s}(x)=\left(\mathbf{T}_{\dot{\mathbf{b}}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho-1,\mathbf{k}}(x)`$:
 
 ```math
 \begin{aligned}
@@ -119,7 +119,7 @@ The file *examples/splineDerivExplicit.cpp* shows the application of the transfo
 
 ### Integral
 
-The spline integral $`s_\mathrm{I}(t)=\int_{\kappa_0}^t s(\tau)\mathrm{d}\tau`$ has increased order and continuity.
+The spline integral $`s_\mathrm{I}(x)=\int_{\kappa_0}^t s(\tau)\mathrm{d}\tau`$ has increased order and continuity.
 The transformation to the integral coefficients $`\mathbf{c}_{\mathrm{I}}`$ is derived from the derivative definition and yields [[1, Ch. X eq. (31)]](#1):
 
 ```math
@@ -128,7 +128,7 @@ c_{{n+1},\mathrm{I}}=c_{n,\mathrm{I}}+\frac{1}{\rho}(k_{n+\rho}-k_n)c_n
 \end{aligned}
 ```
 
-Assuming an initial condition $`c_{0,\mathrm{I}}=0`$, the spline integral is also determined by a linear transformation of the coefficients $`s_\mathrm{I}(t)=\left(\mathbf{T}_{\mathbf{b}_\mathrm{I}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho+1,\mathbf{k}}(t)`$ with
+Assuming an initial condition $`c_{0,\mathrm{I}}=0`$, the spline integral is also determined by a linear transformation of the coefficients $`s_\mathrm{I}(x)=\left(\mathbf{T}_{\mathbf{b}_\mathrm{I}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho+1,\mathbf{k}}(x)`$ with
 
 ```math
 \begin{aligned}
@@ -150,8 +150,8 @@ The file *examples/splinentegExplicit.cpp* shows the application of the transfor
 
 ### Sum and product
 
-The sum and product of two splines $`s_\square(t)`$ and $`s_\triangle(t)`$ are exactly described by another spline.
-The coefficients of the sum $`s_+(t)=s_\square(t)+s_\triangle(t)`$ and the product $`s_\times(t)=s_\square(t)\cdot s_\triangle(t)`$ are described implicitly by an interpolation:
+The sum and product of two splines $`s_\square(x)`$ and $`s_\triangle(x)`$ are exactly described by another spline.
+The coefficients of the sum $`s_+(x)=s_\square(x)+s_\triangle(x)`$ and the product $`s_\times(x)=s_\square(x)\cdot s_\triangle(x)`$ are described implicitly by an interpolation:
 
 ```math
 \begin{aligned}
