@@ -112,7 +112,7 @@ Thus, the derivative is the result of a linear transformation of the coefficient
 \end{aligned}
 ```
 
-![spline derivative](docs/media/splineDeriv.jpg)
+![Spline derivative](docs/media/splineDeriv.jpg)
 
 The example fr differentiating a spline of order 3 is found under *examples/splineDeriv.cpp*.
 The file *examples/splineDerivExplicit.cpp* shows the application of the transformation matrix.
@@ -143,7 +143,7 @@ k_\rho-k_0&k_{\rho+1}-k_1&k_{\rho+2}-k_2&\ldots&k_{\breve{\mathbf{k}}-1}-k_{\bre
 \end{aligned}
 ```
 
-![spline integral](docs/media/splineInteg.jpg)
+![Spline integral](docs/media/splineInteg.jpg)
 
 The example for integrating a spline of order 3 is found under *examples/splineInteg.cpp*.
 The file *examples/splinentegExplicit.cpp* shows the application of the transformation matrix.
@@ -160,9 +160,9 @@ s_\times(\tau_{{i,\times}})&=s_\square(\tau_{{i,\times}})\cdot s_\triangle(\tau_
 \end{aligned}
 ```
 
-![2-dimensional spline in basis form with convex hull](docs/media/splineSum.jpg)
+![Two splines and their sum representation](docs/media/splineSum.jpg)
 
-![2-dimensional spline in basis form with convex hull](docs/media/splineProd.jpg)
+![Two splines and their product representation](docs/media/splineProd.jpg)
 
 The coefficients are also determined explicitly with two transformation matrices $`\mathbf{T}_{\mathbf{b}_+}^{\mathbf{b}_{\square}}`$ and $`\mathbf{T}_{\mathbf{b}_+}^{\mathbf{b}_\triangle}`$ in the sum case, and a single matrix in the product case $`\mathbf{T}_{\mathbf{b}_\times}^{\mathbf{b}_{\square}\odot\mathbf{b}_{\triangle}}`$ [[2, Property 2 and 3]]((#2)):
 
