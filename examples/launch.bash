@@ -15,7 +15,8 @@ Specify the names of the source files to execute.
 
 Options
     -h | --help         Help message.
-    -e | --extension    File extension of output image (.jpg or .eps).\n'
+    -e | --extension    File extension of output image (.jpg or .eps).
+    -a | --all          Run all examples.\n'
 
 # parse arugments
 while [[ $# -gt 0 ]]; do
