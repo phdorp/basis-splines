@@ -7,7 +7,25 @@ This project provides a performant C++ implementation of relevant spline operati
 
 ## Installation
 
-If you desire an integration in a CMake project you may utilize the *FetchContent* module.
+### Build from source
+
+Building the project including the documentation (Doxygen 1.14.0), examples and tests is tested under Ubuntu 22.04 with g++13 and CMake 4.1.0.
+To build the project, clone the repository and run the following commands:
+
+```bash
+cmake -B build
+cmake --build build
+```
+
+After project build the tests can be run with:
+
+```bash
+ctest --test-dir build
+```
+
+### Integrate in CMake project
+
+If you desire an integration in a CMake project you may utilize the [FetchContent](https://cmake.org/cmake/help/v4.1/module/FetchContent.html) module.
 
 ```bash
 FetchContent_Declare(
@@ -21,8 +39,7 @@ FetchContent_MakeAvailable(basisSplines)
 link_libraries(basisSplines)
 ```
 
-Otherwise you can directly include the header files in your project.
-The project is complied with g++13.
+Otherwise, you can directly include the header files in your project.
 
 ## Examples
 
