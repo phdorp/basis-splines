@@ -18,16 +18,15 @@ int main(int argc, char *argv[]) {
           Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.4, 0.7, 0.7, 1.0, 1.0, 1.0}}, 3),
       Eigen::ArrayXd{{0.0, 0.5, 0.25, -0.3, -1.0, 0.75}}};
 
-  // definition spline with inserted knots
-  const Eigen::ArrayXd knotsInsert{{0.3, 0.4, 0.8, 0.8}};
-  splines[1] = Bs::Spline{splines[0].insertKnots(knotsInsert)};
+  // definition spline with order increased by 2
+  splines[1] = Bs::Spline{splines[0].orderElevation(2)};
 
   // setup figure
   auto figureHandle{Mt::figure()};
   figureHandle->size(800, 600);
 
   // y-axis labels for each y axis
-  std::array<std::string, 2> yLabels {"s(x)/1", "s_{in}(x)/1"};
+  std::array<std::string, 2> yLabels {"s(x)/1", "s_{el}(x)/1"};
 
   // plot all splines
   for(int cSpline{}; cSpline < splines.size(); ++cSpline) {

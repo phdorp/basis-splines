@@ -7,7 +7,25 @@ This project provides a performant C++ implementation of relevant spline operati
 
 ## Installation
 
-If you desire an integration in a CMake project you may utilize the *FetchContent* module.
+### Build from source
+
+Building the project including the documentation (Doxygen 1.14.0), examples and tests is tested under Ubuntu 22.04 with g++13 and CMake 4.1.0.
+To build the project, clone the repository and run the following commands:
+
+```bash
+cmake -B build
+cmake --build build
+```
+
+After project build the tests can be run with:
+
+```bash
+ctest --test-dir build
+```
+
+### Integrate in CMake project
+
+If you desire an integration in a CMake project you may utilize the [FetchContent](https://cmake.org/cmake/help/v4.1/module/FetchContent.html) module.
 
 ```bash
 FetchContent_Declare(
@@ -21,16 +39,22 @@ FetchContent_MakeAvailable(basisSplines)
 link_libraries(basisSplines)
 ```
 
-Otherwise you can directly include the header files in your project.
-The project is complied with g++13.
+Otherwise, you can directly include the header files in your project.
 
 ## Examples
 
-Run the examples with:
+Run the "example_name" with:
 
 ```bash
 source setup.bash
 ./examples/launch.bash "example_name"
+```
+
+Run all examples without interaction with:
+
+```bash
+source setup.bash
+echo | ./examples/launch.bash -a
 ```
 
 The examples rely on [Matplot++](https://github.com/alandefreitas/matplotplusplus) for plotting, so make sure to have [gnuplot](http://www.gnuplot.info/) installed.
@@ -63,7 +87,7 @@ Higher orders $`\rho>1`$ are determined from lower orders, resulting in truncate
 
 ```math
 \begin{aligned}
-b_{l,\rho,\mathbf{k}}(t)=\frac{t-k_l}{k_{l+\rho-1}-k_l}b_{l,\rho,\mathbf{k}}(t)+\frac{k_{l+\rho}-t}{k_{l+\rho}-k_{l+1}}b_{l+1,\rho,\mathbf{k}}(t).
+b_{l,\rho,\mathbf{k}}(x)=\frac{t-k_l}{k_{l+\rho-1}-k_l}b_{l,\rho,\mathbf{k}}(x)+\frac{k_{l+\rho}-t}{k_{l+\rho}-k_{l+1}}b_{l+1,\rho,\mathbf{k}}(x).
 \end{aligned}
 ```
 
@@ -77,7 +101,7 @@ Splines in basis form are a linear combination of basis functions weighted with 
 
 ```math
 \begin{aligned}
-s(t)=\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(t).
+s(x)=\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(x).
 \end{aligned}
 ```
 
@@ -89,16 +113,16 @@ The example in *examples/spline2d.cpp* shows 2 splines of order 3 and 4 breakpoi
 
 ### Derivative
 
-The spline derivative $`\dot{s}(t)=\frac{\mathrm{d}}{\mathrm{d}t}s(t)`$ has reduced order and continuity.
+The spline derivative $`\dot{s}(x)=\frac{\mathrm{d}}{\mathrm{d}t}s(x)`$ has reduced order and continuity.
 The derivative coefficients are determined from the original coefficients $`c_n`$ [[1, B-spline Prop. (viii)]](#1):
 
 ```math
 \begin{aligned}
-\dot{s}(t)=\frac{\mathrm{d}}{\mathrm{d}t}\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(t)=(\rho-1)\sum_{n=1}^{\breve{\mathbf{c}}-1}\frac{c_n-c_{n-1}}{k_n-k_{n-1}}b_{n,\rho-1,\mathbf{k}}(t).
+\dot{s}(x)=\frac{\mathrm{d}}{\mathrm{d}t}\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(x)=(\rho-1)\sum_{n=1}^{\breve{\mathbf{c}}-1}\frac{c_n-c_{n-1}}{k_n-k_{n-1}}b_{n,\rho-1,\mathbf{k}}(x).
 \end{aligned}
 ```
 
-Thus, the derivative is the result of a linear transformation of the coefficients $`\dot{s}(t)=\left(\mathbf{T}_{\dot{\mathbf{b}}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho-1,\mathbf{k}}(t)`$:
+Thus, the derivative is the result of a linear transformation of the coefficients $`\dot{s}(x)=\left(\mathbf{T}_{\dot{\mathbf{b}}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho-1,\mathbf{k}}(x)`$:
 
 ```math
 \begin{aligned}
@@ -112,14 +136,14 @@ Thus, the derivative is the result of a linear transformation of the coefficient
 \end{aligned}
 ```
 
-![spline derivative](docs/media/splineDeriv.jpg)
+![Spline derivative](docs/media/splineDeriv.jpg)
 
 The example fr differentiating a spline of order 3 is found under *examples/splineDeriv.cpp*.
 The file *examples/splineDerivExplicit.cpp* shows the application of the transformation matrix.
 
 ### Integral
 
-The spline integral $`s_\mathrm{I}(t)=\int_{\kappa_0}^t s(\tau)\mathrm{d}\tau`$ has increased order and continuity.
+The spline integral $`s_\mathrm{I}(x)=\int_{\kappa_0}^t s(\tau)\mathrm{d}\tau`$ has increased order and continuity.
 The transformation to the integral coefficients $`\mathbf{c}_{\mathrm{I}}`$ is derived from the derivative definition and yields [[1, Ch. X eq. (31)]](#1):
 
 ```math
@@ -128,7 +152,7 @@ c_{{n+1},\mathrm{I}}=c_{n,\mathrm{I}}+\frac{1}{\rho}(k_{n+\rho}-k_n)c_n
 \end{aligned}
 ```
 
-Assuming an initial condition $`c_{0,\mathrm{I}}=0`$, the spline integral is also determined by a linear transformation of the coefficients $`s_\mathrm{I}(t)=\left(\mathbf{T}_{\mathbf{b}_\mathrm{I}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho+1,\mathbf{k}}(t)`$ with
+Assuming an initial condition $`c_{0,\mathrm{I}}=0`$, the spline integral is also determined by a linear transformation of the coefficients $`s_\mathrm{I}(x)=\left(\mathbf{T}_{\mathbf{b}_\mathrm{I}}^{\mathbf{b}}\mathbf{c}\right)^\intercal b_{n,\rho+1,\mathbf{k}}(x)`$ with
 
 ```math
 \begin{aligned}
@@ -143,15 +167,15 @@ k_\rho-k_0&k_{\rho+1}-k_1&k_{\rho+2}-k_2&\ldots&k_{\breve{\mathbf{k}}-1}-k_{\bre
 \end{aligned}
 ```
 
-![spline integral](docs/media/splineInteg.jpg)
+![Spline integral](docs/media/splineInteg.jpg)
 
 The example for integrating a spline of order 3 is found under *examples/splineInteg.cpp*.
 The file *examples/splinentegExplicit.cpp* shows the application of the transformation matrix.
 
 ### Sum and product
 
-The sum and product of two splines $`s_\square(t)`$ and $`s_\triangle(t)`$ are exactly described by another spline.
-The coefficients of the sum $`s_+(t)=s_\square(t)+s_\triangle(t)`$ and the product $`s_\times(t)=s_\square(t)\cdot s_\triangle(t)`$ are described implicitly by an interpolation:
+The sum and product of two splines $`s_\square(x)`$ and $`s_\triangle(x)`$ are exactly described by another spline.
+The coefficients of the sum $`s_+(x)=s_\square(x)+s_\triangle(x)`$ and the product $`s_\times(x)=s_\square(x)\cdot s_\triangle(x)`$ are described implicitly by an interpolation:
 
 ```math
 \begin{aligned}
@@ -160,9 +184,9 @@ s_\times(\tau_{{i,\times}})&=s_\square(\tau_{{i,\times}})\cdot s_\triangle(\tau_
 \end{aligned}
 ```
 
-![2-dimensional spline in basis form with convex hull](docs/media/splineSum.jpg)
+![Two splines and their sum representation](docs/media/splineSum.jpg)
 
-![2-dimensional spline in basis form with convex hull](docs/media/splineProd.jpg)
+![Two splines and their product representation](docs/media/splineProd.jpg)
 
 The coefficients are also determined explicitly with two transformation matrices $`\mathbf{T}_{\mathbf{b}_+}^{\mathbf{b}_{\square}}`$ and $`\mathbf{T}_{\mathbf{b}_+}^{\mathbf{b}_\triangle}`$ in the sum case, and a single matrix in the product case $`\mathbf{T}_{\mathbf{b}_\times}^{\mathbf{b}_{\square}\odot\mathbf{b}_{\triangle}}`$ [[2, Property 2 and 3]]((#2)):
 
@@ -175,6 +199,53 @@ The coefficients are also determined explicitly with two transformation matrices
 
 Examples for the sum and product of splines are found under *examples/splineSum.cpp* and *examples/splineProd.cpp*.
 The usage of the transformation matrices is shown in *examples/splineSumExpl.cpp* and *examples/splineProdExpl.cpp*.
+
+### Convex hull reduction
+
+The spline function is enclosed by its convex hull so the hull keeps a certain distance to the spline.
+The formulation of constraints depending on the spline coefficients results therefore in a conservative solution.
+The solution accuracy is improved by reducing the distance between hull and spline.
+Two methods are available to reduce the distance: knot insertion and order elevation.
+
+#### Knot insertion
+
+The knot insertion creates a new spline basis $`\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x):\mathbb{R}\to\mathbb{R}^{\breve{\mathbb{c}}_\mathrm{in}}`$ with a new knot sequence $`\mathbf{k}_\mathrm{in}\in\mathbb{R}^{\breve{\mathbf{k}}_\mathrm{in}}`$ by inserting additional knots to the original knot sequence $`\mathbf{k}\in\mathbb{R}^{\breve{\mathbf{k}}}`$ such that $`\{k_i\}_{i=1,2,\ldots,\breve{k}}\subset\{k_{j,\mathrm{in}}\}_{j=1,2,\ldots,\breve{k}_{\mathrm{in}}}`$ while the first $`\mathbf{k}_{1,\mathrm{in}}=\mathbf{k}_{1}`$ and the last $`\mathbf{k}_{\breve{\mathbf{k}}_\mathrm{in},\mathrm{in}}=\mathbf{k}_{\breve{\mathbf{k}}}`$ breakpoints coincide.
+Thus, $`\mathbf{k}_\mathrm{in}`$ is a refinement of $`\mathbf{k}`$ such that the splines resulting from $`\mathbf{b}_{\rho,\mathbf{k}}(x)`$ are among the possible splines resulting from $`\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x)`$ [[1, B-spline Prop. (xi)]]((#1)):
+
+```math
+\begin{aligned}
+s(x)&=\sum_{n=1}^{\breve{\mathbf{c}}}c_nb_{n,\rho,\mathbf{k}}(x),\\
+=s_\mathrm{in}(x)&=\sum_{n=1}^{\breve{\mathbf{c}}_\mathrm{in}}c_{n,\mathrm{in}}b_{n,\rho,\mathbf{k}_\mathrm{in}}(x).
+\end{aligned}
+```
+
+In addition, the distance between the coefficients $`\mathbf{c}_\mathrm{in}`$ and $`s_\mathrm{in}(x)`$ is smaller than the distance between the coefficients $`\mathbf{c}`$ and $`s(x)`$.
+
+![Spline function and equivalent spline with refined knot sequence](docs/media/splineKnotInsertion.jpg)
+
+The example *examples/splineKnotInsertion.cpp* demonstrates the insertion of 4 additional knots, introducing 2 new breakpoints at 0.3 and 0.4 to a spline of order 3.
+The addition of each knot introduces a new coefficient for a locally more accurate spline approximation with the control polygon.
+
+#### Order elevation
+
+The order elevation creates a new spline basis $`\mathbf{b}_{\hat{\rho},\mathbf{k}}(x):\mathbb{R}\to\mathbb{R}^{\breve{\mathbb{c}}}`$ of increased order $`\hat{\rho}>\rho`$ from the original basis $`\mathbf{b}_{\rho,\mathbf{k}}(x)`$.
+Because the basis of higher order is also a basis for lower order splines, an equivalent higher order spline is determined by interpolation:
+
+```math
+\begin{aligned}
+s(x)&=\sum_{n=1}^{\breve{\mathbf{c}}}c_nb_{n,\rho,\mathbf{k}}(x),\\
+=s_\mathrm{el}(x)&=\sum_{n=1}^{\breve{\mathbf{c}}_\mathrm{el}}c_{n,\mathrm{el}}b_{n,\hat{\rho},\mathbf{k}}(x).
+\end{aligned}
+```
+
+Increasing the basis order also introduces additional breakpoints and reduces the distance between the spline and the convex hull [[2, IV. B.]]((#2)).
+
+![Spline function and equivalent spline with increased order](docs/media/splineOrderElevation.jpg)
+
+The example *examples/splineOrderElevation.cpp* demonstrates the elevation of a spline of order 3 to order 5.
+Note that the distance between the coefficients and the spline graph is reduced along the entire spline.
+
+### Segment extraction
 
 ### References
 
