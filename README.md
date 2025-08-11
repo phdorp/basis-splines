@@ -26,11 +26,18 @@ The project is complied with g++13.
 
 ## Examples
 
-Run the examples with:
+Run the "example_name" with:
 
 ```bash
 source setup.bash
 ./examples/launch.bash "example_name"
+```
+
+Run all examples without interaction with:
+
+```bash
+source setup.bash
+echo | ./examples/launch.bash -a
 ```
 
 The examples rely on [Matplot++](https://github.com/alandefreitas/matplotplusplus) for plotting, so make sure to have [gnuplot](http://www.gnuplot.info/) installed.
