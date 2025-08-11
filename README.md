@@ -176,6 +176,53 @@ The coefficients are also determined explicitly with two transformation matrices
 Examples for the sum and product of splines are found under *examples/splineSum.cpp* and *examples/splineProd.cpp*.
 The usage of the transformation matrices is shown in *examples/splineSumExpl.cpp* and *examples/splineProdExpl.cpp*.
 
+### Convex hull reduction
+
+The spline function is enclosed by its convex hull so the hull keeps a certain distance to the spline.
+The formulation of constraints depending on the spline coefficients results therefore in a conservative solution.
+The solution accuracy is improved by reducing the distance between hull and spline.
+Two methods are available to reduce the distance: knot insertion and order elevation.
+
+#### Knot insertion
+
+The knot insertion creates a new spline basis $`\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x):\mathbb{R}\to\mathbb{R}^{\breve{\mathbb{c}}_\mathrm{in}}`$ with a new knot sequence $`\mathbf{k}_\mathrm{in}\in\mathbb{R}^{\breve{\mathbf{k}}_\mathrm{in}}`$ by inserting additional knots to the original knot sequence $`\mathbf{k}\in\mathbb{R}^{\breve{\mathbf{k}}}`$ such that $`\{k_i\}_{i=1,2,\ldots,\breve{k}}\subset\{k_{j,\mathrm{in}}\}_{j=1,2,\ldots,\breve{k}_{\mathrm{in}}}`$ while the first $`\mathbf{k}_{1,\mathrm{in}}=\mathbf{k}_{1}`$ and the last $`\mathbf{k}_{\breve{\mathbf{k}}_\mathrm{in},\mathrm{in}}=\mathbf{k}_{\breve{\mathbf{k}}}`$ breakpoints coincide.
+Thus, $`\mathbf{k}_\mathrm{in}`$ is a refinement of $`\mathbf{k}`$ such that the splines resulting from $`\mathbf{b}_{\rho,\mathbf{k}}(x)`$ are among the possible splines resulting from $`\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x)`$ [[1, B-spline Prop. (xi)]]((#1)):
+
+```math
+\begin{aligned}
+s(x)&=\sum_{n=1}^{\breve{\mathbf{c}}}c_nb_{n,\rho,\mathbf{k}}(x),\\
+=s_\mathrm{in}(x)&=\sum_{n=1}^{\breve{\mathbf{c}}_\mathrm{in}}c_{n,\mathrm{in}}b_{n,\rho,\mathbf{k}_\mathrm{in}}(x).
+\end{aligned}
+```
+
+In addition, the distance between the coefficients $`\mathbf{c}_\mathrm{in}`$ and $`s_\mathrm{in}(x)`$ is smaller than the distance between the coefficients $`\mathbf{c}`$ and $`s(x)`$.
+
+![Spline function and equivalent spline with refined knot sequence](docs/media/splineKnotInsertion.jpg)
+
+The example *examples/splineKnotInsertion.cpp* demonstrates the insertion of 4 additional knots, introducing 2 new breakpoints at 0.3 and 0.4 to a spline of order 3.
+The addition of each knot introduces a new coefficient for a locally more accurate spline approximation with the control polygon.
+
+#### Order elevation
+
+The order elevation creates a new spline basis $`\mathbf{b}_{\hat{\rho},\mathbf{k}}(x):\mathbb{R}\to\mathbb{R}^{\breve{\mathbb{c}}}`$ of increased order $`\hat{\rho}>\rho`$ from the original basis $`\mathbf{b}_{\rho,\mathbf{k}}(x)`$.
+Because the basis of higher order is also a basis for lower order splines, an equivalent higher order spline is determined by interpolation:
+
+```math
+\begin{aligned}
+s(x)&=\sum_{n=1}^{\breve{\mathbf{c}}}c_nb_{n,\rho,\mathbf{k}}(x),\\
+=s_\mathrm{el}(x)&=\sum_{n=1}^{\breve{\mathbf{c}}_\mathrm{el}}c_{n,\mathrm{el}}b_{n,\hat{\rho},\mathbf{k}}(x).
+\end{aligned}
+```
+
+Increasing the basis order also introduces additional breakpoints and reduces the distance between the spline and the convex hull [[2, IV. B.]]((#2)).
+
+![Spline function and equivalent spline with increased order](docs/media/splineOrderElevation.jpg)
+
+The example *examples/splineOrderElevation.cpp* demonstrates the elevation of a spline of order 3 to order 5.
+Note that the distance between the coefficients and the spline graph is reduced along the entire spline.
+
+### Segment extraction
+
 ### References
 
 <a id="1">[1]</a>
