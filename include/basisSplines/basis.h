@@ -647,11 +647,11 @@ public:
     Eigen::ArrayXd knots{m_knots};
 
     // first m_order knots clamped to segment start
-    knots(Eigen::seqN(0, m_order - 1)) = knots(m_order - 1);
+    knots(Eigen::seqN(0, m_order)) = knots(m_order - 1);
 
     // last m_order knots clamped to segment end
-    knots(Eigen::seqN(knots.size() - m_order + 1, m_order - 1)) =
-        knots(knots.size() - m_order + 1);
+    knots(Eigen::seqN(knots.size() - m_order, m_order)) =
+        knots(knots.size() - m_order);
 
     return {knots, m_order};
   }
