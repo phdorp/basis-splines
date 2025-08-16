@@ -296,6 +296,37 @@ TEST_F(SplineTest, GetSegment12O3) {
   expectAllClose(valuesEst, valuesGtr, 1e-10);
 }
 
+TEST_F(SplineTest, GetSegment11O4) {
+  // basis of order 5 with 4 breakpoints
+  std::shared_ptr<Basis> basis{std::make_shared<Basis>(
+      Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.0, 0.4, 0.7, 1.0, 1.0, 1.0, 1.0}}, 4)};
+
+  // spline of order 4
+  Spline spline{basis, Eigen::ArrayXd{{0.0, 0.5, 0.25, -0.3, -1.0, 0.75}}};
+
+  // determine spline representing last spline segments
+  const Spline splineSeg{spline.getSegment(1, 1)};
+
+  // test equality spline equality at points in the first 2 segments
+  const auto breakpoints{splineSeg.basis()->getBreakpoints()};
+  const Eigen::ArrayXd pointsSubset{
+      getPointsSubset(breakpoints.first(1), breakpoints.first(2))};
+
+  Eigen::ArrayXXd valuesEst{splineSeg(pointsSubset)};
+  const Eigen::ArrayXXd valuesGtr{spline(pointsSubset)};
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
+
+  // determine clamped equivalent spline
+  const Spline splineClamped{splineSeg.getClamped()};
+
+  // test equality of clamped spline and spline segment
+  valuesEst = splineClamped(pointsSubset);
+  expectAllClose(valuesEst, valuesGtr, 1e-10);
+
+  EXPECT_DOUBLE_EQ(splineClamped.getCoefficients()(0), splineClamped(Eigen::ArrayXd{{breakpoints.first(1)}})(0,0));
+  EXPECT_DOUBLE_EQ(splineClamped.getCoefficients()(3), splineClamped(Eigen::ArrayXd{{breakpoints.first(2)}})(0,0));
+}
+
 }; // namespace Internal
 }; // namespace BasisSplines
 
