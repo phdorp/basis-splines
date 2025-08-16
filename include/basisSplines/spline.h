@@ -25,15 +25,17 @@ public:
   /**
    * @brief Construct a new spline in basis form from a "basis" spline and the
    * "coefficients". The number of "coefficients" rows must correspond with the
-   * "basis" dimensionality. The number of "coefficients" columns corresponds
-   * with the spline output dimensionality.
+   * "basis" dimensionality.
    *
    * @param basis spline basis.
    * @param coefficients spline coefficients.
    */
   Spline(const std::shared_ptr<Basis> basis,
          const Eigen::MatrixXd &coefficients)
-      : m_basis{basis}, m_coefficients{coefficients} {}
+      : m_basis{basis}, m_coefficients{coefficients} {
+    assert(coefficients.rows() == basis->dim() &&
+           "Coefficients must have same rows as basis dimensionality.");
+  }
 
   /**
    * @brief Get the spline coefficients.
