@@ -264,20 +264,17 @@ public:
    * @tparam Interp type of interpolation.
    * @return Spline clamped spline.
    */
-  Spline getClamped() const {
+  template <typename Interp = Interpolate> Spline getClamped() const {
     // determine clamped basis
     const std::shared_ptr<Basis> basisClamped{
         std::make_shared<Basis>(m_basis->getClamped())};
 
-    // set first and last coefficients to spline values
-    Eigen::ArrayXXd coefficients{m_coefficients};
-    *(coefficients.rowwise().begin()) =
-        (*this)({{*(basisClamped->knots().begin())}});
-    *(coefficients.rowwise().end() - 1) =
-        (*this)({{*(basisClamped->knots().end() - 1)}});
-
-    // determine clamped spline coefficients by fitting to this spline
-    return {basisClamped, coefficients};
+    // determine clamped spline coefficients by fitting clamped basis to this
+    // spline
+    return {basisClamped,
+            Interp{basisClamped}.fit([&](const Eigen::MatrixXd &points) {
+              return Eigen::MatrixXd{(*this)(points)};
+            })};
   }
 
 private:
