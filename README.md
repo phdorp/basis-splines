@@ -209,7 +209,7 @@ Two methods are available to reduce the distance: knot insertion and order eleva
 
 #### Knot insertion
 
-The knot insertion creates a new spline basis $`\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x):\mathbb{R}\to\mathbb{R}^{\breve{\mathbb{c}}_\mathrm{in}}`$ with a new knot sequence $`\mathbf{k}_\mathrm{in}\in\mathbb{R}^{\breve{{k}}_\mathrm{in}}`$ by inserting additional knots to the original knot sequence $`\mathbf{k}\in\mathbb{R}^{\breve{{k}}}`$ such that $`\{k_i\}_{i=1,2,\ldots,\breve{k}}\subset\{k_{j,\mathrm{in}}\}_{j=1,2,\ldots,\breve{k}_{\mathrm{in}}}`$ while the first $`\mathbf{k}_{1,\mathrm{in}}=\mathbf{k}_{1}`$ and the last $`\mathbf{k}_{\breve{{k}}_\mathrm{in},\mathrm{in}}=\mathbf{k}_{\breve{{k}}}`$ breakpoints coincide.
+The knot insertion creates a new spline basis $`\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x)`$ with a new knot sequence $`\mathbf{k}_\mathrm{in}`$ by inserting additional knots to the original knot sequence $`\mathbf{k}`$ such that $`\{k_i\}_{i=1,2,\ldots,\breve{k}}\subset\{k_{j,\mathrm{in}}\}_{j=1,2,\ldots,\breve{k}_{\mathrm{in}}}`$ while the first $`\mathbf{k}_{1,\mathrm{in}}=\mathbf{k}_{1}`$ and the last $`\mathbf{k}_{\breve{{k}}_\mathrm{in},\mathrm{in}}=\mathbf{k}_{\breve{{k}}}`$ breakpoints coincide.
 Thus, $`\mathbf{k}_\mathrm{in}`$ is a refinement of $`\mathbf{k}`$ such that the splines resulting from $`\mathbf{b}_{\rho,\mathbf{k}}(x)`$ are among the possible splines resulting from $`\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x)`$ [[1, B-spline Prop. (xi)]]((#1)):
 
 ```math
