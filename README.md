@@ -138,7 +138,7 @@ Thus, the derivative is the result of a linear transformation of the coefficient
 
 ![Spline derivative](docs/media/splineDeriv.jpg)
 
-The example fr differentiating a spline of order 3 is found under *examples/splineDeriv.cpp*.
+The example for differentiating a spline of order 3 is found under *examples/splineDeriv.cpp*.
 The file *examples/splineDerivExplicit.cpp* shows the application of the transformation matrix.
 
 ### Integral
@@ -170,7 +170,7 @@ k_\rho-k_0&k_{\rho+1}-k_1&k_{\rho+2}-k_2&\ldots&k_{\breve{{k}}-1}-k_{\breve{{c}}
 ![Spline integral](docs/media/splineInteg.jpg)
 
 The example for integrating a spline of order 3 is found under *examples/splineInteg.cpp*.
-The file *examples/splinentegExplicit.cpp* shows the application of the transformation matrix.
+The file *examples/splineIntegExplicit.cpp* shows the application of the transformation matrix.
 
 ### Sum and product
 
@@ -256,7 +256,7 @@ Note that the splines only coincide in the extracted segment.
 
 The spline representing the extracted segment is not a clamped spline because the first and last coefficients do not coincide with the spline function.
 However, an equivalent clamped spline $`s_\mathrm{cl}(x)=s_\mathrm{se}(x)`$ on the same interval $`x\in\left[\kappa_{1,\mathrm{se}},\kappa_{\breve{\kappa}_\mathrm{se},\mathrm{se}}\right]`$ is contained in a tighter convex hull.
-An equivalent clampled spline is determined by ensuring the equality of the first and last $`\rho`$ knots
+An equivalent clamped spline is determined by ensuring the equality of the first and last $`\rho`$ knots
 
 ```math
 \begin{aligned}
@@ -266,7 +266,7 @@ k_{j,\mathrm{cl}}&=k_{j,\mathrm{se}},&&j=\rho+1,\ldots,\breve{k}_\mathrm{se}-\rh
 \end{aligned}
 ```
 
-In the second step, the example *examples/splineSegment.cpp* reduces the distance between the spline segment and the convex hull by a clampled segment representation.
+In the second step, the example *examples/splineSegment.cpp* reduces the distance between the spline segment and the convex hull by a clamped segment representation.
 
 ### References
 
