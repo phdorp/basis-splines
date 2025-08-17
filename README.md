@@ -247,6 +247,27 @@ Note that the distance between the coefficients and the spline graph is reduced 
 
 ### Segment extraction
 
+The spline in basis form represents a sequence of polynomial segments.
+The spline is represented in each connected subsequence $`x\in\left[\kappa_{1,\mathrm{se}},\kappa_{\breve{\kappa}_\mathrm{se},\mathrm{se}}\right]`$ by another spline $`s_\mathrm{se}(x)=s(x)`$ using a subset of the original coefficients $`\{\mathbf{c}_\mathrm{se}\}_{n=1,2,\ldots,\breve{c}_\mathrm{se}}\subset\{\mathbf{c}\}_{n=1,2,\ldots,\breve{c}}`$.
+In the first step, the example *examples/splineSegment.cpp* demonstrates the extraction of a segment between the breakpoints 0.4 and 0.7 from a spline of order 4.
+Note that the splines only coincide in the extracted segment.
+
+![Segment extraction](docs/media/splineSegment.jpg)
+
+The spline representing the extracted segment is not a clamped spline because the first and last coefficients do not coincide with the spline function.
+However, an equivalent clamped spline $`s_\mathrm{cl}(x)=s_\mathrm{se}(x)`$ on the same interval $`x\in\left[\kappa_{1,\mathrm{se}},\kappa_{\breve{\kappa}_\mathrm{se},\mathrm{se}}\right]`$ is contained in a tighter convex hull.
+An equivalent clampled spline is determined by ensuring the equality of the first and last $`\rho`$ knots
+
+```math
+\begin{aligned}
+k_{n,\mathrm{cl}}&=k_{\rho,\mathrm{se}},&&n=1,\ldots,\rho,\\
+k_{m,\mathrm{cl}}&=k_{\breve{k}_\mathrm{se}-\rho+1,\mathrm{se}},&&m=\breve{k}_\mathrm{se}-\rho+1,\ldots,\breve{k}_\mathrm{se}-\rho,\\
+k_{j,\mathrm{cl}}&=k_{j,\mathrm{se}},&&j=\rho+1,\ldots,\breve{k}_\mathrm{se}-\rho.
+\end{aligned}
+```
+
+In the second step, the example *examples/splineSegment.cpp* reduces the distance between the spline segment and the convex hull by a clampled segment representation.
+
 ### References
 
 <a id="1">[1]</a>
