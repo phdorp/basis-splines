@@ -25,15 +25,17 @@ public:
   /**
    * @brief Construct a new spline in basis form from a "basis" spline and the
    * "coefficients". The number of "coefficients" rows must correspond with the
-   * "basis" dimensionality. The number of "coefficients" columns corresponds
-   * with the spline output dimensionality.
+   * "basis" dimensionality.
    *
    * @param basis spline basis.
    * @param coefficients spline coefficients.
    */
   Spline(const std::shared_ptr<Basis> basis,
          const Eigen::MatrixXd &coefficients)
-      : m_basis{basis}, m_coefficients{coefficients} {}
+      : m_basis{basis}, m_coefficients{coefficients} {
+    assert(coefficients.rows() == basis->dim() &&
+           "Coefficients must have same rows as basis dimensionality.");
+  }
 
   /**
    * @brief Get the spline coefficients.
@@ -264,20 +266,17 @@ public:
    * @tparam Interp type of interpolation.
    * @return Spline clamped spline.
    */
-  Spline getClamped() const {
+  template <typename Interp = Interpolate> Spline getClamped() const {
     // determine clamped basis
     const std::shared_ptr<Basis> basisClamped{
         std::make_shared<Basis>(m_basis->getClamped())};
 
-    // set first and last coefficients to spline values
-    Eigen::ArrayXXd coefficients{m_coefficients};
-    *(coefficients.rowwise().begin()) =
-        (*this)({{*(basisClamped->knots().begin())}});
-    *(coefficients.rowwise().end() - 1) =
-        (*this)({{*(basisClamped->knots().end() - 1)}});
-
-    // determine clamped spline coefficients by fitting to this spline
-    return {basisClamped, coefficients};
+    // determine clamped spline coefficients by fitting clamped basis to this
+    // spline
+    return {basisClamped,
+            Interp{basisClamped}.fit([&](const Eigen::MatrixXd &points) {
+              return Eigen::MatrixXd{(*this)(points)};
+            })};
   }
 
 private:

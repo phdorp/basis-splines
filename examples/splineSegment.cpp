@@ -12,10 +12,10 @@ namespace Mt = matplot;
 int main(int argc, char *argv[]) {
   // basis of order 3 with 4 breakpoints
   std::shared_ptr<Bs::Basis> basis{std::make_shared<Bs::Basis>(
-      Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.4, 0.7, 0.7, 1.0, 1.0, 1.0}}, 3)};
+      Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.0, 0.4, 0.7, 1.0, 1.0, 1.0, 1.0}}, 4)};
 
   // spline of order 3
-  const Bs::Spline spline{basis,
+  Bs::Spline spline{basis,
                           Eigen::ArrayXd{{0.0, 0.5, 0.25, -0.3, -1.0, 0.75}}};
 
   // setup figure

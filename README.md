@@ -65,13 +65,13 @@ Basis splines are determine recursively on the knots
 
 ```math
 \begin{aligned}
-\mathbf{k}=\begin{bmatrix}\underbrace{\begin{matrix}\kappa_1&\kappa_1&\ldots&\kappa_1\end{matrix}}_{m_1}&\underbrace{\begin{matrix}\kappa_2&\kappa_2&\ldots&\kappa_2\end{matrix}}_{m_2}&\ldots&\kappa_{\breve{\mathbf{k}}}&\kappa_{\breve{\mathbf{k}}}\end{bmatrix}.
+\mathbf{k}=\begin{bmatrix}\underbrace{\begin{matrix}\kappa_1&\kappa_1&\ldots&\kappa_1\end{matrix}}_{m_1}&\underbrace{\begin{matrix}\kappa_2&\kappa_2&\ldots&\kappa_2\end{matrix}}_{m_2}&\ldots&\kappa_{\breve{{k}}}&\kappa_{\breve{{k}}}\end{bmatrix}.
 \end{aligned}
 ```
 
-The knots are composed of the repeated breakpoints $`\kappa_i<\kappa_{i+1}`$, $`i=1,2,\ldots,\breve{\boldsymbol{\kappa}}`$.
+The knots are composed of the repeated breakpoints $`\kappa_i<\kappa_{i+1}`$, $`i=1,2,\ldots,\breve{{\kappa}}`$.
 The multiplicity $`m_i=\rho-\omega_i`$ of the $`i`$-th breakpoint determines the spline's order of continuity $`\omega_i`$.
-The recursion's base case is the order $`\rho=1`$, considering $`n=1,2,\ldots,\breve{\boldsymbol{k}}-1`$ knot intervals [[1, Ch. IX eq. (11)]](#1)
+The recursion's base case is the order $`\rho=1`$, considering $`n=1,2,\ldots,\breve{{k}}-1`$ knot intervals [[1, Ch. IX eq. (11)]](#1)
 
 ```math
 \begin{aligned}
@@ -83,7 +83,7 @@ b_{n,1,\mathbf{k}} =
 \end{aligned}
 ```
 
-Higher orders $`\rho>1`$ are determined from lower orders, resulting in truncated power functions with $`l=1,2,\ldots,\breve{\boldsymbol{k}}-\rho`$ [[1, B-spline Prop. (i)]](#1)
+Higher orders $`\rho>1`$ are determined from lower orders, resulting in truncated power functions with $`l=1,2,\ldots,\breve{{k}}-\rho`$ [[1, B-spline Prop. (i)]](#1)
 
 ```math
 \begin{aligned}
@@ -97,11 +97,11 @@ The exemplary B-splines of order 3 with 3 breakpoints are found under *examples/
 
 ### Spline functions
 
-Splines in basis form are a linear combination of basis functions weighted with the coefficients $`c_n`$ for $`n=0,1,\ldots,\breve{\mathbf{c}}-1`$ [[1, Def. (51)]](#1):
+Splines in basis form are a linear combination of basis functions weighted with the coefficients $`c_n`$ for $`n=0,1,\ldots,\breve{{c}}-1`$ [[1, Def. (51)]](#1):
 
 ```math
 \begin{aligned}
-s(x)=\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(x).
+s(x)=\sum_{n=0}^{\breve{{c}}-1}c_nb_{n,\rho,\mathbf{k}}(x).
 \end{aligned}
 ```
 
@@ -118,7 +118,7 @@ The derivative coefficients are determined from the original coefficients $`c_n`
 
 ```math
 \begin{aligned}
-\dot{s}(x)=\frac{\mathrm{d}}{\mathrm{d}t}\sum_{n=0}^{\breve{\mathbf{c}}-1}c_nb_{n,\rho,\mathbf{k}}(x)=(\rho-1)\sum_{n=1}^{\breve{\mathbf{c}}-1}\frac{c_n-c_{n-1}}{k_n-k_{n-1}}b_{n,\rho-1,\mathbf{k}}(x).
+\dot{s}(x)=\frac{\mathrm{d}}{\mathrm{d}t}\sum_{n=0}^{\breve{{c}}-1}c_nb_{n,\rho,\mathbf{k}}(x)=(\rho-1)\sum_{n=1}^{\breve{{c}}-1}\frac{c_n-c_{n-1}}{k_n-k_{n-1}}b_{n,\rho-1,\mathbf{k}}(x).
 \end{aligned}
 ```
 
@@ -131,14 +131,14 @@ Thus, the derivative is the result of a linear transformation of the coefficient
 \frac{1}{k_1-k_\rho}&\frac{1}{k_\rho-k_1}&0&\ldots&0&0\\
 0&\frac{1}{k_2-k_\rho}&\frac{1}{k_\rho-k_2}&0&\ldots&0\\
 \vdots&\vdots&\vdots&\ddots&\vdots&\vdots\\
-0&0&0&\ldots&\frac{1}{k_{\breve{\mathbf{k}}-1}-k_{\breve{\mathbf{c}}}}&\frac{1}{k_{\breve{\mathbf{c}}}-k_{\breve{\mathbf{k}}-1}}\\
+0&0&0&\ldots&\frac{1}{k_{\breve{{k}}-1}-k_{\breve{{c}}}}&\frac{1}{k_{\breve{{c}}}-k_{\breve{{k}}-1}}\\
 \end{pmatrix}.
 \end{aligned}
 ```
 
 ![Spline derivative](docs/media/splineDeriv.jpg)
 
-The example fr differentiating a spline of order 3 is found under *examples/splineDeriv.cpp*.
+The example for differentiating a spline of order 3 is found under *examples/splineDeriv.cpp*.
 The file *examples/splineDerivExplicit.cpp* shows the application of the transformation matrix.
 
 ### Integral
@@ -162,7 +162,7 @@ Assuming an initial condition $`c_{0,\mathrm{I}}=0`$, the spline integral is als
 k_\rho-k_0&0&0&\ldots&0\\
 k_\rho-k_0&k_{\rho+1}-k_1&0&\ldots&0\\
 \vdots&\vdots&\ldots&\ddots&\vdots\\
-k_\rho-k_0&k_{\rho+1}-k_1&k_{\rho+2}-k_2&\ldots&k_{\breve{\mathbf{k}}-1}-k_{\breve{\mathbf{c}}-1}\\
+k_\rho-k_0&k_{\rho+1}-k_1&k_{\rho+2}-k_2&\ldots&k_{\breve{{k}}-1}-k_{\breve{{c}}-1}\\
 \end{pmatrix}.
 \end{aligned}
 ```
@@ -170,7 +170,7 @@ k_\rho-k_0&k_{\rho+1}-k_1&k_{\rho+2}-k_2&\ldots&k_{\breve{\mathbf{k}}-1}-k_{\bre
 ![Spline integral](docs/media/splineInteg.jpg)
 
 The example for integrating a spline of order 3 is found under *examples/splineInteg.cpp*.
-The file *examples/splinentegExplicit.cpp* shows the application of the transformation matrix.
+The file *examples/splineIntegExplicit.cpp* shows the application of the transformation matrix.
 
 ### Sum and product
 
@@ -179,8 +179,8 @@ The coefficients of the sum $`s_+(x)=s_\square(x)+s_\triangle(x)`$ and the produ
 
 ```math
 \begin{aligned}
-s_+(\tau_{{j,+}})&=s_\square(\tau_{{j,+}})+s_\triangle(\tau_{{j,+}}),&j=0,1,\ldots,\breve{\mathbf{c}}_+-1,\\
-s_\times(\tau_{{i,\times}})&=s_\square(\tau_{{i,\times}})\cdot s_\triangle(\tau_{{i,\times}}),&i=0,1,\ldots,\breve{\mathbf{c}}_\times-1.\\
+s_+(\tau_{{j,+}})&=s_\square(\tau_{{j,+}})+s_\triangle(\tau_{{j,+}}),&j=0,1,\ldots,\breve{{c}}_+-1,\\
+s_\times(\tau_{{i,\times}})&=s_\square(\tau_{{i,\times}})\cdot s_\triangle(\tau_{{i,\times}}),&i=0,1,\ldots,\breve{{c}}_\times-1.\\
 \end{aligned}
 ```
 
@@ -209,13 +209,13 @@ Two methods are available to reduce the distance: knot insertion and order eleva
 
 #### Knot insertion
 
-The knot insertion creates a new spline basis $`\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x):\mathbb{R}\to\mathbb{R}^{\breve{\mathbb{c}}_\mathrm{in}}`$ with a new knot sequence $`\mathbf{k}_\mathrm{in}\in\mathbb{R}^{\breve{\mathbf{k}}_\mathrm{in}}`$ by inserting additional knots to the original knot sequence $`\mathbf{k}\in\mathbb{R}^{\breve{\mathbf{k}}}`$ such that $`\{k_i\}_{i=1,2,\ldots,\breve{k}}\subset\{k_{j,\mathrm{in}}\}_{j=1,2,\ldots,\breve{k}_{\mathrm{in}}}`$ while the first $`\mathbf{k}_{1,\mathrm{in}}=\mathbf{k}_{1}`$ and the last $`\mathbf{k}_{\breve{\mathbf{k}}_\mathrm{in},\mathrm{in}}=\mathbf{k}_{\breve{\mathbf{k}}}`$ breakpoints coincide.
+The knot insertion creates a new spline basis $`\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x)`$ with a new knot sequence $`\mathbf{k}_\mathrm{in}`$ by inserting additional knots to the original knot sequence $`\mathbf{k}`$ such that $`\{k_i\}_{i=1,2,\ldots,\breve{k}}\subset\{k_{j,\mathrm{in}}\}_{j=1,2,\ldots,\breve{k}_{\mathrm{in}}}`$ while the first $`\mathbf{k}_{1,\mathrm{in}}=\mathbf{k}_{1}`$ and the last $`\mathbf{k}_{\breve{{k}}_\mathrm{in},\mathrm{in}}=\mathbf{k}_{\breve{{k}}}`$ breakpoints coincide.
 Thus, $`\mathbf{k}_\mathrm{in}`$ is a refinement of $`\mathbf{k}`$ such that the splines resulting from $`\mathbf{b}_{\rho,\mathbf{k}}(x)`$ are among the possible splines resulting from $`\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x)`$ [[1, B-spline Prop. (xi)]]((#1)):
 
 ```math
 \begin{aligned}
-s(x)&=\sum_{n=1}^{\breve{\mathbf{c}}}c_nb_{n,\rho,\mathbf{k}}(x),\\
-=s_\mathrm{in}(x)&=\sum_{n=1}^{\breve{\mathbf{c}}_\mathrm{in}}c_{n,\mathrm{in}}b_{n,\rho,\mathbf{k}_\mathrm{in}}(x).
+s(x)&=\sum_{n=1}^{\breve{{c}}}c_nb_{n,\rho,\mathbf{k}}(x),\\
+=s_\mathrm{in}(x)&=\sum_{n=1}^{\breve{{c}}_\mathrm{in}}c_{n,\mathrm{in}}b_{n,\rho,\mathbf{k}_\mathrm{in}}(x).
 \end{aligned}
 ```
 
@@ -233,8 +233,8 @@ Because the basis of higher order is also a basis for lower order splines, an eq
 
 ```math
 \begin{aligned}
-s(x)&=\sum_{n=1}^{\breve{\mathbf{c}}}c_nb_{n,\rho,\mathbf{k}}(x),\\
-=s_\mathrm{el}(x)&=\sum_{n=1}^{\breve{\mathbf{c}}_\mathrm{el}}c_{n,\mathrm{el}}b_{n,\hat{\rho},\mathbf{k}}(x).
+s(x)&=\sum_{n=1}^{\breve{{c}}}c_nb_{n,\rho,\mathbf{k}}(x),\\
+=s_\mathrm{el}(x)&=\sum_{n=1}^{\breve{{c}}_\mathrm{el}}c_{n,\mathrm{el}}b_{n,\hat{\rho},\mathbf{k}}(x).
 \end{aligned}
 ```
 
@@ -246,6 +246,27 @@ The example *examples/splineOrderElevation.cpp* demonstrates the elevation of a 
 Note that the distance between the coefficients and the spline graph is reduced along the entire spline.
 
 ### Segment extraction
+
+The spline in basis form represents a sequence of polynomial segments.
+The spline is represented in each connected subsequence $`x\in\left[\kappa_{1,\mathrm{se}},\kappa_{\breve{\kappa}_\mathrm{se},\mathrm{se}}\right]`$ by another spline $`s_\mathrm{se}(x)=s(x)`$ using a subset of the original coefficients $`\{\mathbf{c}_\mathrm{se}\}_{n=1,2,\ldots,\breve{c}_\mathrm{se}}\subset\{\mathbf{c}\}_{n=1,2,\ldots,\breve{c}}`$.
+In the first step, the example *examples/splineSegment.cpp* demonstrates the extraction of a segment between the breakpoints 0.4 and 0.7 from a spline of order 4.
+Note that the splines only coincide in the extracted segment.
+
+![Segment extraction](docs/media/splineSegment.jpg)
+
+The spline representing the extracted segment is not a clamped spline because the first and last coefficients do not coincide with the spline function.
+However, an equivalent clamped spline $`s_\mathrm{cl}(x)=s_\mathrm{se}(x)`$ on the same interval $`x\in\left[\kappa_{1,\mathrm{se}},\kappa_{\breve{\kappa}_\mathrm{se},\mathrm{se}}\right]`$ is contained in a tighter convex hull.
+An equivalent clamped spline is determined by ensuring the equality of the first and last $`\rho`$ knots
+
+```math
+\begin{aligned}
+k_{n,\mathrm{cl}}&=k_{\rho,\mathrm{se}},&&n=1,\ldots,\rho,\\
+k_{m,\mathrm{cl}}&=k_{\breve{k}_\mathrm{se}-\rho+1,\mathrm{se}},&&m=\breve{k}_\mathrm{se}-\rho+1,\ldots,\breve{k}_\mathrm{se}-\rho,\\
+k_{j,\mathrm{cl}}&=k_{j,\mathrm{se}},&&j=\rho+1,\ldots,\breve{k}_\mathrm{se}-\rho.
+\end{aligned}
+```
+
+In the second step, the example *examples/splineSegment.cpp* reduces the distance between the spline segment and the convex hull by a clamped segment representation.
 
 ### References
 

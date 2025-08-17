@@ -647,11 +647,11 @@ public:
     Eigen::ArrayXd knots{m_knots};
 
     // first m_order knots clamped to segment start
-    knots(Eigen::seqN(0, m_order - 1)) = knots(m_order - 1);
+    knots(Eigen::seqN(0, m_order)) = knots(m_order - 1);
 
     // last m_order knots clamped to segment end
-    knots(Eigen::seqN(knots.size() - m_order + 1, m_order - 1)) =
-        knots(knots.size() - m_order + 1);
+    knots(Eigen::seqN(knots.size() - m_order, m_order)) =
+        knots(knots.size() - m_order);
 
     return {knots, m_order};
   }
@@ -751,22 +751,30 @@ private:
   // MARK: private methods
 
   /**
-   * @brief Test if "point" is in a knot segment ["knotL" - "accuracy", "knotR"
-   * + "accuracy"].
+   * @brief Test if "point" is in a knot segment ["knotL" - "accPoint", "knotR"
+   * + "accPoint"].
    *
    * @param knotL left knot of the knot segment.
    * @param knotR right knot of the knot segment.
    * @param point query point.
-   * @param accuracy extension of the knot segment.
+   * @param accPoint accuracy assigning "point" to segment.
+   * @param accKnot accuracy for distinguishing "knotL" and "knotR".
    * @return true "point" is in knot segment.
    * @return false "point" is not in knot segment.
    */
   bool inKnotSeg(double knotL, double knotR, double point,
-                 double accuracy = 1e-6) const {
-    if (knotL == m_knots(0))
-      return point >= knotL - accuracy && point <= knotR;
-    else if (knotR == m_knots(m_knots.size() - 1))
-      return point > knotL && point <= knotR + accuracy;
+                 double accPoint = 1e-6, double accKnot = 1e-6) const {
+
+    const bool knotlEqsFirst{std::abs(knotL - m_knots(0)) <= accKnot};
+    const bool knotrEqsLast{std::abs(knotR - m_knots(m_knots.size() - 1)) <=
+                            accKnot};
+
+    if (knotlEqsFirst && knotrEqsLast)
+      return point > knotL - accPoint && point <= knotR + accPoint;
+    else if (knotlEqsFirst)
+      return point >= knotL - accPoint && point <= knotR;
+    else if (knotrEqsLast)
+      return point > knotL && point <= knotR + accPoint;
     return point > knotL && point <= knotR;
   }
 
