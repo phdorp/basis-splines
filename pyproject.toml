@@ -1,0 +1,28 @@
+[build-system]
+requires = [
+    "scikit-build-core",
+    "pybind11",
+    "setuptools>=42",
+    "wheel",
+    "ninja",
+    "cmake>=3.12",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "basis-splines"
+version = "1.0.2"
+readme = "README.md"
+dependencies = ["numpy"]
+
+[project.optional-dependencies]
+example = ["matplotlib"]
+
+[tool.scikit-build]
+cmake.args = [
+    "-DBUILD_TEST=OFF",
+    "-DBUILD_EXAMPLES=OFF",
+    "-DBUILD_DOCS=OFF",
+    "-DBUILD_PYBINDS=ON",
+]
+cmake.build-type = "Release"

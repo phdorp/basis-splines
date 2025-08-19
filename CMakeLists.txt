@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.31.6)
 
-set(PACKAGE_VERSION 1.0.0)
+set(PACKAGE_VERSION 1.0.2)
 
 project(BasisSplines VERSION ${PACKAGE_VERSION})
 
@@ -14,6 +14,7 @@ add_subdirectory(${PROJECT_INCLUDE_DIR})
 
 option(BUILD_TEST "Build tests for transformation." ON)
 option(BUILD_EXAMPLES "Build examples." ON)
+option(BUILD_PYBINDS "Build python bindings." ON)
 
 find_package(Doxygen)
 option(BUILD_DOCS "Build documentation." ON)
@@ -38,4 +39,8 @@ if(BUILD_DOCS)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating API documentation with Doxygen"
         VERBATIM)
+endif()
+
+if(BUILD_PYBINDS)
+    add_subdirectory(bindings/python/basisSplines)
 endif()
