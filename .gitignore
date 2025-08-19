@@ -20,6 +20,9 @@
 *.mod
 *.smod
 
+# Python
+*.pyc
+
 # Compiled Static libraries
 *.lai
 *.la
@@ -44,4 +47,7 @@ docs/build
 benchmarks/logs
 
 # example outputs
-examples/out
+*out/
+
+# conda
+.conda/
