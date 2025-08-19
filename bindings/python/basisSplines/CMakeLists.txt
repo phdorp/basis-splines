@@ -11,10 +11,11 @@ FILE(GLOB
     *.cpp
 )
 
-pybind11_add_module(basis_splines basisSplines.cpp)
+pybind11_add_module(_core basisSplines.cpp)
 target_link_libraries(
-  basis_splines
+  _core
   PUBLIC
   basisSplines
 )
-install(TARGETS basis_splines DESTINATION .)
+install(TARGETS _core DESTINATION basisSplines)
+install(DIRECTORY stubs/ DESTINATION basisSplines)

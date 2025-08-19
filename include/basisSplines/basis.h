@@ -4,6 +4,7 @@
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <numeric>
+#include <memory>
 
 #include "basisSplines/math.h"
 
