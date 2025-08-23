@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
         shift
         ;;
     -a|--all)
-        for f in ./examples/*.cpp; do
+        for f in ./examples/cpp/*.cpp; do
             POSITIONAL_ARGS+=("$(basename "$f" .cpp)")
         done
         break
@@ -49,7 +49,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-OUT_DIRECTORY=$WORKING_DIRECTORY/examples/out
+OUT_DIRECTORY=$WORKING_DIRECTORY/examples/cpp/out
 mkdir -p $OUT_DIRECTORY
 
 for FILE in "${POSITIONAL_ARGS[@]}"; do

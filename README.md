@@ -1,11 +1,13 @@
 # Basis-splines
 
-This project includes a C++ library implementing multi-dimensional polynomial splines in basis form and operations to form new splines that represent the derivative, integral, sum, and product of splines.
+This project includes a C++ library with Python bindings implementing multi-dimensional polynomial splines in basis form and operations to form new splines that represent the derivative, integral, sum, and product of splines.
 Among other things, polynomial splines are relevant for computer graphics and to solve semi-infinite programs resulting from optimal control problems.
 For example [omg-tools](https://github.com/meco-group/omg-tools) provides a python framework for the formulation and solution of such problems.
 This project provides a performant C++ implementation of relevant spline operations in this context.
 
 ## Installation
+
+The library can be integrated in a C++ and a Python project.
 
 ### Build from source
 
@@ -17,7 +19,7 @@ cmake -B build
 cmake --build build
 ```
 
-After project build the tests can be run with:
+After project build the tests can be run with
 
 ```bash
 ctest --test-dir build
@@ -41,23 +43,53 @@ link_libraries(basisSplines)
 
 Otherwise, you can directly include the header files in your project.
 
-## Examples
+### Build Python bindings
 
-Run the "example_name" with:
+The Python package *basisSplines* is build locally by invoking
 
 ```bash
-source setup.bash
-./examples/launch.bash "example_name"
+pip install .
 ```
 
-Run all examples without interaction with:
+at the project root.
+Additional dependencies for running the Python examples are installed with
+
+```bash
+pip install .[example]
+```
+
+### Install from PyPI
+
+The Python package *basisSplines* is also available on [PyPI](https://pypi.org/project/basis-splines/) and installed with
+
+```bash
+pip install basis-splines
+```
+
+## Examples
+
+The examples showcase the library's functionality and require either a [Build from source](#build-from-source) or a [Build Python bindings](#build-python-bindings).
+Run a [C++ example](https://github.com/phdorp/basis-splines/tree/16-python-bindings/examples/cpp) [EXAMPLE_NAME] with
 
 ```bash
 source setup.bash
-echo | ./examples/launch.bash -a
+./examples/cpp/launch.bash [EXAMPLE_NAME]
+```
+
+Run all [C++ examples](https://github.com/phdorp/basis-splines/tree/16-python-bindings/examples/cpp) without interaction with
+
+```bash
+source setup.bash
+echo | ./examples/cpp/launch.bash -a
 ```
 
 The examples rely on [Matplot++](https://github.com/alandefreitas/matplotplusplus) for plotting, so make sure to have [gnuplot](http://www.gnuplot.info/) installed.
+
+The equivalent [Python examples](https://github.com/phdorp/basis-splines/tree/16-python-bindings/examples/python) are invoked with
+
+```bash
+python examples/python/[EXAMPLE_NAME].py
+```
 
 ### Basis functions
 
