@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['insertknots_0',['insertknots',['../classBasisSplines_1_1Basis.html#ac175dcb212850d9dec63dd8b8df6508d',1,'BasisSplines::Basis::insertKnots()'],['../classBasisSplines_1_1Spline.html#ac3c115f5aa8f4941edd7d60bc1f1aa60',1,'BasisSplines::Spline::insertKnots()']]],
-  ['integral_1',['integral',['../classBasisSplines_1_1Basis.html#ad6f71ffebafbb60b3863bda90afb635b',1,'BasisSplines::Basis::integral(Basis &amp;basis, int orderInt=1) const'],['../classBasisSplines_1_1Basis.html#a188dcfe54881ee245db9da352af2336d',1,'BasisSplines::Basis::integral(Basis &amp;basis, const Eigen::MatrixXd &amp;values, int orderInt=1) const'],['../classBasisSplines_1_1Spline.html#a0cd045e9112d13e319b67478e55373b4',1,'BasisSplines::Spline::integral()']]],
-  ['interpolate_2',['Interpolate',['../classBasisSplines_1_1Interpolate.html#adab1aa79f7e4bdc32bb4968464ceba65',1,'BasisSplines::Interpolate']]]
+  ['insertknots_0',['insertknots',['../class__core_1_1Basis.html#ab99c48d3906739caf64a56e2b5b611a1',1,'_core.Basis.insertKnots()'],['../class__core_1_1Spline.html#a9ce9ec1f205a2213c62787978947dfcf',1,'_core.Spline.insertKnots()']]],
+  ['integral_1',['integral',['../class__core_1_1Basis.html#a5f0fa3e7783f24041fdb6e6cedd066e2',1,'_core.Basis.integral(self, Basis basis, typing.SupportsInt orderInt=1)'],['../class__core_1_1Basis.html#a71cc56a59d8335af9de9d3b210bee3b9',1,'_core.Basis.integral(self, Basis basis, typing.Annotated[numpy.typing.ArrayLike, numpy.float64, &quot;[m, n]&quot;] values, typing.SupportsInt orderInt=1)'],['../class__core_1_1Spline.html#a492a9a004f548a8a31ccbe94676913b4',1,'_core.Spline.integral()']]]
 ];
