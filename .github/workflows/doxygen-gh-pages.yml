@@ -12,6 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup python environment
+        env:
+          PATH_PYBINDS: ${{ github.workspace }}/bindings/python
+          PATH_PYSTUBS: ${{ github.workspace }}/bindings/python/basisSplines
+        run: |
+          pip install .[STUBS]
+          python ${{ env.PATH_PYBINDS }}/basisSplines/buildStubs.py
+
       - name: Install Doxygen
         run: sudo apt-get install doxygen graphviz
 
