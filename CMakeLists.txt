@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.31.6)
 
-set(PACKAGE_VERSION 1.0.2)
+set(PACKAGE_VERSION 1.0.3)
 
 project(BasisSplines VERSION ${PACKAGE_VERSION})
 
