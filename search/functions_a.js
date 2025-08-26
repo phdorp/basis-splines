@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['setbreakpoints_0',['setBreakpoints',['../class__core_1_1Basis.html#a7619dc853c6c43a4f18e22dbf7fb5a3f',1,'_core::Basis']]],
-  ['setcoefficients_1',['setCoefficients',['../class__core_1_1Spline.html#a441573b76dc5d1da8116b9f62a48a54a',1,'_core::Spline']]],
-  ['setscale_2',['setScale',['../class__core_1_1Basis.html#a2d1a241c377f7d96c64a0ee50b26b7a6',1,'_core::Basis']]]
+  ['prod_0',['prod',['../class__core_1_1Basis.html#aa36a64acaaea5a8e1699282de0133f65',1,'_core.Basis.prod()'],['../class__core_1_1Spline.html#ae693faae106d99c27ed42f1845eb1052',1,'_core.Spline.prod()'],['../classBasisSplines_1_1Basis.html#a66dbb7291bc143645fba359a3f1da8f9',1,'BasisSplines::Basis::prod()'],['../classBasisSplines_1_1Spline.html#a8d1e618ccce5a1d29e31ea1d11923187',1,'BasisSplines::Spline::prod()']]]
 ];

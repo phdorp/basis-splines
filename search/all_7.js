@@ -1,9 +1,10 @@
 var searchData=
 [
-  ['getbreakpoints_0',['getBreakpoints',['../class__core_1_1Basis.html#af13f787fb9483dcf2492421a8f26926e',1,'_core::Basis']]],
-  ['getclamped_1',['getclamped',['../class__core_1_1Basis.html#acdbc5b5e6a1e4168e51552a5f2097efc',1,'_core.Basis.getClamped()'],['../class__core_1_1Spline.html#a3fa630134dd8b9cb11366f63310c9a84',1,'_core.Spline.getClamped(self)']]],
-  ['getcoefficients_2',['getCoefficients',['../class__core_1_1Spline.html#a19f0fe1e472ab921f26f988cd79c35ff',1,'_core::Spline']]],
-  ['getscale_3',['getScale',['../class__core_1_1Basis.html#a144c57343600cdcf0838fbf51b50496c',1,'_core::Basis']]],
-  ['getsegment_4',['getsegment',['../class__core_1_1Basis.html#a793faa63784c0aabc4d6361a447f7d60',1,'_core.Basis.getSegment()'],['../class__core_1_1Spline.html#a37f02d05097f6430bb144625a8f29d38',1,'_core.Spline.getSegment()']]],
-  ['greville_5',['greville',['../class__core_1_1Basis.html#aa2b59994523858a7f919952f540a7bc0',1,'_core::Basis']]]
+  ['getbreakpoints_0',['getbreakpoints',['../classBasisSplines_1_1Basis.html#a55678bb833c16106d0dbee9cb34ace1d',1,'BasisSplines::Basis::getBreakpoints()'],['../class__core_1_1Basis.html#af13f787fb9483dcf2492421a8f26926e',1,'_core.Basis.getBreakpoints(self, typing.SupportsFloat accuracy=1e-06)']]],
+  ['getclamped_1',['getclamped',['../class__core_1_1Basis.html#acdbc5b5e6a1e4168e51552a5f2097efc',1,'_core.Basis.getClamped()'],['../class__core_1_1Spline.html#a3fa630134dd8b9cb11366f63310c9a84',1,'_core.Spline.getClamped()'],['../classBasisSplines_1_1Basis.html#aa42d2ef94478eeb389e3b116cd49916f',1,'BasisSplines::Basis::getClamped()'],['../classBasisSplines_1_1Spline.html#aaf1aa38353a80b05c242f103b503052a',1,'BasisSplines::Spline::getClamped()']]],
+  ['getcoefficients_2',['getcoefficients',['../class__core_1_1Spline.html#a19f0fe1e472ab921f26f988cd79c35ff',1,'_core.Spline.getCoefficients()'],['../classBasisSplines_1_1Spline.html#a3f6dc58b14f1756f88a8561f49a8f59c',1,'BasisSplines::Spline::getCoefficients()']]],
+  ['getscale_3',['getscale',['../classBasisSplines_1_1Basis.html#ad85aa6a534a079b400aa7734934dd6b0',1,'BasisSplines::Basis::getScale()'],['../class__core_1_1Basis.html#a144c57343600cdcf0838fbf51b50496c',1,'_core.Basis.getScale(self)']]],
+  ['getsegment_4',['getsegment',['../class__core_1_1Basis.html#a793faa63784c0aabc4d6361a447f7d60',1,'_core.Basis.getSegment()'],['../class__core_1_1Spline.html#a37f02d05097f6430bb144625a8f29d38',1,'_core.Spline.getSegment()'],['../classBasisSplines_1_1Basis.html#a211c2bf9e7de742aaa21ae952ee6602a',1,'BasisSplines::Basis::getSegment(int first, int last) const'],['../classBasisSplines_1_1Basis.html#a40e16e7704052fa3be1b301e49ad8be6',1,'BasisSplines::Basis::getSegment(Eigen::internal::pointer_based_stl_iterator&lt; const Eigen::ArrayXd &gt; begin, Eigen::internal::pointer_based_stl_iterator&lt; const Eigen::ArrayXd &gt; end) const'],['../classBasisSplines_1_1Spline.html#a03e439cc0b4b84b4341b62ed453be501',1,'BasisSplines::Spline::getSegment()']]],
+  ['getsegmentknots_5',['getSegmentKnots',['../classBasisSplines_1_1Basis.html#a8c1fa27e5ff0da223e2e9b4fe78e0e2a',1,'BasisSplines::Basis']]],
+  ['greville_6',['greville',['../class__core_1_1Basis.html#aa2b59994523858a7f919952f540a7bc0',1,'_core.Basis.greville()'],['../classBasisSplines_1_1Basis.html#a5c52be56770c67210cca2cec4073cd27',1,'BasisSplines::Basis::greville()']]]
 ];
