@@ -11,7 +11,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "basis-splines"
-version = "1.0.2"
+version = "1.0.3"
 readme = "docs/README.pypi.md"
 dependencies = ["numpy"]
 authors = [{ name = "Philip Dorpmüller", email = "philip.dorpmueller@web.de" }]
@@ -32,7 +32,9 @@ Github = "https://github.com/phdorp/basis-splines"
 
 
 [project.optional-dependencies]
-example = ["matplotlib"]
+EXAMPLES = ["matplotlib"]
+DOCS = ["doxypypy"]
+STUBS = ["pybind11-stubgen"]
 
 [tool.scikit-build]
 cmake.args = [

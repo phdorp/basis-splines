@@ -18,4 +18,8 @@ target_link_libraries(
   basisSplines
 )
 install(TARGETS _core DESTINATION basisSplines)
-install(DIRECTORY stubs/ DESTINATION basisSplines)
+
+# install stubs if available
+if(EXISTS $ENV{PATH_PYSTUBS})
+  install(DIRECTORY $ENV{PATH_PYSTUBS}/ DESTINATION basisSplines)
+endif()
