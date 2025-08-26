@@ -22,6 +22,8 @@
 
 # Python
 *.pyc
+*.pyi
+py.typed
 
 # Compiled Static libraries
 *.lai
