@@ -2,9 +2,7 @@ name: Build and deploy wheels
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    tags: ['v[0-9].[0-9]+.[0-9]+']
 
 jobs:
   build_wheels:
