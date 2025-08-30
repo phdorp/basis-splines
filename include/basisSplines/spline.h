@@ -190,25 +190,41 @@ public:
   }
 
   /**
-   * @brief Create new spline including the given and "this" splines' knots.
-   * The new spline coincides with "this" spline.
-   * The distance between coefficients and spline is decreased.
-   * The knot multiplicity must remain smaller than the basis order.
+   * @brief Inserts multiple knots into the spline.
    *
-   * @tparam Interp type of interpolation.
-   * @param knots knots to insert to this basis' knots.
-   * @return Spline new spline including the given knots.
+   * Creates a copy of the current spline and sequentially inserts each knot
+   * from the provided array into the copy using the insertKnot method. The
+   * resulting spline with all knots inserted is returned.
+   *
+   * @param knots Knot values to be inserted.
+   * @return Spline New spline with the inserted knots.
    */
-  template <typename Interp = Interpolate>
   Spline insertKnots(const Eigen::ArrayXd &knots) const {
+    Spline spline{*this};
+
+    for (double knot : knots)
+      spline = spline.insertKnot(knot);
+
+    return spline;
+  }
+
+  /**
+   * @brief Create equivalent spline with inserted knot.
+   *
+   * Creates a new basis by inserting the specified knot into the
+   * current basis. The coefficients are interpolated to create a new equivalent
+   * spline.
+   *
+   * @param knot The knot value to insert into the spline.
+   * @return Spline A new Spline object with the inserted knot and interpolated
+   * coefficients.
+   */
+  Spline insertKnot(double knot) const {
     // create new basis with inserted knot
     const std::shared_ptr<Basis> basis{
-        std::make_shared<Basis>(m_basis->insertKnots(knots))};
+        std::make_shared<Basis>(m_basis->insertKnots({{knot}}))};
 
-    // determine new coefficients via interpolation
-    return {basis, Interp{basis}.fit([&](const Eigen::ArrayXd &points) {
-              return Eigen::MatrixXd{(*this)(points)};
-            })};
+    return {basis, interpolateCoefficients(knot)};
   }
 
   /**
@@ -284,6 +300,68 @@ private:
 
   std::shared_ptr<Basis> m_basis{}; /**<< spline basis */
   Eigen::MatrixXd m_coefficients{}; /**<< spline coefficients */
+
+  // MARK: private methods
+  /**
+   * @brief Interpolates coefficients along each dimension when inserting a new
+   * knot.
+   *
+   * @param knot The position of the knot to be inserted.
+   * @return Eigen::MatrixXd The matrix of interpolated coefficients for all
+   * dimensions.
+   */
+  Eigen::MatrixXd interpolateCoefficients(double knot) const {
+
+    Eigen::MatrixXd coeffs(m_coefficients.rows() + 1, m_coefficients.cols());
+
+    for (int cDim{}; cDim < dim(); ++cDim)
+      coeffs(Eigen::all, cDim) = interpolateCoefficients(knot, cDim);
+
+    return coeffs;
+  }
+
+  /**
+   * @brief Interpolates coefficients when inserting a new knot.
+   *
+   * This function computes the new set of spline coefficients after inserting a
+   * knot at the given position. The coefficients are updated according [Boehm
+   * 1980].
+   *
+   * @param knotInsert The position of the knot to be inserted.
+   * @param dim The dimension (column) of the coefficients to be updated.
+   * @return Eigen::VectorXd The updated coefficients vector with one additional
+   * element.
+   */
+  Eigen::VectorXd interpolateCoefficients(double knotInsert, int dim) const {
+    Eigen::VectorXd coeffsNew(m_coefficients.rows() + 1);
+    const Eigen::VectorXd coeffs{m_coefficients(Eigen::all, dim)};
+    const Eigen::ArrayXd knots{m_basis->knots()};
+    const Eigen::Index order{m_basis->order()};
+
+    Eigen::Index knotIdx{};
+
+    // case 1: copy coefficients
+    while (knotInsert >= knots(knotIdx + order - 1)) {
+      coeffsNew(knotIdx) = coeffs(knotIdx);
+      ++knotIdx;
+    }
+
+    // case 2: interpolate coefficients
+    while (knots(knotIdx) < knotInsert &&
+           knotInsert < knots(knotIdx + order - 1)) {
+      double weight{(knotInsert - knots(knotIdx)) /
+                    (knots(knotIdx + order - 1) - knots(knotIdx))};
+      coeffsNew(knotIdx) =
+          (1 - weight) * coeffs(knotIdx - 1) + weight * coeffs(knotIdx);
+      ++knotIdx;
+    }
+
+    // case 3: shift coefficients
+    for (; knotIdx < coeffsNew.size(); ++knotIdx)
+      coeffsNew(knotIdx) = coeffs(knotIdx - 1);
+
+    return coeffsNew;
+  }
 };
 }; // namespace BasisSplines
 
