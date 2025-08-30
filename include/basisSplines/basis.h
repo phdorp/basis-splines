@@ -565,12 +565,27 @@ public:
 
     // assign greville sites as mean accumulation over knots
     for (int cKnot{}; cKnot < dim(); ++cKnot) {
-      auto begin{m_knots.begin() + cKnot + 1};
-      auto end{begin + m_order - 1};
-      grevilleSites(cKnot) = std::accumulate(begin, end, 0.0) / (m_order - 1);
+      grevilleSites(cKnot) = greville(cKnot);
     }
 
     return grevilleSites;
+  }
+
+  /**
+   * @brief Determine the Greville site representing the knot average at a given index.
+   *
+   * @param knotIdx Index of the knot for which to compute the Greville abscissa.
+   * @return The computed Greville abscissa as a double.
+   */
+  double greville(int knotIdx) const {
+    // basis order 1 greville abs. coincide with knots
+    if (m_order == 1)
+      return m_knots(knotIdx);
+
+    // assign greville sites as mean accumulation over knots
+    auto begin{m_knots.begin() + knotIdx + 1};
+    auto end{begin + m_order - 1};
+    return std::accumulate(begin, end, 0.0) / (m_order - 1);
   }
 
   /**
