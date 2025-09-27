@@ -160,6 +160,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a5c52be56770c67210cca2cec4073cd27" id="r_a5c52be56770c67210cca2cec4073cd27"><td class="memItemLeft" align="right" valign="top">Eigen::ArrayXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBasisSplines_1_1Basis.html#a5c52be56770c67210cca2cec4073cd27">greville</a> () const</td></tr>
 <tr class="memdesc:a5c52be56770c67210cca2cec4073cd27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine the Greville sites representing the knot averages [Boo01, prop. (v)].  <br /></td></tr>
 <tr class="separator:a5c52be56770c67210cca2cec4073cd27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af18e24fbbc285633368d3116fc521e3d" id="r_af18e24fbbc285633368d3116fc521e3d"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBasisSplines_1_1Basis.html#af18e24fbbc285633368d3116fc521e3d">greville</a> (int knotIdx) const</td></tr>
+<tr class="memdesc:af18e24fbbc285633368d3116fc521e3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine the Greville site representing the knot average at a given index.  <br /></td></tr>
+<tr class="separator:af18e24fbbc285633368d3116fc521e3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a211c2bf9e7de742aaa21ae952ee6602a" id="r_a211c2bf9e7de742aaa21ae952ee6602a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classBasisSplines_1_1Basis.html">Basis</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBasisSplines_1_1Basis.html#a211c2bf9e7de742aaa21ae952ee6602a">getSegment</a> (int first, int last) const</td></tr>
 <tr class="memdesc:a211c2bf9e7de742aaa21ae952ee6602a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine a basis representing the "first" to the "last" segment of "this" basis.  <br /></td></tr>
 <tr class="separator:a211c2bf9e7de742aaa21ae952ee6602a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -713,7 +716,7 @@ Eigen::ArrayXd&gt;&gt; Iterators pointing to the begin and end of a knot sequenc
 </div>
 </div>
 <a id="a5c52be56770c67210cca2cec4073cd27" name="a5c52be56770c67210cca2cec4073cd27"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5c52be56770c67210cca2cec4073cd27">&#9670;&#160;</a></span>greville()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c52be56770c67210cca2cec4073cd27">&#9670;&#160;</a></span>greville() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -737,6 +740,41 @@ Eigen::ArrayXd&gt;&gt; Iterators pointing to the begin and end of a knot sequenc
 
 <p>Determine the Greville sites representing the knot averages [Boo01, prop. (v)]. </p>
 <dl class="section return"><dt>Returns</dt><dd>Eigen::ArrayXd greville sites. </dd></dl>
+
+</div>
+</div>
+<a id="af18e24fbbc285633368d3116fc521e3d" name="af18e24fbbc285633368d3116fc521e3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af18e24fbbc285633368d3116fc521e3d">&#9670;&#160;</a></span>greville() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double BasisSplines::Basis::greville </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>knotIdx</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Determine the Greville site representing the knot average at a given index. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">knotIdx</td><td>Index of the knot for which to compute the Greville abscissa. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The computed Greville abscissa as a double. </dd></dl>
 
 </div>
 </div>
