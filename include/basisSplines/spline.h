@@ -324,8 +324,8 @@ private:
    * @brief Interpolates coefficients when inserting a new knot.
    *
    * This function computes the new set of spline coefficients after inserting a
-   * knot at the given position. The coefficients are updated according [Boehm
-   * 1980].
+   * knot at the given position. The coefficients are updated according to
+   * [Boehm 1980].
    *
    * @param knotInsert The position of the knot to be inserted.
    * @param dim The dimension (column) of the coefficients to be updated.
