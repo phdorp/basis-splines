@@ -204,7 +204,7 @@ Args:
 Returns:
      np.ndarray: Values of truncated powers with points.size rows and self.dim columns.
 )doc")
-      .def("greville", &Basis::greville,
+      .def("greville", py::overload_cast<>(&Basis::greville, py::const_),
            R"doc(Determine the Greville sites representing the knot averages.
 
 Returns:
@@ -354,7 +354,7 @@ Args:
 Returns:
      Spline: Spline product.
 )doc")
-      .def("insertKnots", &Spline::insertKnots<Interpolate>, "knots"_a,
+      .def("insertKnots", &Spline::insertKnots, "knots"_a,
            R"doc(Create new spline including the given and this splines' knots.
 
 Args:
