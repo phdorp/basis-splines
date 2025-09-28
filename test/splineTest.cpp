@@ -323,8 +323,56 @@ TEST_F(SplineTest, GetSegment11O4) {
   valuesEst = splineClamped(pointsSubset);
   expectAllClose(valuesEst, valuesGtr, 1e-10);
 
-  EXPECT_DOUBLE_EQ(splineClamped.getCoefficients()(0), splineClamped(Eigen::ArrayXd{{breakpoints.first(1)}})(0,0));
-  EXPECT_DOUBLE_EQ(splineClamped.getCoefficients()(3), splineClamped(Eigen::ArrayXd{{breakpoints.first(2)}})(0,0));
+  EXPECT_DOUBLE_EQ(splineClamped.getCoefficients()(0),
+                   splineClamped(Eigen::ArrayXd{{breakpoints.first(1)}})(0, 0));
+  EXPECT_DOUBLE_EQ(splineClamped.getCoefficients()(3),
+                   splineClamped(Eigen::ArrayXd{{breakpoints.first(2)}})(0, 0));
+}
+
+/**
+ * @brief Test getting all zeros of a 2nd degree polynomial with a root at 0.0.
+ *
+ * The root is on the left domain end.
+ *
+ */
+TEST_F(SplineTest, ZerosLeftSplineO3) {
+  const std::vector<Eigen::ArrayXd> valuesEst{m_splineO3.getRoots()};
+  const Eigen::ArrayXd valuesGtr{{0.0}};
+
+  for (const Eigen::ArrayXd &valueEst : valuesEst)
+    expectAllClose(valueEst, valuesGtr, 1e-6);
+}
+
+/**
+ * @brief Test getting all zeros of a 2nd degree polynomial with a root at 1.0.
+ *
+ * The root is on the right domain end.
+ *
+ */
+TEST_F(SplineTest, ZerosRightSplineO3) {
+  const Spline splineO3 {m_splineO3.basis(), m_splineO3.getCoefficients().array() - 1.0};
+  const std::vector<Eigen::ArrayXd> valuesEst{splineO3.getRoots()};
+  const Eigen::ArrayXd valuesGtr{splineO3.basis()->knots().tail(1)};
+
+  for (const Eigen::ArrayXd &valueEst : valuesEst)
+    expectAllClose(valueEst, valuesGtr, 1e-6);
+}
+
+/**
+ * @brief Test getting all zeros of a 3rd order spline with random coefficients.
+ *
+ */
+TEST_F(SplineTest, ZerosSplineO3Rand) {
+  const Spline spline{m_basisO3, Eigen::MatrixXd::Random(m_basisO3->dim(), 3)};
+  const std::vector<Eigen::ArrayXd> zeroVects{spline.getRoots()};
+
+  int dim{};
+  for (const auto &zeros : zeroVects) {
+    Eigen::ArrayXd valuesEst{spline(zeros)(Eigen::all, dim)};
+    Eigen::ArrayXd valuesGtr{Eigen::ArrayXd::Zero(zeros.size())};
+    expectAllClose(valuesEst, valuesGtr, 1e-6);
+    ++dim;
+  }
 }
 
 }; // namespace Internal
