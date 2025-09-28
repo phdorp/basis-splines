@@ -51,6 +51,26 @@ void plotSpline(const Bs::Spline &spline, const Eigen::ArrayXd &points,
       .display_name("breakpoints");
 }
 
+/**
+ * @brief Plot the given "roots" of a "spline".
+ *
+ * @param spline Spline function to corresponding to the "roots".
+ * @param roots Roots of the "spline".
+ * @param axesHandle Axis handle for plotting.
+ * @param dim output dimension to plot.
+ */
+void plotRoots(const Bs::Spline &spline, const Eigen::ArrayXd &roots,
+               const Mt::axes_handle axesHandle, int dim = 0) {
+  const Eigen::ArrayXd splineValues{spline(roots)(Eigen::all, dim)};
+
+  axesHandle
+      ->scatter(std::vector<double>{roots.begin(), roots.end()},
+                std::vector<double>{splineValues.begin(), splineValues.end()})
+      ->marker_style(matplot::line_spec::marker_style::cross)
+      .marker_size(10.0)
+      .display_name("roots");
+}
+
 void plotSpline2d(const Bs::Spline &spline, const Eigen::ArrayXd &points,
                   const Mt::axes_handle axesHandle,
                   const std::array<int, 2> &dims) {
