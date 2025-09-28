@@ -5,6 +5,7 @@
 
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 
@@ -385,6 +386,29 @@ Returns:
 
 Returns:
      Spline: Clamped spline.
+)doc")
+      .def("getRoots",
+           py::overload_cast<int, double>(&Spline::getRoots, py::const_),
+           "maxIter"_a = 10, "accAbs"_a = 1e-6,
+           R"doc(Get the roots along all output dimensions.
+
+Args:
+     maxIter (int, optional): Maximum number of iterations. Default is 10.
+     accAbs (float, optional): Tolerance for the spline output to be considered zero. Default is 1e-6.
+Returns:
+     List[np.ndarray]: Roots along all output dimensions.
+)doc")
+      .def("getRoots",
+           py::overload_cast<int, int, double>(&Spline::getRoots, py::const_),
+           "dim"_a, "maxIter"_a = 10, "accAbs"_a = 1e-6,
+           R"doc(Get the roots along the specified output dimension.
+
+Args:
+     dim (int): Output dimension to evaluate.
+     maxIter (int, optional): Maximum number of iterations. Default is 10.
+     accAbs (float, optional): Tolerance for the spline output to be considered zero. Default is 1e-6.
+Returns:
+     np.ndarray: Roots along the given output dimension.
 )doc")
       .def("__neg__", &Spline::operator-,
            R"doc(Create new spline with negated spline coefficients.
