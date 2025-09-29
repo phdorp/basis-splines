@@ -74,6 +74,24 @@ The Python package *basisSplines* is also available on [PyPI](https://pypi.org/p
 pip install basis-splines
 ```
 
+### Errors encountered during package build
+
+#### Incompatible compiler
+
+If the build fails due to a compiler not supporting C++20, specify the compiler to use, e.g., `g++-13`:
+
+```bash
+CXX=g++-13 pip install .
+```
+
+#### GLIBCXX not found
+
+When installing the package to a conda environment you might encounter an error reporting missing `GLIBCXX_x.x.xx` library. The error can be resolved by installing the gnu compiler to the conda environment:
+
+```bash
+conda install -c conda-forge gcc
+```
+
 ## Examples
 
 The examples showcase the library's functionality and require either a [Build from source](#build-from-source) or a [Build Python bindings](#build-python-bindings).

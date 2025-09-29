@@ -11,12 +11,12 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "basis-splines"
-version = "1.0.3"
+version = "1.0.4"
 readme = "docs/README.pypi.md"
 dependencies = ["numpy"]
 authors = [{ name = "Philip Dorpmüller", email = "philip.dorpmueller@web.de" }]
 description = "Library implementing polynomial splines in basis form and operations including derivative, integral, sum, and product. "
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
