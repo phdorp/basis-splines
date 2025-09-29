@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.31.6)
 
-set(PACKAGE_VERSION 1.0.3)
+set(PACKAGE_VERSION 1.0.4)
 
 project(BasisSplines VERSION ${PACKAGE_VERSION})
 
@@ -8,6 +8,10 @@ include(FetchContent)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
+set(PYBIND_BINARY_DIR ${PROJECT_BINARY_DIR}/bindings/python)
+set(PYBIND_SOURCE_DIR ${PROJECT_SOURCE_DIR}/bindings/python)
+set(PYSTUBS_DIR ${PYBIND_SOURCE_DIR}/basisSplinesStubs)
 
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/basisSplines)
 add_subdirectory(${PROJECT_INCLUDE_DIR})
@@ -29,9 +33,6 @@ if(BUILD_EXAMPLES)
 endif()
 
 if(BUILD_DOCS)
-    set(PYBIND_BINARY_DIR ${PROJECT_BINARY_DIR}/bindings/python)
-    set(PYBIND_SOURCE_DIR ${PROJECT_SOURCE_DIR}/bindings/python)
-
     find_package(Doxygen REQUIRED)
     set(doxyfile_in ${PROJECT_SOURCE_DIR}/Doxyfile.in)
     set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile)
@@ -40,6 +41,16 @@ if(BUILD_DOCS)
 
     # also build python documentation if stubs are available
     if(EXISTS ${PYBIND_SOURCE_DIR}/basisSplinesStubs)
+        find_package(Python3 COMPONENTS Interpreter REQUIRED)
+        execute_process(
+            COMMAND ${Python3_EXECUTABLE} -m doxypypy --help
+            RESULT_VARIABLE DOXYPYPY_FOUND
+            OUTPUT_QUIET ERROR_QUIET
+        )
+        if(NOT DOXYPYPY_FOUND EQUAL 0)
+            message(FATAL_ERROR "Python package 'doxypypy' is required but not found. Please install it with 'pip install doxypypy'.")
+        endif()
+
         make_directory(${PYBIND_BINARY_DIR}/basisSplines)
         add_custom_target(process_stubs ALL
             COMMAND doxypypy -c -a ${PYBIND_SOURCE_DIR}/basisSplinesStubs/_core.pyi > ${PYBIND_BINARY_DIR}/basisSplines/_core.py
