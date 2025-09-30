@@ -39,37 +39,11 @@ if(BUILD_DOCS)
 
     configure_file(${doxyfile_in} ${doxyfile} @ONLY)
 
-    # also build python documentation if stubs are available
-    if(EXISTS ${PYBIND_SOURCE_DIR}/basisSplinesStubs)
-        find_package(Python3 COMPONENTS Interpreter REQUIRED)
-        execute_process(
-            COMMAND ${Python3_EXECUTABLE} -m doxypypy --help
-            RESULT_VARIABLE DOXYPYPY_FOUND
-            OUTPUT_QUIET ERROR_QUIET
-        )
-        if(NOT DOXYPYPY_FOUND EQUAL 0)
-            message(FATAL_ERROR "Python package 'doxypypy' is required but not found. Please install it with 'pip install doxypypy'.")
-        endif()
-
-        make_directory(${PYBIND_BINARY_DIR}/basisSplines)
-        add_custom_target(process_stubs ALL
-            COMMAND doxypypy -c -a ${PYBIND_SOURCE_DIR}/basisSplinesStubs/_core.pyi > ${PYBIND_BINARY_DIR}/basisSplines/_core.py
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            COMMENT "Processing python stubs with doxypypy")
-
-        add_custom_target(doc ALL
-            COMMAND doxygen ${doxyfile}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            COMMENT "Generating API documentation with Doxygen"
-            DEPENDS process_stubs)
-    # fallback to only C++ docs
-    else()
-        add_custom_target(doc ALL
-            COMMAND doxygen ${doxyfile}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            COMMENT "Generating API documentation with Doxygen"
-            VERBATIM)
-    endif()
+    add_custom_target(doc ALL
+        COMMAND doxygen ${doxyfile}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM)
 endif()
 
 if(BUILD_PYBINDS)

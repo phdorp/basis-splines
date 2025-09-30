@@ -24,7 +24,7 @@ jobs:
           PATH_PYBINDS: ${{ github.workspace }}/bindings/python
           PATH_PYSTUBS: ${{ github.workspace }}/bindings/python/basisSplines
         run: |
-          pip install .[STUBS,DOCS]
+          pip install .[STUBS]
           python ${{ env.PATH_PYBINDS }}/basisSplines/buildStubs.py
 
       - name: Configure CMake
