@@ -118,7 +118,17 @@ Build Python bindings</h2>
 Install from PyPI</h2>
 <p>The Python package <em>basisSplines</em> is also available on <a href="https://pypi.org/project/basis-splines/">PyPI</a> and installed with</p>
 <div class="fragment"><div class="line">pip install basis-splines</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md6"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md6"></a>
+Errors encountered during package build</h2>
+<h3><a class="anchor" id="autotoc_md7"></a>
+Incompatible compiler</h3>
+<p>If the build fails due to a compiler not supporting C++20, specify the compiler to use, e.g., <code>g++-13</code>:</p>
+<div class="fragment"><div class="line">CXX=g++-13 pip install .</div>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md8"></a>
+GLIBCXX not found</h3>
+<p>When installing the package to a conda environment you might encounter an error reporting missing <code>GLIBCXX_x.x.xx</code> library. The error can be resolved by installing the gnu compiler to the conda environment:</p>
+<div class="fragment"><div class="line">conda install -c conda-forge gcc</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md9"></a>
 Examples</h1>
 <p>The examples showcase the library's functionality and require either a Build from source or a Build Python bindings. Run a <a href="https://github.com/phdorp/basis-splines/tree/16-python-bindings/examples/cpp">C++ example</a> [EXAMPLE_NAME] with</p>
 <div class="fragment"><div class="line">source setup.bash</div>
@@ -129,7 +139,7 @@ Examples</h1>
 </div><!-- fragment --><p>The examples rely on <a href="https://github.com/alandefreitas/matplotplusplus">Matplot++</a> for plotting, so make sure to have <a href="http://www.gnuplot.info/">gnuplot</a> installed.</p>
 <p>The equivalent <a href="https://github.com/phdorp/basis-splines/tree/16-python-bindings/examples/python">Python examples</a> are invoked with</p>
 <div class="fragment"><div class="line">python examples/python/[EXAMPLE_NAME].py</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md7"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md10"></a>
 Basis functions</h2>
 <p>Basis splines are determine recursively on the knots</p>
 <p class="formulaDsp">
@@ -158,7 +168,7 @@ b_{l,\rho,\mathbf{k}}(x)=\frac{t-k_l}{k_{l+\rho-1}-k_l}b_{l,\rho,\mathbf{k}}(x)+
 <div class="caption">
 Basis spline basis functions</div></div>
     <p>The exemplary B-splines of order 3 with 3 breakpoints are found under <em>examples/basis.cpp</em>.</p>
-<h2><a class="anchor" id="autotoc_md8"></a>
+<h2><a class="anchor" id="autotoc_md11"></a>
 Spline functions</h2>
 <p>Splines in basis form are a linear combination of basis functions weighted with the coefficients \(c_n\) for \(n=0,1,\ldots,\breve{{c}}-1\) [1, Def. (51)]:</p>
 <p class="formulaDsp">
@@ -172,7 +182,7 @@ s(x)=\sum_{n=0}^{\breve{{c}}-1}c_nb_{n,\rho,\mathbf{k}}(x).
 <div class="caption">
 2-dimensional spline in basis form with convex hull</div></div>
     <p>The example in <em>examples/spline2d.cpp</em> shows 2 splines of order 3 and 4 breakpoints.</p>
-<h2><a class="anchor" id="autotoc_md9"></a>
+<h2><a class="anchor" id="autotoc_md12"></a>
 Derivative</h2>
 <p>The spline derivative \(\dot{s}(x)=\frac{\mathrm{d}}{\mathrm{d}t}s(x)\) has reduced order and continuity. The derivative coefficients are determined from the original coefficients \(c_n\) [1, B-spline Prop. (viii)]:</p>
 <p class="formulaDsp">
@@ -197,7 +207,7 @@ Derivative</h2>
 <div class="caption">
 Spline derivative</div></div>
     <p>The example for differentiating a spline of order 3 is found under <em>examples/splineDeriv.cpp</em>. The file <em>examples/splineDerivExplicit.cpp</em> shows the application of the transformation matrix.</p>
-<h2><a class="anchor" id="autotoc_md10"></a>
+<h2><a class="anchor" id="autotoc_md13"></a>
 Integral</h2>
 <p>The spline integral \(s_\mathrm{I}(x)=\int_{\kappa_0}^t s(\tau)\mathrm{d}\tau\) has increased order and continuity. The transformation to the integral coefficients \(\mathbf{c}_{\mathrm{I}}\) is derived from the derivative definition and yields [1, Ch. X eq. (31)]:</p>
 <p class="formulaDsp">
@@ -223,7 +233,7 @@ k_\rho-k_0&amp;k_{\rho+1}-k_1&amp;k_{\rho+2}-k_2&amp;\ldots&amp;k_{\breve{{k}}-1
 <div class="caption">
 Spline integral</div></div>
     <p>The example for integrating a spline of order 3 is found under <em>examples/splineInteg.cpp</em>. The file <em>examples/splineIntegExplicit.cpp</em> shows the application of the transformation matrix.</p>
-<h2><a class="anchor" id="autotoc_md11"></a>
+<h2><a class="anchor" id="autotoc_md14"></a>
 Sum and product</h2>
 <p>The sum and product of two splines \(s_\square(x)\) and \(s_\triangle(x)\) are exactly described by another spline. The coefficients of the sum \(s_+(x)=s_\square(x)+s_\triangle(x)\) and the product \(s_\times(x)=s_\square(x)\cdot s_\triangle(x)\) are described implicitly by an interpolation:</p>
 <p class="formulaDsp">
@@ -248,10 +258,10 @@ Two splines and their product representation</div></div>
 \end{aligned}
 </p>
 <p>Examples for the sum and product of splines are found under <em>examples/splineSum.cpp</em> and <em>examples/splineProd.cpp</em>. The usage of the transformation matrices is shown in <em>examples/splineSumExpl.cpp</em> and <em>examples/splineProdExpl.cpp</em>.</p>
-<h2><a class="anchor" id="autotoc_md12"></a>
+<h2><a class="anchor" id="autotoc_md15"></a>
 Convex hull reduction</h2>
 <p>The spline function is enclosed by its convex hull so the hull keeps a certain distance to the spline. The formulation of constraints depending on the spline coefficients results therefore in a conservative solution. The solution accuracy is improved by reducing the distance between hull and spline. Two methods are available to reduce the distance: knot insertion and order elevation.</p>
-<h3><a class="anchor" id="autotoc_md13"></a>
+<h3><a class="anchor" id="autotoc_md16"></a>
 Knot insertion</h3>
 <p>The knot insertion creates a new spline basis \(\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x)\) with a new knot sequence \(\mathbf{k}_\mathrm{in}\) by inserting additional knots to the original knot sequence \(\mathbf{k}\) such that \(\{k_i\}_{i=1,2,\ldots,\breve{k}}\subset\{k_{j,\mathrm{in}}\}_{j=1,2,\ldots,\breve{k}_{\mathrm{in}}}\) while the first \(\mathbf{k}_{1,\mathrm{in}}=\mathbf{k}_{1}\) and the last \(\mathbf{k}_{\breve{{k}}_\mathrm{in},\mathrm{in}}=\mathbf{k}_{\breve{{k}}}\) breakpoints coincide. Thus, \(\mathbf{k}_\mathrm{in}\) is a refinement of \(\mathbf{k}\) such that the splines resulting from \(\mathbf{b}_{\rho,\mathbf{k}}(x)\) are among the possible splines resulting from \(\mathbf{b}_{\rho,\mathbf{k}_\mathrm{in}}(x)\) <a href="(#1)">[1, B-spline Prop. (xi)]</a>:</p>
 <p class="formulaDsp">
@@ -266,7 +276,7 @@ s(x)&amp;=\sum_{n=1}^{\breve{{c}}}c_nb_{n,\rho,\mathbf{k}}(x),\\
 <div class="caption">
 Spline function and equivalent spline with refined knot sequence</div></div>
     <p>The example <em>examples/splineKnotInsertion.cpp</em> demonstrates the insertion of 4 additional knots, introducing 2 new breakpoints at 0.3 and 0.4 to a spline of order 3. The addition of each knot introduces a new coefficient for a locally more accurate spline approximation with the control polygon.</p>
-<h3><a class="anchor" id="autotoc_md14"></a>
+<h3><a class="anchor" id="autotoc_md17"></a>
 Order elevation</h3>
 <p>The order elevation creates a new spline basis \(\mathbf{b}_{\hat{\rho},\mathbf{k}}(x):\mathbb{R}\to\mathbb{R}^{\breve{\mathbb{c}}}\) of increased order \(\hat{\rho}&gt;\rho\) from the original basis \(\mathbf{b}_{\rho,\mathbf{k}}(x)\). Because the basis of higher order is also a basis for lower order splines, an equivalent higher order spline is determined by interpolation:</p>
 <p class="formulaDsp">
@@ -281,7 +291,7 @@ s(x)&amp;=\sum_{n=1}^{\breve{{c}}}c_nb_{n,\rho,\mathbf{k}}(x),\\
 <div class="caption">
 Spline function and equivalent spline with increased order</div></div>
     <p>The example <em>examples/splineOrderElevation.cpp</em> demonstrates the elevation of a spline of order 3 to order 5. Note that the distance between the coefficients and the spline graph is reduced along the entire spline.</p>
-<h2><a class="anchor" id="autotoc_md15"></a>
+<h2><a class="anchor" id="autotoc_md18"></a>
 Segment extraction</h2>
 <p>The spline in basis form represents a sequence of polynomial segments. The spline is represented in each connected subsequence \(x\in\left[\kappa_{1,\mathrm{se}},\kappa_{\breve{\kappa}_\mathrm{se},\mathrm{se}}\right]\) by another spline \(s_\mathrm{se}(x)=s(x)\) using a subset of the original coefficients \(\{\mathbf{c}_\mathrm{se}\}_{n=1,2,\ldots,\breve{c}_\mathrm{se}}\subset\{\mathbf{c}\}_{n=1,2,\ldots,\breve{c}}\). In the first step, the example <em>examples/splineSegment.cpp</em> demonstrates the extraction of a segment between the breakpoints 0.4 and 0.7 from a spline of order 4. Note that the splines only coincide in the extracted segment.</p>
 <div class="image">
@@ -297,7 +307,7 @@ k_{j,\mathrm{cl}}&amp;=k_{j,\mathrm{se}},&amp;&amp;j=\rho+1,\ldots,\breve{k}_\ma
 \end{aligned}
 </p>
 <p>In the second step, the example <em>examples/splineSegment.cpp</em> reduces the distance between the spline segment and the convex hull by a clamped segment representation.</p>
-<h2><a class="anchor" id="autotoc_md16"></a>
+<h2><a class="anchor" id="autotoc_md19"></a>
 References</h2>
 <p><a class="anchor" id="1"></a>[1] C. Boor: <em>A Practical Guide to Splines</em>. 1st ed. Vol. 27. Applied Mathematical Sciences. New York, NY, USA: Springer, Nov. 2001. URL: <a href="https://link.springer.com/book/9780387953663">https://link.springer.com/book/9780387953663</a>.</p>
 <p><a class="anchor" id="2"></a>[2] W. van Loock, G. Pipeleers, and J. Swevers: “Optimal motion planning for differentially flat systems with guaranteed constraint satisfaction”. In: <em>2015 American Control Conference (ACC)</em>. July 2015, pp. 4245–4250. DOI: 10.1109/ACC.2015.7171996. </p>

@@ -1,5 +1,8 @@
 var searchData=
 [
-  ['derivative_0',['derivative',['../class__core_1_1Basis.html#a6aa1eecbda68c988346c36fe061c0b94',1,'_core.Basis.derivative(self, Basis basis, typing.SupportsInt orderDer=1)'],['../class__core_1_1Basis.html#a2886a990238749405bdc674d26ebc30f',1,'_core.Basis.derivative(self, Basis basis, typing.Annotated[numpy.typing.ArrayLike, numpy.float64, &quot;[m, n]&quot;] values, typing.SupportsInt orderDer=1)'],['../class__core_1_1Spline.html#ad63105c0e396c6b52e55892b19d1fcfa',1,'_core.Spline.derivative()'],['../classBasisSplines_1_1Basis.html#a48c857c66a0bc169041e94413ed9b5cd',1,'BasisSplines::Basis::derivative(Basis &amp;basis, int orderDer=1) const'],['../classBasisSplines_1_1Basis.html#ab6fa50adb30f017cd54e256628ad6f6c',1,'BasisSplines::Basis::derivative(Basis &amp;basis, const Eigen::MatrixXd &amp;values, int orderDer=1) const'],['../classBasisSplines_1_1Spline.html#a45bd7d696b1f43b26e12b1b091e49180',1,'BasisSplines::Spline::derivative()'],['../index.html#autotoc_md9',1,'Derivative']]],
-  ['dim_1',['dim',['../class__core_1_1Basis.html#af5492cdc97792442b4bcb641d53e8cd3',1,'_core.Basis.dim()'],['../class__core_1_1Spline.html#aefeade281f530bcdbfe6ba3d01e73cfe',1,'_core.Spline.dim()'],['../classBasisSplines_1_1Basis.html#a74f2ec9c73c28e8caeb853b23fdb40b4',1,'BasisSplines::Basis::dim()'],['../classBasisSplines_1_1Spline.html#a07b7f608ce3352db71f8ef53132b1ab9',1,'BasisSplines::Spline::dim()']]]
+  ['elevation_0',['Order elevation',['../index.html#autotoc_md17',1,'']]],
+  ['encountered_20during_20package_20build_1',['Errors encountered during package build',['../index.html#autotoc_md6',1,'']]],
+  ['errors_20encountered_20during_20package_20build_2',['Errors encountered during package build',['../index.html#autotoc_md6',1,'']]],
+  ['examples_3',['Examples',['../index.html#autotoc_md9',1,'']]],
+  ['extraction_4',['Segment extraction',['../index.html#autotoc_md18',1,'']]]
 ];
