@@ -27,6 +27,19 @@ def plotSpline(
     axesHandle.plot(breakpoints, splineValsBps, "D", label="breakpoints")
 
 
+def plotRoots(
+    spline: bs.Spline, roots: np.ndarray, axesHandle: plt.Axes, dim: int = 0
+):
+    """Plot the roots of a spline function."""
+    if len(roots) == 0:
+        return
+
+    splineValues = spline(roots)[:, dim]
+    axesHandle.plot(
+        roots, splineValues, "x", markersize=10, label="roots", markeredgewidth=2
+    )
+
+
 def plotSpline2d(
     spline: bs.Spline, points: np.ndarray, axesHandle: plt.Axes, dims: Tuple[int, int]
 ):
