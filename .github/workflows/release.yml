@@ -1,5 +1,3 @@
-name: Perform release
-
 on:
   push:
     branches:
