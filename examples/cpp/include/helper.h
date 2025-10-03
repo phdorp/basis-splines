@@ -54,7 +54,7 @@ void plotSpline(const Bs::Spline &spline, const Eigen::ArrayXd &points,
 /**
  * @brief Plot the given "roots" of a "spline".
  *
- * @param spline Spline function to corresponding to the "roots".
+ * @param spline Spline function corresponding to the "roots".
  * @param roots Roots of the "spline".
  * @param axesHandle Axis handle for plotting.
  * @param dim output dimension to plot.

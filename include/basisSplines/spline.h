@@ -428,7 +428,6 @@ private:
    * [1] K. Mørken and M. Reimers, “An unconditionally convergent method for
    computing zeros of splines and polynomials,” Math. Comp., vol. 76, no. 258,
    pp. 845–865, Jan. 2007, doi: 10.1090/S0025-5718-07-01923-0.
-
    *
    * @param rootIdx Index corresponding to a pair of coefficients containing a
    root.
@@ -442,7 +441,7 @@ private:
     Eigen::VectorXd coeffs{inserted.getCoefficients()(Eigen::all, dim)};
     double rootGuess{inserted.basis()->greville(rootIdx)};
 
-    for (int iter = 0; iter < maxIter && ~isRoot(rootGuess, dim, accAbs);
+    for (int iter = 0; iter < maxIter && !isRoot(rootGuess, dim, accAbs);
          iter++) {
       double leftCoeff{coeffs(rootIdx)};
       double leftGrev{inserted.basis()->greville(rootIdx)};
@@ -523,7 +522,7 @@ private:
   }
 
   /**
-   * @brief Determines if a "value" is condsidered a root for the given absolte
+   * @brief Determines if a "value" is considered a root for the given absolute
    * tolerance "absTol".
    *
    * @param value Test value to check for root.
