@@ -238,98 +238,202 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>  }</div>
 </div>
 <div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
-<div class="foldopen" id="foldopen00261" data-start="{" data-end="}">
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno"><a class="line" href="classBasisSplines_1_1Spline.html#a03e439cc0b4b84b4341b62ed453be501">  261</a></span>  <a class="code hl_class" href="classBasisSplines_1_1Spline.html">Spline</a> <a class="code hl_function" href="classBasisSplines_1_1Spline.html#a03e439cc0b4b84b4341b62ed453be501">getSegment</a>(<span class="keywordtype">int</span> first, <span class="keywordtype">int</span> last)<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="comment">// determine &quot;begin&quot; and &quot;end&quot; knot iterators of segment</span></div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keyword">auto</span> [begin, end] = m_basis-&gt;getSegmentKnots(first, last);</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="comment">// determine basis representation of segments</span></div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keyword">const</span> std::shared_ptr&lt;Basis&gt; basisSeg{</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>        std::make_shared&lt;Basis&gt;(m_basis-&gt;getSegment(begin, end))};</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="comment">// determine indices of coefficients of semgnet</span></div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordtype">int</span> firstCoeff{<span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(begin - m_basis-&gt;knots().begin())};</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keywordtype">int</span> lastCoeff{<span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(end - m_basis-&gt;knots().begin()) -</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>                  m_basis-&gt;order() - 1};</div>
+<div class="foldopen" id="foldopen00267" data-start="{" data-end="}">
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno"><a class="line" href="classBasisSplines_1_1Spline.html#ae0406c39a60157011751237d265ab98e">  267</a></span>  std::vector&lt;Eigen::ArrayXd&gt; <a class="code hl_function" href="classBasisSplines_1_1Spline.html#ae0406c39a60157011751237d265ab98e">getRoots</a>(<span class="keywordtype">int</span> maxIter = 10,</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>                                       <span class="keywordtype">double</span> accAbs = 1e-6)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    std::vector&lt;Eigen::ArrayXd&gt; zeros(m_coefficients.cols());</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> dim{}; dim &lt; m_coefficients.cols(); ++dim)</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>      zeros[dim] = getRoots(dim, maxIter, accAbs);</div>
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span> </div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="comment">// new spline</span></div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="keywordflow">return</span> {basisSeg,</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>            m_coefficients(Eigen::seq(firstCoeff, lastCoeff), Eigen::all)};</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>  }</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keywordflow">return</span> zeros;</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>  }</div>
 </div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>
-<div class="foldopen" id="foldopen00285" data-start="{" data-end="}">
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno"><a class="line" href="classBasisSplines_1_1Spline.html#aaf1aa38353a80b05c242f103b503052a">  285</a></span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Interp = Interpolate&gt; <a class="code hl_class" href="classBasisSplines_1_1Spline.html">Spline</a> <a class="code hl_function" href="classBasisSplines_1_1Spline.html#aaf1aa38353a80b05c242f103b503052a">getClamped</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <span class="comment">// determine clamped basis</span></div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keyword">const</span> std::shared_ptr&lt;Basis&gt; basisClamped{</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>        std::make_shared&lt;Basis&gt;(m_basis-&gt;getClamped())};</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    <span class="comment">// determine clamped spline coefficients by fitting clamped basis to this</span></div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="comment">// spline</span></div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    <span class="keywordflow">return</span> {basisClamped,</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>            Interp{basisClamped}.fit([&amp;](<span class="keyword">const</span> Eigen::MatrixXd &amp;points) {</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>              <span class="keywordflow">return</span> Eigen::MatrixXd{(*this)(points)};</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>            })};</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>  }</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span> </div>
+<div class="foldopen" id="foldopen00292" data-start="{" data-end="}">
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno"><a class="line" href="classBasisSplines_1_1Spline.html#a200a07aa92d6c26dd2404e628d54b87b">  292</a></span>  Eigen::ArrayXd <a class="code hl_function" href="classBasisSplines_1_1Spline.html#a200a07aa92d6c26dd2404e628d54b87b">getRoots</a>(<span class="keywordtype">int</span> dim, <span class="keywordtype">int</span> maxIter = 10,</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>                          <span class="keywordtype">double</span> accAbs = 1e-6)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keyword">auto</span> [rootIdcs, roots] = getRootIdcs(dim, accAbs);</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="keywordtype">int</span> cntRoot{};</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> rootIdx : rootIdcs) {</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>      <span class="keywordflow">if</span> (rootIdx &gt;= 0)</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>        roots(cntRoot++) = estimateRoot(rootIdx, dim, maxIter, accAbs);</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    }</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <span class="keywordflow">return</span> roots;</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>  }</div>
 </div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>  <span class="comment">// MARK: private properties</span></div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>  std::shared_ptr&lt;Basis&gt; m_basis{}; </div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>  Eigen::MatrixXd m_coefficients{}; </div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>  <span class="comment">// MARK: private methods</span></div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>  Eigen::MatrixXd interpolateCoefficients(<span class="keywordtype">double</span> knot)<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span> </div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>    Eigen::MatrixXd coeffs(m_coefficients.rows() + 1, m_coefficients.cols());</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> </div>
+<div class="foldopen" id="foldopen00313" data-start="{" data-end="}">
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno"><a class="line" href="classBasisSplines_1_1Spline.html#a03e439cc0b4b84b4341b62ed453be501">  313</a></span>  <a class="code hl_class" href="classBasisSplines_1_1Spline.html">Spline</a> <a class="code hl_function" href="classBasisSplines_1_1Spline.html#a03e439cc0b4b84b4341b62ed453be501">getSegment</a>(<span class="keywordtype">int</span> first, <span class="keywordtype">int</span> last)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>    <span class="comment">// determine &quot;begin&quot; and &quot;end&quot; knot iterators of segment</span></div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>    <span class="keyword">auto</span> [begin, end] = m_basis-&gt;getSegmentKnots(first, last);</div>
 <div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span> </div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> cDim{}; cDim &lt; dim(); ++cDim)</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>      coeffs(Eigen::all, cDim) = interpolateCoefficients(knot, cDim);</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    <span class="keywordflow">return</span> coeffs;</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>  }</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span> </div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>  Eigen::VectorXd interpolateCoefficients(<span class="keywordtype">double</span> knotInsert, <span class="keywordtype">int</span> dim)<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    Eigen::VectorXd coeffsNew(m_coefficients.rows() + 1);</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    <span class="keyword">const</span> Eigen::VectorXd coeffs{m_coefficients(Eigen::all, dim)};</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    <span class="keyword">const</span> Eigen::ArrayXd knots{m_basis-&gt;knots()};</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <span class="keyword">const</span> Eigen::Index order{m_basis-&gt;order()};</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span> </div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    Eigen::Index knotIdx{};</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="comment">// case 1: copy coefficients</span></div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordflow">while</span> (knotInsert &gt;= knots(knotIdx + order - 1)) {</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>      coeffsNew(knotIdx) = coeffs(knotIdx);</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>      ++knotIdx;</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    }</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span> </div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    <span class="comment">// case 2: interpolate coefficients</span></div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>    <span class="keywordflow">while</span> (knots(knotIdx) &lt; knotInsert &amp;&amp;</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>           knotInsert &lt; knots(knotIdx + order - 1)) {</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>      <span class="keywordtype">double</span> weight{(knotInsert - knots(knotIdx)) /</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>                    (knots(knotIdx + order - 1) - knots(knotIdx))};</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>      coeffsNew(knotIdx) =</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>          (1 - weight) * coeffs(knotIdx - 1) + weight * coeffs(knotIdx);</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>      ++knotIdx;</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    }</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span> </div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    <span class="comment">// case 3: shift coefficients</span></div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="keywordflow">for</span> (; knotIdx &lt; coeffsNew.size(); ++knotIdx)</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>      coeffsNew(knotIdx) = coeffs(knotIdx - 1);</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span> </div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    <span class="keywordflow">return</span> coeffsNew;</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>  }</div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>};</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="comment">// determine basis representation of segments</span></div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    <span class="keyword">const</span> std::shared_ptr&lt;Basis&gt; basisSeg{</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>        std::make_shared&lt;Basis&gt;(m_basis-&gt;getSegment(begin, end))};</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    <span class="comment">// determine indices of coefficients of semgnet</span></div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    <span class="keywordtype">int</span> firstCoeff{<span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(begin - m_basis-&gt;knots().begin())};</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="keywordtype">int</span> lastCoeff{<span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(end - m_basis-&gt;knots().begin()) -</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>                  m_basis-&gt;order() - 1};</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span> </div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="comment">// new spline</span></div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordflow">return</span> {basisSeg,</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>            m_coefficients(Eigen::seq(firstCoeff, lastCoeff), Eigen::all)};</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>  }</div>
 </div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>}; <span class="comment">// namespace BasisSplines</span></div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span> </div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span> </div>
+<div class="foldopen" id="foldopen00337" data-start="{" data-end="}">
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno"><a class="line" href="classBasisSplines_1_1Spline.html#aaf1aa38353a80b05c242f103b503052a">  337</a></span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Interp = Interpolate&gt; <a class="code hl_class" href="classBasisSplines_1_1Spline.html">Spline</a> <a class="code hl_function" href="classBasisSplines_1_1Spline.html#aaf1aa38353a80b05c242f103b503052a">getClamped</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    <span class="comment">// determine clamped basis</span></div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <span class="keyword">const</span> std::shared_ptr&lt;Basis&gt; basisClamped{</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>        std::make_shared&lt;Basis&gt;(m_basis-&gt;getClamped())};</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span> </div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    <span class="comment">// determine clamped spline coefficients by fitting clamped basis to this</span></div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="comment">// spline</span></div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordflow">return</span> {basisClamped,</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>            Interp{basisClamped}.fit([&amp;](<span class="keyword">const</span> Eigen::MatrixXd &amp;points) {</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>              <span class="keywordflow">return</span> Eigen::MatrixXd{(*this)(points)};</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>            })};</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>  }</div>
+</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span> </div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>  <span class="comment">// MARK: private properties</span></div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span> </div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>  std::shared_ptr&lt;Basis&gt; m_basis{}; </div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>  Eigen::MatrixXd m_coefficients{}; </div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>  <span class="comment">// MARK: private methods</span></div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>  Eigen::MatrixXd interpolateCoefficients(<span class="keywordtype">double</span> knot)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span> </div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    Eigen::MatrixXd coeffs(m_coefficients.rows() + 1, m_coefficients.cols());</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span> </div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> cDim{}; cDim &lt; dim(); ++cDim)</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>      coeffs(Eigen::all, cDim) = interpolateCoefficients(knot, cDim);</div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span> </div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    <span class="keywordflow">return</span> coeffs;</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>  }</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span> </div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>  Eigen::VectorXd interpolateCoefficients(<span class="keywordtype">double</span> knotInsert, <span class="keywordtype">int</span> dim)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>    Eigen::VectorXd coeffsNew(m_coefficients.rows() + 1);</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>    <span class="keyword">const</span> Eigen::VectorXd coeffs{m_coefficients(Eigen::all, dim)};</div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>    <span class="keyword">const</span> Eigen::ArrayXd knots{m_basis-&gt;knots()};</div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    <span class="keyword">const</span> Eigen::Index order{m_basis-&gt;order()};</div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span> </div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>    Eigen::Index knotIdx{};</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span> </div>
+<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>    <span class="comment">// case 1: copy coefficients</span></div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>    <span class="keywordflow">while</span> (knotInsert &gt;= knots(knotIdx + order - 1)) {</div>
+<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>      coeffsNew(knotIdx) = coeffs(knotIdx);</div>
+<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>      ++knotIdx;</div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>    }</div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span> </div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>    <span class="comment">// case 2: interpolate coefficients</span></div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>    <span class="keywordflow">while</span> (knots(knotIdx) &lt; knotInsert &amp;&amp;</div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>           knotInsert &lt; knots(knotIdx + order - 1)) {</div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>      <span class="keywordtype">double</span> weight{(knotInsert - knots(knotIdx)) /</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>                    (knots(knotIdx + order - 1) - knots(knotIdx))};</div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>      coeffsNew(knotIdx) =</div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>          (1 - weight) * coeffs(knotIdx - 1) + weight * coeffs(knotIdx);</div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>      ++knotIdx;</div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>    }</div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span> </div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>    <span class="comment">// case 3: shift coefficients</span></div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>    <span class="keywordflow">for</span> (; knotIdx &lt; coeffsNew.size(); ++knotIdx)</div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>      coeffsNew(knotIdx) = coeffs(knotIdx - 1);</div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span> </div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>    <span class="keywordflow">return</span> coeffsNew;</div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>  }</div>
+<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span> </div>
+<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>  <span class="keywordtype">double</span> estimateRoot(<span class="keywordtype">int</span> rootIdx, <span class="keywordtype">int</span> dim, <span class="keywordtype">int</span> maxIter, <span class="keywordtype">double</span> accAbs)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span>    Spline inserted{*<span class="keyword">this</span>};</div>
+<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>    Eigen::VectorXd coeffs{inserted.getCoefficients()(Eigen::all, dim)};</div>
+<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span>    <span class="keywordtype">double</span> rootGuess{inserted.basis()-&gt;greville(rootIdx)};</div>
+<div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span> </div>
+<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> iter = 0; iter &lt; maxIter &amp;&amp; !isRoot(rootGuess, dim, accAbs);</div>
+<div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span>         iter++) {</div>
+<div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span>      <span class="keywordtype">double</span> leftCoeff{coeffs(rootIdx)};</div>
+<div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span>      <span class="keywordtype">double</span> leftGrev{inserted.basis()-&gt;greville(rootIdx)};</div>
+<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>      <span class="keywordtype">bool</span> leftAlmostZero{abs(leftCoeff) &lt;= accAbs};</div>
+<div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span> </div>
+<div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span>      <span class="comment">// left greville is root</span></div>
+<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>      <span class="keywordflow">if</span> (leftAlmostZero)</div>
+<div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span>        rootGuess = leftGrev;</div>
+<div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span> </div>
+<div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span>      <span class="comment">// guess root between left and right greville</span></div>
+<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span>      <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span>        <span class="keywordtype">double</span> rightCoeff{coeffs(rootIdx + 1)};</div>
+<div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span>        <span class="keywordtype">double</span> rightGrev{inserted.basis()-&gt;greville(rootIdx + 1)};</div>
+<div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span>        <span class="keywordtype">bool</span> rightAlmostZero{abs(rightCoeff) &lt;= accAbs};</div>
+<div class="line"><a id="l00459" name="l00459"></a><span class="lineno">  459</span> </div>
+<div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span>        <span class="keywordtype">double</span> param{-leftCoeff / (rightCoeff - leftCoeff)};</div>
+<div class="line"><a id="l00461" name="l00461"></a><span class="lineno">  461</span>        rootGuess = (1 - param) * leftGrev + param * rightGrev;</div>
+<div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span> </div>
+<div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>        inserted = inserted.insertKnots(Eigen::ArrayXd{{rootGuess}});</div>
+<div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span>        coeffs = inserted.getCoefficients()(Eigen::all, dim);</div>
+<div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span> </div>
+<div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span>        <span class="comment">// after insertion, check if zero moved between new greville and former</span></div>
+<div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span>        <span class="comment">// right greville</span></div>
+<div class="line"><a id="l00468" name="l00468"></a><span class="lineno">  468</span>        <span class="keywordflow">if</span> (coeffs(rootIdx + 1) * coeffs(rootIdx + 2) &lt;= 0)</div>
+<div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span>          rootIdx += 1;</div>
+<div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>      }</div>
+<div class="line"><a id="l00471" name="l00471"></a><span class="lineno">  471</span>    }</div>
+<div class="line"><a id="l00472" name="l00472"></a><span class="lineno">  472</span> </div>
+<div class="line"><a id="l00473" name="l00473"></a><span class="lineno">  473</span>    <span class="keywordflow">return</span> rootGuess;</div>
+<div class="line"><a id="l00474" name="l00474"></a><span class="lineno">  474</span>  };</div>
+<div class="line"><a id="l00475" name="l00475"></a><span class="lineno">  475</span> </div>
+<div class="line"><a id="l00489" name="l00489"></a><span class="lineno">  489</span>  std::pair&lt;Eigen::ArrayXi, Eigen::ArrayXd&gt; getRootIdcs(<span class="keywordtype">int</span> dim,</div>
+<div class="line"><a id="l00490" name="l00490"></a><span class="lineno">  490</span>                                                        <span class="keywordtype">double</span> absTol)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00491" name="l00491"></a><span class="lineno">  491</span>    <span class="keyword">const</span> Eigen::VectorXd coeffs{m_coefficients(Eigen::all, dim)};</div>
+<div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>    <span class="keyword">const</span> <span class="keywordtype">int</span> maxRoots = coeffs.size();</div>
+<div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span> </div>
+<div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span>    Eigen::ArrayXi rootIdcs = Eigen::ArrayXi::Constant(maxRoots, -1);</div>
+<div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span>    Eigen::ArrayXd roots(maxRoots);</div>
+<div class="line"><a id="l00496" name="l00496"></a><span class="lineno">  496</span>    <span class="keywordtype">int</span> cntRoots{};</div>
+<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span> </div>
+<div class="line"><a id="l00498" name="l00498"></a><span class="lineno">  498</span>    <span class="keywordflow">for</span> (Eigen::Index cntCoeff{}; cntCoeff &lt; maxRoots; ++cntCoeff) {</div>
+<div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>      <span class="keywordtype">double</span> coeff{coeffs(cntCoeff)};</div>
+<div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>      <span class="keywordtype">bool</span> coeffAlmostZero{abs(coeff) &lt;= absTol};</div>
+<div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span> </div>
+<div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>      <span class="comment">// root candidate at coefficient</span></div>
+<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>      <span class="keywordflow">if</span> (coeffAlmostZero) {</div>
+<div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>        <span class="keywordtype">double</span> greville = m_basis-&gt;greville(cntCoeff);</div>
+<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span> </div>
+<div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>        <span class="keywordflow">if</span> (isRoot(greville, dim, absTol))</div>
+<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span>          roots(cntRoots++) = greville;</div>
+<div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span>      }</div>
+<div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span> </div>
+<div class="line"><a id="l00510" name="l00510"></a><span class="lineno">  510</span>      <span class="comment">// root between coefficients</span></div>
+<div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>      <span class="keywordflow">else</span> <span class="keywordflow">if</span> (cntCoeff &lt; maxRoots - 1) {</div>
+<div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>        <span class="keywordtype">double</span> nextCoeff{coeffs(cntCoeff + 1)};</div>
+<div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span>        <span class="keywordtype">bool</span> nextNotZero{abs(nextCoeff) &gt; absTol};</div>
+<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>        <span class="keywordtype">bool</span> containsRoot{coeff * nextCoeff &lt;= 0};</div>
+<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span> </div>
+<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span>        <span class="keywordflow">if</span> (nextNotZero &amp;&amp; containsRoot)</div>
+<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>          rootIdcs(cntRoots++) = cntCoeff;</div>
+<div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span>      }</div>
+<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span>    }</div>
+<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span> </div>
+<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>    <span class="keywordflow">return</span> {rootIdcs.head(cntRoots), roots.head(cntRoots)};</div>
+<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>  }</div>
+<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span> </div>
+<div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span>  <span class="keywordtype">bool</span> isRoot(<span class="keywordtype">double</span> value, <span class="keywordtype">int</span> dim, <span class="keywordtype">double</span> absTol)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>    <span class="keywordflow">return</span> abs((*<span class="keyword">this</span>)({{value}})(0, dim)) &lt;= absTol;</div>
+<div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span>  }</div>
+<div class="line"><a id="l00537" name="l00537"></a><span class="lineno">  537</span>};</div>
+</div>
+<div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span>}; <span class="comment">// namespace BasisSplines</span></div>
+<div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span> </div>
+<div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aclassBasisSplines_1_1Basis_html"><div class="ttname"><a href="classBasisSplines_1_1Basis.html">BasisSplines::Basis</a></div><div class="ttdoc">Basis of piecewise polynomial functions represented by truncated powers.</div><div class="ttdef"><b>Definition</b> basis.h:23</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html"><div class="ttname"><a href="classBasisSplines_1_1Spline.html">BasisSplines::Spline</a></div><div class="ttdoc">Polynomial spline in basis form.</div><div class="ttdef"><b>Definition</b> spline.h:20</div></div>
-<div class="ttc" id="aclassBasisSplines_1_1Spline_html_a03e439cc0b4b84b4341b62ed453be501"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a03e439cc0b4b84b4341b62ed453be501">BasisSplines::Spline::getSegment</a></div><div class="ttdeci">Spline getSegment(int first, int last) const</div><div class="ttdoc">Determine a spline representing the &quot;first&quot; and the &quot;last&quot; segment of &quot;this&quot; spline.</div><div class="ttdef"><b>Definition</b> spline.h:261</div></div>
+<div class="ttc" id="aclassBasisSplines_1_1Spline_html_a03e439cc0b4b84b4341b62ed453be501"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a03e439cc0b4b84b4341b62ed453be501">BasisSplines::Spline::getSegment</a></div><div class="ttdeci">Spline getSegment(int first, int last) const</div><div class="ttdoc">Determine a spline representing the &quot;first&quot; and the &quot;last&quot; segment of &quot;this&quot; spline.</div><div class="ttdef"><b>Definition</b> spline.h:313</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_a07b7f608ce3352db71f8ef53132b1ab9"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a07b7f608ce3352db71f8ef53132b1ab9">BasisSplines::Spline::dim</a></div><div class="ttdeci">int dim() const</div><div class="ttdoc">Get the spline output dimensionality.</div><div class="ttdef"><b>Definition</b> spline.h:75</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_a0cd045e9112d13e319b67478e55373b4"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a0cd045e9112d13e319b67478e55373b4">BasisSplines::Spline::integral</a></div><div class="ttdeci">Spline integral(int orderInt=1) const</div><div class="ttdoc">Create new spline as integral of this spline.</div><div class="ttdef"><b>Definition</b> spline.h:122</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_a1ce83ecf02cd6514ecc77280df86653c"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a1ce83ecf02cd6514ecc77280df86653c">BasisSplines::Spline::basis</a></div><div class="ttdeci">const std::shared_ptr&lt; Basis &gt; basis() const</div><div class="ttdoc">Get the spline basis.</div><div class="ttdef"><b>Definition</b> spline.h:68</div></div>
+<div class="ttc" id="aclassBasisSplines_1_1Spline_html_a200a07aa92d6c26dd2404e628d54b87b"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a200a07aa92d6c26dd2404e628d54b87b">BasisSplines::Spline::getRoots</a></div><div class="ttdeci">Eigen::ArrayXd getRoots(int dim, int maxIter=10, double accAbs=1e-6) const</div><div class="ttdoc">Get the roots along the specified output dimension.</div><div class="ttdef"><b>Definition</b> spline.h:292</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_a24e05d8ecd080628d6d0d4851a9f5448"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a24e05d8ecd080628d6d0d4851a9f5448">BasisSplines::Spline::Spline</a></div><div class="ttdeci">Spline(const std::shared_ptr&lt; Basis &gt; basis, const Eigen::MatrixXd &amp;coefficients)</div><div class="ttdoc">Construct a new spline in basis form from a &quot;basis&quot; spline and the &quot;coefficients&quot;....</div><div class="ttdef"><b>Definition</b> spline.h:33</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_a3f6dc58b14f1756f88a8561f49a8f59c"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a3f6dc58b14f1756f88a8561f49a8f59c">BasisSplines::Spline::getCoefficients</a></div><div class="ttdeci">const Eigen::MatrixXd &amp; getCoefficients() const</div><div class="ttdoc">Get the spline coefficients. The number of rows corresponds with the basis spline dimensionality....</div><div class="ttdef"><b>Definition</b> spline.h:47</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_a45bd7d696b1f43b26e12b1b091e49180"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a45bd7d696b1f43b26e12b1b091e49180">BasisSplines::Spline::derivative</a></div><div class="ttdeci">Spline derivative(int orderDer=1) const</div><div class="ttdoc">Create new spline as derivative of this spline.</div><div class="ttdef"><b>Definition</b> spline.h:104</div></div>
@@ -338,9 +442,10 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_a8397472d9b04c46266c3326684a663bb"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a8397472d9b04c46266c3326684a663bb">BasisSplines::Spline::orderElevation</a></div><div class="ttdeci">Spline orderElevation(int change) const</div><div class="ttdoc">Create new spline with order increased by &quot;change&quot;. The new spline coincides with &quot;this&quot; spline....</div><div class="ttdef"><b>Definition</b> spline.h:240</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_a8d1e618ccce5a1d29e31ea1d11923187"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a8d1e618ccce5a1d29e31ea1d11923187">BasisSplines::Spline::prod</a></div><div class="ttdeci">Spline prod(const Spline &amp;other, double accScale=1e-6, double accBps=1e-6) const</div><div class="ttdoc">Create new spline as product of &quot;this&quot; and &quot;other&quot; spline. Combine basis of &quot;this&quot; and &quot;other&quot; spline...</div><div class="ttdef"><b>Definition</b> spline.h:177</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_a99cb7b8ac29a81aefd5482cf768b9969"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#a99cb7b8ac29a81aefd5482cf768b9969">BasisSplines::Spline::add</a></div><div class="ttdeci">Spline add(const Spline &amp;other, double accScale=1e-6, double accBps=1e-6) const</div><div class="ttdoc">Create new spline as sum of &quot;this&quot; and &quot;other&quot; spline. Combine basis of &quot;this&quot; and &quot;other&quot; splines to...</div><div class="ttdef"><b>Definition</b> spline.h:148</div></div>
-<div class="ttc" id="aclassBasisSplines_1_1Spline_html_aaf1aa38353a80b05c242f103b503052a"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#aaf1aa38353a80b05c242f103b503052a">BasisSplines::Spline::getClamped</a></div><div class="ttdeci">Spline getClamped() const</div><div class="ttdoc">Determine spline with knots clamped to spline segment.</div><div class="ttdef"><b>Definition</b> spline.h:285</div></div>
+<div class="ttc" id="aclassBasisSplines_1_1Spline_html_aaf1aa38353a80b05c242f103b503052a"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#aaf1aa38353a80b05c242f103b503052a">BasisSplines::Spline::getClamped</a></div><div class="ttdeci">Spline getClamped() const</div><div class="ttdoc">Determine spline with knots clamped to spline segment.</div><div class="ttdef"><b>Definition</b> spline.h:337</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_ab531412116adbcfa7ea5e6315c856354"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#ab531412116adbcfa7ea5e6315c856354">BasisSplines::Spline::operator-</a></div><div class="ttdeci">Spline operator-() const</div><div class="ttdoc">Create new spline with negated spline coefficients.</div><div class="ttdef"><b>Definition</b> spline.h:96</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_abdeb6b36e13de46988e4cf018f684271"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#abdeb6b36e13de46988e4cf018f684271">BasisSplines::Spline::insertKnots</a></div><div class="ttdeci">Spline insertKnots(const Eigen::ArrayXd &amp;knots) const</div><div class="ttdoc">Inserts multiple knots into the spline.</div><div class="ttdef"><b>Definition</b> spline.h:202</div></div>
+<div class="ttc" id="aclassBasisSplines_1_1Spline_html_ae0406c39a60157011751237d265ab98e"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#ae0406c39a60157011751237d265ab98e">BasisSplines::Spline::getRoots</a></div><div class="ttdeci">std::vector&lt; Eigen::ArrayXd &gt; getRoots(int maxIter=10, double accAbs=1e-6) const</div><div class="ttdoc">Get the roots along all output dimensions.</div><div class="ttdef"><b>Definition</b> spline.h:267</div></div>
 <div class="ttc" id="aclassBasisSplines_1_1Spline_html_af189629fad200a8f14085a6a3499ad71"><div class="ttname"><a href="classBasisSplines_1_1Spline.html#af189629fad200a8f14085a6a3499ad71">BasisSplines::Spline::operator()</a></div><div class="ttdeci">Eigen::ArrayXXd operator()(const Eigen::ArrayXd &amp;points) const</div><div class="ttdoc">Evaluate spline at given &quot;points&quot;. The number of output rows corresponds with the number of &quot;points&quot;....</div><div class="ttdef"><b>Definition</b> spline.h:87</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

@@ -139,6 +139,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8397472d9b04c46266c3326684a663bb"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classBasisSplines_1_1Spline.html">Spline</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classBasisSplines_1_1Spline.html#a8397472d9b04c46266c3326684a663bb">orderElevation</a> (int change) const</td></tr>
 <tr class="memdesc:a8397472d9b04c46266c3326684a663bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create new spline with order increased by "change". The new spline coincides with "this" spline. The distance between coefficients and spline is decreased.  <br /></td></tr>
 <tr class="separator:a8397472d9b04c46266c3326684a663bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0406c39a60157011751237d265ab98e" id="r_ae0406c39a60157011751237d265ab98e"><td class="memItemLeft" align="right" valign="top">std::vector&lt; Eigen::ArrayXd &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBasisSplines_1_1Spline.html#ae0406c39a60157011751237d265ab98e">getRoots</a> (int maxIter=10, double accAbs=1e-6) const</td></tr>
+<tr class="memdesc:ae0406c39a60157011751237d265ab98e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the roots along all output dimensions.  <br /></td></tr>
+<tr class="separator:ae0406c39a60157011751237d265ab98e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a200a07aa92d6c26dd2404e628d54b87b" id="r_a200a07aa92d6c26dd2404e628d54b87b"><td class="memItemLeft" align="right" valign="top">Eigen::ArrayXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBasisSplines_1_1Spline.html#a200a07aa92d6c26dd2404e628d54b87b">getRoots</a> (int <a class="el" href="classBasisSplines_1_1Spline.html#a07b7f608ce3352db71f8ef53132b1ab9">dim</a>, int maxIter=10, double accAbs=1e-6) const</td></tr>
+<tr class="memdesc:a200a07aa92d6c26dd2404e628d54b87b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the roots along the specified output dimension.  <br /></td></tr>
+<tr class="separator:a200a07aa92d6c26dd2404e628d54b87b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03e439cc0b4b84b4341b62ed453be501" id="r_a03e439cc0b4b84b4341b62ed453be501"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classBasisSplines_1_1Spline.html">Spline</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBasisSplines_1_1Spline.html#a03e439cc0b4b84b4341b62ed453be501">getSegment</a> (int first, int last) const</td></tr>
 <tr class="memdesc:a03e439cc0b4b84b4341b62ed453be501"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine a spline representing the "first" and the "last" segment of "this" spline.  <br /></td></tr>
 <tr class="separator:a03e439cc0b4b84b4341b62ed453be501"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -411,6 +417,109 @@ template&lt;typename Interp  = Interpolate&gt; </div>
 
 <p>Get the spline coefficients. The number of rows corresponds with the basis spline dimensionality. The number of columns corresponds with the spline output dimensionality. </p>
 <dl class="section return"><dt>Returns</dt><dd>const Eigen::ArrayXd&amp; spline coefficients. </dd></dl>
+
+</div>
+</div>
+<a id="a200a07aa92d6c26dd2404e628d54b87b" name="a200a07aa92d6c26dd2404e628d54b87b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a200a07aa92d6c26dd2404e628d54b87b">&#9670;&#160;</a></span>getRoots() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::ArrayXd BasisSplines::Spline::getRoots </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>dim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>maxIter</em> = <code>10</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>accAbs</em> = <code>1e-6</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the roots along the specified output dimension. </p>
+<p>The roots are estimated with algorithm from [1] until the maximum number of iterations or the desired accuracy.</p>
+<p>[1] K. Mørken and M. Reimers, “An unconditionally convergent method for computing zeros of splines and polynomials,” Math. Comp., vol. 76, no. 258, pp. 845–865, Jan. 2007, doi: 10.1090/S0025-5718-07-01923-0.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dim</td><td>Output dimension to evaluate. </td></tr>
+    <tr><td class="paramname">maxIter</td><td>Maximum number of iterations. </td></tr>
+    <tr><td class="paramname">accAbs</td><td>Tolerance for the spline output to be considered zero. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Eigen::ArrayXd Roots along the given output dimension. </dd></dl>
+
+</div>
+</div>
+<a id="ae0406c39a60157011751237d265ab98e" name="ae0406c39a60157011751237d265ab98e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0406c39a60157011751237d265ab98e">&#9670;&#160;</a></span>getRoots() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; Eigen::ArrayXd &gt; BasisSplines::Spline::getRoots </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>maxIter</em> = <code>10</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>accAbs</em> = <code>1e-6</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the roots along all output dimensions. </p>
+<p>The roots are estimated with algorithm from [1] until the maximum number of iterations or the desired accuracy.</p>
+<p>[1] K. Mørken and M. Reimers, “An unconditionally convergent method for computing zeros of splines and polynomials,” Math. Comp., vol. 76, no. 258, pp. 845–865, Jan. 2007, doi: 10.1090/S0025-5718-07-01923-0.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">maxIter</td><td>Maximum number of iterations. </td></tr>
+    <tr><td class="paramname">accAbs</td><td>Tolerance for the spline output to be considered zero. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Eigen::ArrayXd Roots along all output dimensions. </dd></dl>
 
 </div>
 </div>
