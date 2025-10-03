@@ -2,9 +2,8 @@
 #include <gtest/gtest.h>
 
 #include "basisSplines/basis.h"
-#include "basisSplines/interpolate.h"
 #include "basisSplines/math.h"
-#include "basisSplines/spline.h"
+
 #include "basisTest.h"
 
 namespace BasisSplines {

@@ -4,6 +4,7 @@
 #include <Eigen/Core>
 #include <array>
 #include <gtest/gtest.h>
+#include <limits>
 
 namespace BasisSplines {
 namespace Internal {
@@ -30,7 +31,7 @@ protected:
   void expectAllClose(const Eigen::ArrayBase<ValType> &estimate,
                       const Eigen::ArrayBase<ValType> &groundTruth,
                       double errAbs = limits::infinity(),
-                      double errRel = limits::infinity()) {
+                      double errRel = limits::infinity()) const {
     const ValType errAbsVals{(estimate - groundTruth).abs()};
     // const ValType errRelVals{errAbsVals / groundTruth};
 
@@ -43,7 +44,7 @@ protected:
     }
   }
 };
-}; // namespace Internal
-}; // namespace BasisSpline
+} // namespace Internal
+} // namespace BasisSplines
 
 #endif

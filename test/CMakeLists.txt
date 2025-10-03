@@ -12,11 +12,17 @@ FILE(GLOB
     *Test.cpp
 )
 
+FILE(GLOB
+    SRC_FILES
+    src/*.cpp
+)
+
 foreach(item ${MAIN_FILES})
     get_filename_component(LIB_FILE ${item} NAME_WE)
     add_executable(
         ${LIB_FILE}
         ${item}
+        ${SRC_FILES}
     )
 
     target_include_directories(

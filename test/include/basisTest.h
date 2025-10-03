@@ -8,40 +8,21 @@
 #include "basisSplines/interpolate.h"
 #include "basisSplines/math.h"
 #include "basisSplines/spline.h"
-#include "testBase.h"
+
+#include "functionTest.h"
 
 namespace BasisSplines {
 namespace Internal {
-class BasisTest : public TestBase {
+class BasisTest : public FunctionTest {
 protected:
-  Eigen::ArrayXd getPointsSubset(double beginValue, double endValue,
-                                 double accuracy = 1e-8) const {
-    auto beginSubset{
-        std::find_if(m_points.begin(), m_points.end(), [&](double point) {
-          return std::abs(point - beginValue) <= accuracy;
-        })};
-    auto endSubset{
-        std::find_if(m_points.begin(), m_points.end(), [&](double point) {
-          return std::abs(point - endValue) <= accuracy;
-        })};
-
-    Eigen::ArrayXd subset(endSubset - beginSubset + 1);
-    for (double &value : subset) {
-      value = *beginSubset;
-      ++beginSubset;
-    }
-
-    return subset;
-  }
-
   static Eigen::MatrixXd polyO3(const Eigen::ArrayXd &points) {
-    Eigen::MatrixXd values (points.size(), 2);
+    Eigen::MatrixXd values(points.size(), 2);
     values << points.pow(2), points.pow(2);
     return values;
   }
 
   static Eigen::MatrixXd polyO3Der(const Eigen::ArrayXd &points) {
-    Eigen::MatrixXd values (points.size(), 2);
+    Eigen::MatrixXd values(points.size(), 2);
     values << 2 * points, 2 * points;
     return values;
   }
@@ -51,13 +32,13 @@ protected:
   }
 
   static Eigen::MatrixXd polyO3Int(const Eigen::ArrayXd &points) {
-    Eigen::MatrixXd values (points.size(), 2);
+    Eigen::MatrixXd values(points.size(), 2);
     values << points.pow(3) / 3, points.pow(3) / 3;
     return values;
   }
 
   static Eigen::MatrixXd polyO3Iint(const Eigen::ArrayXd &points) {
-    Eigen::MatrixXd values (points.size(), 2);
+    Eigen::MatrixXd values(points.size(), 2);
     values << points.pow(4) / 12, points.pow(4) / 12;
     return values;
   }
@@ -117,9 +98,7 @@ protected:
       Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.4, 0.6, 0.6, 1.0, 1.0, 1.0}},
       3)}; /**<< order 3 basis */
 
-  const Eigen::ArrayXd m_points{Eigen::ArrayXd::LinSpaced(101, 0.0, 1.0)};
-
-  const double m_scalingFactor {2.0};
+  const double m_scalingFactor{2.0};
 };
 
 }; // namespace Internal
