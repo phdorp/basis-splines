@@ -43,6 +43,24 @@ protected:
       //       << "Error bound violated at index " << idx << '!';
     }
   }
+
+
+  template <typename ValType>
+  void expectAllClose(const Eigen::MatrixBase<ValType> &estimate,
+                      const Eigen::MatrixBase<ValType> &groundTruth,
+                      double errAbs = limits::infinity(),
+                      double errRel = limits::infinity()) const {
+    const ValType errAbsVals{(estimate.array() - groundTruth.array()).abs()};
+    // const ValType errRelVals{errAbsVals / groundTruth};
+
+    for (int idx{}; idx < estimate.size(); ++idx) {
+      EXPECT_LT(errAbsVals(idx), errAbs)
+          << "Error bound violated at index " << idx << '!';
+      // if (!std::isinf(errRelVals(idx)) && !std::isnan(errRelVals(idx)))
+      //   EXPECT_LT(errRelVals(idx), errRel)
+      //       << "Error bound violated at index " << idx << '!';
+    }
+  }
 };
 } // namespace Internal
 } // namespace BasisSplines

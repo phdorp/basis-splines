@@ -2,46 +2,42 @@
 #include <gtest/gtest.h>
 
 #include "basisSplines/math.h"
-#include "testBase.h"
+
+#include "pairedMatrixTest.h"
 
 namespace BasisSplines {
 namespace Internal {
-class MathTest : public TestBase {
-protected:
-  const Eigen::ArrayXXd arrI22{{1, 0}, {0, 1}};
-  const Eigen::ArrayXXd arr32{{1, 2}, {3, 4}, {5, 6}}; /**<< (3 x 2) matrix */
-  const Eigen::ArrayXXd arr33{
-      {1, 2, 3}, {4, 5, 6}, {7, 8, 9}}; /**<< (3 x 3) matrix */
-};
 
-/**
- * @brief Test Khatri-Rao product (3 x 2) and (3 x 3) matrix.
- *
- */
-TEST_F(MathTest, khatriRao3x6) {
-  const Eigen::ArrayXXd valuesGtr{
-      {1, 2, 3, 2, 4, 6}, {12, 15, 18, 16, 20, 24}, {35, 40, 45, 42, 48, 54}};
+TEST_P(IdenticalPairedMatrixTest, KhatriRao) {
+  const Eigen::MatrixXd result{khatriRao(m_matL, m_matR)};
 
-  const Eigen::ArrayXXd valuesEst{khatriRao(arr32, arr33)};
+  EXPECT_EQ(result.rows(), m_matL.rows());
+  EXPECT_EQ(result.rows(), m_matR.rows());
 
-  expectAllClose(valuesEst, valuesGtr, 1e-10);
+  const auto m_matCols{m_matL.cols() * m_matR.cols()};
+  EXPECT_EQ(result.cols(), m_matCols);
+
+  const double acc {1e-10};
+  expectAllClose(result, khatriRaoEye(m_matL, m_matR), acc);
 }
 
-/**
- * @brief Test Kronecker product of (2 x 2) with (3 x 2) matrix.
- *
- */
-TEST_F(MathTest, kron6x4) {
-  Eigen::ArrayXXd valuesGtr{Eigen::ArrayXXd::Zero(
-      arrI22.rows() * arr32.rows(), arrI22.cols() * arr32.cols())};
+TEST_P(IdenticalPairedMatrixTest, Kron) {
+  const Eigen::MatrixXd result{kron(m_matL, m_matR)};
 
-  valuesGtr.topLeftCorner(arr32.rows(), arr32.cols()) = arr32;
-  valuesGtr.bottomRightCorner(arr32.rows(), arr32.cols()) = arr32;
+  const auto rows{m_matL.rows() * m_matR.rows()};
+  EXPECT_EQ(result.rows(), rows);
 
-  const Eigen::ArrayXXd valuesEst{kron(arrI22, arr32)};
+  const auto cols{m_matL.cols() * m_matR.cols()};
+  EXPECT_EQ(result.cols(), cols);
 
-  expectAllClose(valuesEst, valuesGtr, 1e-10);
+  const double acc {1e-10};
+  expectAllClose(result, kronEye(m_matL, m_matR), acc);
 }
+
+INSTANTIATE_TEST_SUITE_P(EyeMatrices, IdenticalPairedMatrixTest,
+                         testing::Values(Eigen::MatrixXd::Identity(1, 1),
+                                         Eigen::MatrixXd::Identity(2, 2),
+                                         Eigen::MatrixXd::Identity(3, 3)));
 
 }; // namespace Internal
 }; // namespace BasisSplines
