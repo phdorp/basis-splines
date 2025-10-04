@@ -4,7 +4,7 @@
 #include "basisSplines/basis.h"
 #include "basisSplines/math.h"
 
-#include "basisTest.h"
+#include "cases/basisTest.h"
 
 namespace BasisSplines {
 namespace Internal {

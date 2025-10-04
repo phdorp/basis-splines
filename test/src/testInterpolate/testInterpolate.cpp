@@ -1,4 +1,4 @@
-#include "interpolateTest.h"
+#include "cases/interpolateTest.h"
 
 namespace BasisSplines {
 namespace Internal {

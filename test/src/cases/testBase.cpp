@@ -1,4 +1,4 @@
-#include "testBase.h"
+#include "cases/testBase.h"
 
 namespace BasisSplines {
 namespace Internal {} // namespace Internal

@@ -9,12 +9,12 @@ FetchContent_MakeAvailable(googletest)
 
 FILE(GLOB
     MAIN_FILES
-    *Test.cpp
+    src/test*/*.cpp
 )
 
 FILE(GLOB
     SRC_FILES
-    src/*.cpp
+    src/cases/*.cpp
 )
 
 foreach(item ${MAIN_FILES})

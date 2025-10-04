@@ -1,8 +1,7 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 
-#include "splineTest.h"
-#include "testBase.h"
+#include "cases/splineTest.h"
 
 namespace BasisSplines {
 namespace Internal {
