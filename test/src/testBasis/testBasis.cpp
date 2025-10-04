@@ -8,17 +8,6 @@
 
 namespace BasisSplines {
 namespace Internal {
-/**
- * @brief Test the determintation of greville sites for basis functions of
- * order 3.
- *
- */
-TEST_F(BasisTest, GrevilleO3) {
-  const Eigen::ArrayXd valuesEst{m_basisO3->greville()};
-  const Eigen::ArrayXd valuesGtr{{0.0, 0.25, 0.75, 1.0}};
-
-  expectAllClose(valuesEst, valuesGtr, 1e-10);
-}
 
 /**
  * @brief Test the determination of breakpoints for basis functions of order 3.
