@@ -59,8 +59,8 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add docs/media/*.jpg
-          git diff --staged --quiet || git commit -m "Update example images from CI"
-          git push
+          git diff --staged --quiet || git commit --amend --no-edit
+          git push --force-with-lease origin main
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
