@@ -20,8 +20,7 @@ option(BUILD_TEST "Build tests for transformation." ON)
 option(BUILD_EXAMPLES "Build examples." ON)
 option(BUILD_PYBINDS "Build python bindings." ON)
 
-find_package(Doxygen)
-option(BUILD_DOCS "Build documentation." ON)
+option(BUILD_DOCS "Build documentation." OFF)
 
 if(BUILD_TEST)
     enable_testing()

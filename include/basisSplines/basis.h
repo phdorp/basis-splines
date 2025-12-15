@@ -3,8 +3,8 @@
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
-#include <numeric>
 #include <memory>
+#include <numeric>
 
 #include "basisSplines/math.h"
 
@@ -36,6 +36,11 @@ public:
    */
   Basis(const Eigen::ArrayXd &knots, int order, double scale = 1.0)
       : m_knots{knots}, m_order{order}, m_scale{scale} {}
+
+  Basis(const Eigen::ArrayXd &breakpoints, const Eigen::ArrayXi &continuities,
+        int order, double scale = 1.0)
+      : m_knots{toKnots(breakpoints, continuities, order)}, m_order{order},
+        m_scale{scale} {}
 
   /**
    * @brief Create a new basis with knots including "knotsIn" and "this" basis
@@ -572,9 +577,11 @@ public:
   }
 
   /**
-   * @brief Determine the Greville site representing the knot average at a given index.
+   * @brief Determine the Greville site representing the knot average at a given
+   * index.
    *
-   * @param knotIdx Index of the knot for which to compute the Greville abscissa.
+   * @param knotIdx Index of the knot for which to compute the Greville
+   * abscissa.
    * @return The computed Greville abscissa as a double.
    */
   double greville(int knotIdx) const {

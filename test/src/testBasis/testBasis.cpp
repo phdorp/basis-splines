@@ -5,23 +5,25 @@
 #include "basisSplines/math.h"
 
 #include "cases/basisTest.h"
+#include "cases/basisTestBase.h"
 
 namespace BasisSplines {
 namespace Internal {
 
-/**
- * @brief Test the determination of breakpoints for basis functions of order 3.
- *
- */
-TEST_F(BasisTest, BreakpointsO3) {
-  const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesEst{
-      m_basisO3->getBreakpoints()};
-  const std::pair<Eigen::ArrayXd, Eigen::ArrayXi> valuesGtr{{{0.0, 0.5, 1.0}},
-                                                            {{0, 2, 0}}};
-
-  expectAllClose(valuesEst.first, valuesGtr.first, 1e-10);
-  expectAllClose(valuesEst.second, valuesGtr.second, 1e-10);
+TEST_P(UnitBasisTest, Greville) {
+  expectAllClose(m_basis.greville(), greville(), accAbsNumerical);
 }
+
+TEST_P(UnitBasisTest, GetBreakpoints) {
+  auto [estBreakpoints, estConts] = m_basis.getBreakpoints();
+  auto [gtrBreakpoints, gtrConts] = getBreakpoints();
+
+  EXPECT_TRUE(estBreakpoints.isApprox(gtrBreakpoints, accAbsNumerical));
+  EXPECT_TRUE(estConts.cwiseEqual(gtrConts).all());
+}
+
+INSTANTIATE_TEST_SUITE_P(BasisOrder, UnitBasisTest,
+                         testing::Range(1, 6));
 
 /**
  * @brief Test retrieving first 2 segments from basis functions of order 3.
