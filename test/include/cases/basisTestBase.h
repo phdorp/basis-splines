@@ -36,8 +36,8 @@ protected:
   }
 
   std::pair<Eigen::ArrayXd, Eigen::ArrayXi> getBreakpoints() const {
-    return {Eigen::ArrayXd{{m_basis.knots()(0), m_basis.knots()(1)}},
-            Eigen::ArrayXi{{m_basis.order(), m_basis.order()}}};
+    return {Eigen::ArrayXd{{m_basis.knots()(0), m_basis.knots().tail(1)(0)}},
+            Eigen::ArrayXi{{0, 0}}};
   }
 
   Basis m_basis{};
