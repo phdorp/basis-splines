@@ -563,7 +563,7 @@ public:
   Eigen::ArrayXd greville() const {
     // basis order 1 greville abs. coincide with knots
     if (m_order == 1)
-      return m_knots.head(dim());
+      return m_knots.tail(dim());
 
     // higher order basis knot averages
     Eigen::ArrayXd grevilleSites(dim());

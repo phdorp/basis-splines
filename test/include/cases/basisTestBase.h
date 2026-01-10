@@ -25,11 +25,11 @@ protected:
   }
 
   Eigen::ArrayXd greville() const {
-    Eigen::ArrayXd sites{Eigen::ArrayXd::Zero(m_basis.dim())};
+    Eigen::ArrayXd sites{Eigen::ArrayXd::Ones(m_basis.dim())};
     const double siteDistance = 1.0 / (m_basis.dim() - 1);
 
-    for (int cntSite{1}; cntSite < m_basis.dim(); ++cntSite) {
-      sites(cntSite) = sites(cntSite - 1) + siteDistance;
+    for (int cntSite{m_basis.dim() - 1}; cntSite > 0; --cntSite) {
+      sites(cntSite - 1) = sites(cntSite) - siteDistance;
     }
 
     return sites;
