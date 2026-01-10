@@ -41,22 +41,23 @@ class PairedMatrixTest : public MatrixTestBase,
                          public testing::WithParamInterface<
                              std::pair<Eigen::MatrixXd, Eigen::MatrixXd>> {
 protected:
-  void setUp() {
+  void SetUp() override {
     const auto [matL, matR] = GetParam();
-    const Eigen::MatrixXd m_matL = matL;
-    const Eigen::MatrixXd m_matR = matR;
+    m_matL = matL;
+    m_matR = matR;
   }
 
-  const Eigen::MatrixXd m_matL{};
-  const Eigen::MatrixXd m_matR{};
+  Eigen::MatrixXd m_matL{};
+  Eigen::MatrixXd m_matR{};
 };
 
 class IdenticalPairedMatrixTest
     : public MatrixTestBase,
       public testing::WithParamInterface<Eigen::MatrixXd> {
+
 protected:
-  const Eigen::MatrixXd m_matL{GetParam()};
-  const Eigen::MatrixXd m_matR{GetParam()};
+  Eigen::MatrixXd m_matL{GetParam()};
+  Eigen::MatrixXd m_matR{GetParam()};
 };
 
 } // namespace Internal
