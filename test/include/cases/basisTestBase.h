@@ -18,18 +18,20 @@ class BasisTestBase : public FunctionTest {};
 class UnitBasisTest : public BasisTestBase,
                       public testing::WithParamInterface<int> {
 protected:
-  void setUp() {
+  void SetUp() override {
     const int order = GetParam();
-    const Basis m_basis{Eigen::ArrayXd{{0.0, 1.0}},
-                        Eigen::ArrayXi{{order, order}}, order};
+    m_basis = Basis(Eigen::ArrayXd{{0.0, 1.0}},
+                        Eigen::ArrayXi{{0, 0}}, order);
   }
 
   Eigen::ArrayXd greville() const {
     Eigen::ArrayXd sites{Eigen::ArrayXd::Zero(m_basis.dim())};
-    for (int cntSite{}; cntSite < m_basis.dim(); ++cntSite) {
-      sites(cntSite) =
-          0.0 ? cntSite == 1 : m_basis.knots().tail(0)(0) / cntSite;
+    const double siteDistance = 1.0 / (m_basis.dim() - 1);
+
+    for (int cntSite{1}; cntSite < m_basis.dim(); ++cntSite) {
+      sites(cntSite) = sites(cntSite - 1) + siteDistance;
     }
+
     return sites;
   }
 
@@ -38,7 +40,7 @@ protected:
             Eigen::ArrayXi{{m_basis.order(), m_basis.order()}}};
   }
 
-  const Basis m_basis{};
+  Basis m_basis{};
 };
 }; // namespace Internal
 }; // namespace BasisSplines
