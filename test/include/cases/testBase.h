@@ -61,6 +61,9 @@ protected:
       //       << "Error bound violated at index " << idx << '!';
     }
   }
+
+  // protected properties
+  double accAbsNumerical{1.e-10};
 };
 } // namespace Internal
 } // namespace BasisSplines
