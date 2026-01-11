@@ -64,5 +64,18 @@ Eigen::MatrixXd kron(const Eigen::MatrixXd &matL, const Eigen::MatrixXd &matR) {
 
   return matRes;
 }
+
+/**
+ * @brief Determines the first order difference of the given array "values".
+ *
+ * @tparam ArrayType type of Eigen array.
+ * @param values input array.
+ * @return ArrayType array of first order differences.
+ */
+template <typename ArrayType>
+ArrayType diff(const Eigen::ArrayBase<ArrayType> &values) {
+  return values.tail(values.size() - 1) - values.head(values.size() - 1);
+}
+
 }; // namespace BasisSplines
 #endif
