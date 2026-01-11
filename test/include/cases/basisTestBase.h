@@ -48,7 +48,7 @@ protected:
 
 class DerivativeBasisTest
     : public BasisTestBase,
-      public testing::WithParamInterface<std::tuple<int, double>> {
+      public testing::WithParamInterface<std::tuple<int, double, int>> {
 protected:
   void SetUp() override {
     m_scale = std::get<1>(GetParam());
@@ -58,14 +58,16 @@ protected:
     m_basis = Basis(knots, order, m_scale);
 
     auto basis = std::make_shared<Basis>(m_basis);
-    m_spline = Spline(basis, Interpolate(basis).fit(&polynomial));
+    m_spline = Spline(
+        basis, Interpolate(basis).fit(std::bind(&polynomial, _1, m_dimension)));
 
     m_derivativeOrder = std::get<0>(GetParam());
     m_basisDer = m_basis.orderDecrease(m_derivativeOrder);
 
     auto basisDer = std::make_shared<Basis>(m_basisDer);
     m_splineDer = Spline(basisDer, Interpolate(basisDer).fit(std::bind(
-                                       &polynomialDer, _1, m_derivativeOrder, m_scale)));
+                                       &polynomialDer, _1, m_derivativeOrder,
+                                       m_scale, m_dimension)));
   }
 
   Basis m_basisDer{};
@@ -74,27 +76,32 @@ protected:
 
   int m_derivativeOrder{};
   double m_scale{};
+  int m_dimension{};
 
 private:
-  static Eigen::MatrixXd polynomial(const Eigen::ArrayXd &points) {
+  static Eigen::MatrixXd polynomial(const Eigen::ArrayXd &points,
+                                   const int dimension = 1) {
     // polynomial of degree 2
-    Eigen::MatrixXd values(points.size(), 1);
-    values << points.pow(2);
+    Eigen::MatrixXd values(Eigen::MatrixXd::Zero(points.size(), dimension));
+    values << points.pow(2).matrix().replicate(1, dimension);
     return values;
   }
 
   static Eigen::MatrixXd polynomialDer(const Eigen::ArrayXd &points,
-                                       int derivativeOrder = 1, double scale = 1.0) {
+                                       int derivativeOrder = 1,
+                                       double scale = 1.0,
+                                       const int dimension = 1) {
     if (derivativeOrder == 2) {
       // second derivative of polynomial of degree 2
-      return Eigen::ArrayXd::Constant(points.size(), 2.0) / std::pow(scale, 2);
+      return Eigen::MatrixXd::Constant(points.size(), dimension, 2.0) /
+             std::pow(scale, 2);
     } else if (derivativeOrder == 1) {
       // derivative of polynomial of degree 2
-      Eigen::MatrixXd values(points.size(), 1);
-      values << 2 * points / scale;
+      Eigen::MatrixXd values(points.size(), dimension);
+      values << 2 * points.matrix().replicate(1, dimension) / scale;
       return values;
     } else if (derivativeOrder == 0) {
-      return polynomial(points);
+      return polynomial(points, dimension);
     } else {
       throw std::invalid_argument(
           "Only derivative orders 0, 1 and 2 are supported.");

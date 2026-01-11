@@ -60,14 +60,16 @@ TEST_P(DerivativeBasisTest, DirectTransformation) {
 
 // Name generator for DerivativeBasisTest parameters
 std::string DerivativeBasisTestNameGenerator(
-    const testing::TestParamInfo<std::tuple<int, double>> &info) {
+    const testing::TestParamInfo<std::tuple<int, double, int>> &info) {
   return "DerivOrder" + std::to_string(std::get<0>(info.param)) +
-         "_Scale" + std::to_string(static_cast<int>(std::get<1>(info.param)));
+         "_Scale" + std::to_string(static_cast<int>(std::get<1>(info.param))) +
+         "_Dimension" + std::to_string(std::get<2>(info.param));
 }
 
 INSTANTIATE_TEST_SUITE_P(DerivativeOrder, DerivativeBasisTest,
                          testing::Combine(testing::Range(0, 3),
-                                          testing::Range(1.0, 3.0)),
+                                          testing::Range(1.0, 3.0),
+                                          testing::Range(1, 3)),
                          DerivativeBasisTestNameGenerator);
 
 } // namespace Internal
