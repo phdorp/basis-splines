@@ -46,7 +46,57 @@ protected:
   }
 };
 
-class OperationBasisTest
+class BinaryOperationBasisTest
+    : public BasisTestBase,
+      public testing::WithParamInterface<
+          std::tuple<int, int, int, Eigen::ArrayXd, Eigen::ArrayXd>> {
+public:
+  static std::string TestNameGenerator(
+      const testing::TestParamInfo<
+          std::tuple<int, int, int, Eigen::ArrayXd, Eigen::ArrayXd>> &info) {
+    return "Dimension" + std::to_string(std::get<0>(info.param)) + "_Order" +
+           std::to_string(std::get<1>(info.param)) + "_OtherOrder" +
+           std::to_string(std::get<2>(info.param)) + "_Breakpoints" +
+           std::to_string(std::get<3>(info.param).size()) +
+           "_OtherBreakpoints" + std::to_string(std::get<4>(info.param).size());
+  }
+
+protected:
+  void SetUp() override {
+    const Eigen::ArrayXd breakpoints{std::get<3>(GetParam())};
+    Eigen::ArrayXi continuities{
+        Eigen::ArrayXi::Constant(breakpoints.size(), m_order - 1)};
+    continuities.head(1)(0) = 0;
+    continuities.tail(1)(0) = 0;
+    m_basis = Basis(breakpoints, continuities, m_order);
+
+    const Eigen::VectorXd coeffs{Eigen::VectorXd::Random(m_basis.dim())};
+    m_spline = Spline(std::make_shared<Basis>(m_basis), coeffs);
+
+    const Eigen::ArrayXd breakpointsOther{std::get<4>(GetParam())};
+    Eigen::ArrayXi continuitiesOther{
+        Eigen::ArrayXi::Constant(breakpointsOther.size(), m_orderOther - 1)};
+    continuitiesOther.head(1)(0) = 0;
+    continuitiesOther.tail(1)(0) = 0;
+    m_basisOther = Basis(breakpointsOther, continuitiesOther, m_orderOther);
+
+    const Eigen::VectorXd coeffsOther{
+        Eigen::VectorXd::Random(m_basisOther.dim())};
+    m_splineOther = Spline(std::make_shared<Basis>(m_basisOther), coeffsOther);
+  }
+
+  Spline m_spline{};
+  Basis m_basisOther{};
+  Spline m_splineOther{};
+  Basis m_basisResult{};
+  Spline m_splineResult{};
+
+  const int m_dimension{std::get<0>(GetParam())};
+  const int m_order{std::get<1>(GetParam())};
+  const int m_orderOther{std::get<2>(GetParam())};
+};
+
+class UnaryOperationBasisTest
     : public BasisTestBase,
       public testing::WithParamInterface<std::tuple<int, double, int>> {
 public:
@@ -71,10 +121,11 @@ protected:
 
     m_basisResult = getResultBasis();
     auto basisResult = std::make_shared<Basis>(m_basisResult);
-    m_splineResult = Spline(
-        basisResult,
-        Interpolate(basisResult)
-            .fit(std::bind(&OperationBasisTest::polynomialResult, this, _1)));
+    m_splineResult =
+        Spline(basisResult,
+               Interpolate(basisResult)
+                   .fit(std::bind(&UnaryOperationBasisTest::polynomialResult,
+                                  this, _1)));
   }
 
   virtual Eigen::MatrixXd
@@ -94,12 +145,12 @@ protected:
   Basis m_basisResult{};
   Spline m_splineResult{};
 
-  int m_operationOrder{std::get<0>(GetParam())};
-  double m_scale{std::get<1>(GetParam())};
-  int m_dimension{std::get<2>(GetParam())};
+  const int m_operationOrder{std::get<0>(GetParam())};
+  const double m_scale{std::get<1>(GetParam())};
+  const int m_dimension{std::get<2>(GetParam())};
 };
 
-class DerivativeBasisTest : public OperationBasisTest {
+class DerivativeBasisTest : public UnaryOperationBasisTest {
 private:
   Eigen::MatrixXd
   polynomialResult(const Eigen::ArrayXd &points) const override {
@@ -125,7 +176,7 @@ private:
   }
 };
 
-class IntegralBasisTest : public OperationBasisTest {
+class IntegralBasisTest : public UnaryOperationBasisTest {
 private:
   Eigen::MatrixXd
   polynomialResult(const Eigen::ArrayXd &points) const override {
