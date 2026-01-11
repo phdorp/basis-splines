@@ -46,7 +46,7 @@ protected:
   }
 };
 
-class DerivativeBasisTest
+class OperationBasisTest
     : public BasisTestBase,
       public testing::WithParamInterface<std::tuple<int, double, int>> {
 protected:
@@ -61,32 +61,39 @@ protected:
     m_spline = Spline(
         basis, Interpolate(basis).fit(std::bind(&polynomial, _1, m_dimension)));
 
-    m_derivativeOrder = std::get<0>(GetParam());
-    m_basisDer = m_basis.orderDecrease(m_derivativeOrder);
-
-    auto basisDer = std::make_shared<Basis>(m_basisDer);
-    m_splineDer = Spline(basisDer, Interpolate(basisDer).fit(std::bind(
-                                       &polynomialDer, _1, m_derivativeOrder,
-                                       m_scale, m_dimension)));
+    m_operationOrder = std::get<0>(GetParam());
   }
 
-  Basis m_basisDer{};
-  Spline m_spline{};
-  Spline m_splineDer{};
-
-  int m_derivativeOrder{};
-  double m_scale{};
-  int m_dimension{};
-
-private:
   static Eigen::MatrixXd polynomial(const Eigen::ArrayXd &points,
-                                   const int dimension = 1) {
+                                    const int dimension = 1) {
     // polynomial of degree 2
     Eigen::MatrixXd values(Eigen::MatrixXd::Zero(points.size(), dimension));
     values << points.pow(2).matrix().replicate(1, dimension);
     return values;
   }
 
+  Spline m_spline{};
+  Basis m_basisResult{};
+  Spline m_splineResult{};
+
+  int m_operationOrder{};
+  double m_scale{};
+  int m_dimension{};
+};
+
+class DerivativeBasisTest : public OperationBasisTest {
+protected:
+  void SetUp() override {
+    OperationBasisTest::SetUp();
+
+    m_basisResult = m_basis.orderDecrease(m_operationOrder);
+    auto basisNew = std::make_shared<Basis>(m_basisResult);
+    m_splineResult = Spline(basisNew, Interpolate(basisNew).fit(std::bind(
+                                       &polynomialDer, _1, m_operationOrder,
+                                       m_scale, m_dimension)));
+  }
+
+private:
   static Eigen::MatrixXd polynomialDer(const Eigen::ArrayXd &points,
                                        int derivativeOrder = 1,
                                        double scale = 1.0,

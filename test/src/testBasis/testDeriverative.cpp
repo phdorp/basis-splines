@@ -14,11 +14,11 @@ namespace Internal {
  *
  */
 TEST_P(DerivativeBasisTest, MatrixTransformation) {
-  const Eigen::ArrayXXd valuesGtr{m_splineDer.getCoefficients()};
+  const Eigen::ArrayXXd valuesGtr{m_splineResult.getCoefficients()};
 
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{
-      m_basis.derivative(basisEst, m_derivativeOrder) *
+      m_basis.derivative(basisEst, m_operationOrder) *
       m_spline.getCoefficients()};
 
   // test if coefficients are almost equal
@@ -26,11 +26,11 @@ TEST_P(DerivativeBasisTest, MatrixTransformation) {
       << "Coefficient values do not match.";
 
   // test if knots are almost equal
-  EXPECT_TRUE(m_basisDer.knots().isApprox(basisEst.knots(), accAbsNumerical))
+  EXPECT_TRUE(m_basisResult.knots().isApprox(basisEst.knots(), accAbsNumerical))
       << "Knot values do not match.";
 
   // test if order is equal
-  EXPECT_EQ(m_basisDer.order(), basisEst.order())
+  EXPECT_EQ(m_basisResult.order(), basisEst.order())
       << "Basis orders do not match.";
 }
 
@@ -39,29 +39,29 @@ TEST_P(DerivativeBasisTest, MatrixTransformation) {
  *
  */
 TEST_P(DerivativeBasisTest, DirectTransformation) {
-  const Eigen::ArrayXXd valuesGtr{m_splineDer.getCoefficients()};
+  const Eigen::ArrayXXd valuesGtr{m_splineResult.getCoefficients()};
 
   Basis basisEst{};
   const Eigen::ArrayXXd valuesEst{m_basis.derivative(
-      basisEst, m_spline.getCoefficients(), m_derivativeOrder)};
+      basisEst, m_spline.getCoefficients(), m_operationOrder)};
 
   // test if coefficients are almost equal
   EXPECT_TRUE(valuesGtr.isApprox(valuesEst, accAbsNumerical))
       << "Coefficient values do not match.";
 
   // test if knots are almost equal
-  EXPECT_TRUE(m_basisDer.knots().isApprox(basisEst.knots(), accAbsNumerical))
+  EXPECT_TRUE(m_basisResult.knots().isApprox(basisEst.knots(), accAbsNumerical))
       << "Knot values do not match.";
 
   // test if order is equal
-  EXPECT_EQ(m_basisDer.order(), basisEst.order())
+  EXPECT_EQ(m_basisResult.order(), basisEst.order())
       << "Basis orders do not match.";
 }
 
 // Name generator for DerivativeBasisTest parameters
 std::string DerivativeBasisTestNameGenerator(
     const testing::TestParamInfo<std::tuple<int, double, int>> &info) {
-  return "DerivOrder" + std::to_string(std::get<0>(info.param)) +
+  return "OperationOrder" + std::to_string(std::get<0>(info.param)) +
          "_Scale" + std::to_string(static_cast<int>(std::get<1>(info.param))) +
          "_Dimension" + std::to_string(std::get<2>(info.param));
 }
