@@ -58,19 +58,11 @@ TEST_P(DerivativeBasisTest, DirectTransformation) {
       << "Basis orders do not match.";
 }
 
-// Name generator for DerivativeBasisTest parameters
-std::string DerivativeBasisTestNameGenerator(
-    const testing::TestParamInfo<std::tuple<int, double, int>> &info) {
-  return "OperationOrder" + std::to_string(std::get<0>(info.param)) +
-         "_Scale" + std::to_string(static_cast<int>(std::get<1>(info.param))) +
-         "_Dimension" + std::to_string(std::get<2>(info.param));
-}
-
 INSTANTIATE_TEST_SUITE_P(DerivativeOrder, DerivativeBasisTest,
                          testing::Combine(testing::Range(0, 3),
                                           testing::Range(1.0, 3.0),
                                           testing::Range(1, 3)),
-                         DerivativeBasisTestNameGenerator);
+                         DerivativeBasisTest::TestNameGenerator);
 
 } // namespace Internal
 } // namespace BasisSplines
