@@ -60,7 +60,6 @@ public:
 
 protected:
   void SetUp() override {
-    m_scale = std::get<1>(GetParam());
     const Eigen::ArrayXd knots{
         Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0}}};
     const int order{3};
@@ -70,8 +69,18 @@ protected:
     m_spline = Spline(
         basis, Interpolate(basis).fit(std::bind(&polynomial, _1, m_dimension)));
 
-    m_operationOrder = std::get<0>(GetParam());
+    m_basisResult = getResultBasis();
+    auto basisResult = std::make_shared<Basis>(m_basisResult);
+    m_splineResult = Spline(
+        basisResult,
+        Interpolate(basisResult)
+            .fit(std::bind(&OperationBasisTest::polynomialResult, this, _1)));
   }
+
+  virtual Eigen::MatrixXd
+  polynomialResult(const Eigen::ArrayXd &points) const = 0;
+
+  virtual Basis getResultBasis() const = 0;
 
   static Eigen::MatrixXd polynomial(const Eigen::ArrayXd &points,
                                     const int dimension = 1) {
@@ -85,81 +94,63 @@ protected:
   Basis m_basisResult{};
   Spline m_splineResult{};
 
-  int m_operationOrder{};
-  double m_scale{};
-  int m_dimension{};
+  int m_operationOrder{std::get<0>(GetParam())};
+  double m_scale{std::get<1>(GetParam())};
+  int m_dimension{std::get<2>(GetParam())};
 };
 
 class DerivativeBasisTest : public OperationBasisTest {
-protected:
-  void SetUp() override {
-    OperationBasisTest::SetUp();
-
-    m_basisResult = m_basis.orderDecrease(m_operationOrder);
-    auto basisResult = std::make_shared<Basis>(m_basisResult);
-    m_splineResult = Spline(
-        basisResult, Interpolate(basisResult)
-                         .fit(std::bind(&polynomialDer, _1, m_operationOrder,
-                                        m_scale, m_dimension)));
-  }
-
 private:
-  static Eigen::MatrixXd polynomialDer(const Eigen::ArrayXd &points,
-                                       int derivativeOrder = 1,
-                                       double scale = 1.0,
-                                       const int dimension = 1) {
-    if (derivativeOrder == 2) {
+  Eigen::MatrixXd
+  polynomialResult(const Eigen::ArrayXd &points) const override {
+    if (m_operationOrder == 2) {
       // second derivative of polynomial of degree 2
-      return Eigen::MatrixXd::Constant(points.size(), dimension, 2.0) /
-             std::pow(scale, 2);
-    } else if (derivativeOrder == 1) {
+      return Eigen::MatrixXd::Constant(points.size(), m_dimension, 2.0) /
+             std::pow(m_scale, 2);
+    } else if (m_operationOrder == 1) {
       // derivative of polynomial of degree 2
-      Eigen::MatrixXd values(points.size(), dimension);
-      values << 2 * points.matrix().replicate(1, dimension) / scale;
+      Eigen::MatrixXd values(points.size(), m_dimension);
+      values << 2 * points.matrix().replicate(1, m_dimension) / m_scale;
       return values;
-    } else if (derivativeOrder == 0) {
-      return polynomial(points, dimension);
+    } else if (m_operationOrder == 0) {
+      return polynomial(points, m_dimension);
     } else {
       throw std::invalid_argument(
           "Only derivative orders 0, 1 and 2 are supported.");
     }
+  }
+
+  Basis getResultBasis() const override {
+    return m_basis.orderDecrease(m_operationOrder);
   }
 };
 
 class IntegralBasisTest : public OperationBasisTest {
-protected:
-  void SetUp() override {
-    OperationBasisTest::SetUp();
-
-    m_basisResult = m_basis.orderIncrease(m_operationOrder);
-    auto basisResult = std::make_shared<Basis>(m_basisResult);
-    m_splineResult = Spline(
-        basisResult, Interpolate(basisResult)
-                         .fit(std::bind(&polynomialInt, _1, m_operationOrder,
-                                        m_scale, m_dimension)));
-  }
-
 private:
-  static Eigen::MatrixXd polynomialInt(const Eigen::ArrayXd &points,
-                                       int integralOrder = 1,
-                                       double scale = 1.0,
-                                       const int dimension = 1) {
-    if (integralOrder == 2) {
+  Eigen::MatrixXd
+  polynomialResult(const Eigen::ArrayXd &points) const override {
+    if (m_operationOrder == 2) {
       // second order integral of polynomial of degree 2
-      Eigen::MatrixXd values(points.size(), dimension);
-      values << points.pow(3).matrix().replicate(1, dimension) * scale / 12.0;
+      Eigen::MatrixXd values(points.size(), m_dimension);
+      values << points.pow(4).matrix().replicate(1, m_dimension) *
+                    std::pow(m_scale, 2) / 12.0;
       return values;
-    } else if (integralOrder == 1) {
+    } else if (m_operationOrder == 1) {
       // first order integral of polynomial of degree 2
-      Eigen::MatrixXd values(points.size(), dimension);
-      values << points.pow(3).matrix().replicate(1, dimension) * scale / 3.0;
+      Eigen::MatrixXd values(points.size(), m_dimension);
+      values << points.pow(3).matrix().replicate(1, m_dimension) * m_scale /
+                    3.0;
       return values;
-    } else if (integralOrder == 0) {
-      return polynomial(points, dimension);
+    } else if (m_operationOrder == 0) {
+      return polynomial(points, m_dimension);
     } else {
       throw std::invalid_argument(
           "Only derivative orders 0, 1 and 2 are supported.");
     }
+  }
+
+  Basis getResultBasis() const override {
+    return m_basis.orderIncrease(m_operationOrder);
   }
 };
 
