@@ -13,137 +13,63 @@ namespace Internal {
  * @brief Test generation of derivative transformation matrix.
  *
  */
-TEST_F(BasisTest, DerivMatO3) {
-  // ground truth from spline fit to derivative
-  const Eigen::ArrayXXd valuesGtr{m_splineO3Der.getCoefficients()};
+TEST_P(DerivativeBasisTest, MatrixTransformation) {
+  const Eigen::ArrayXXd valuesGtr{m_splineDer.getCoefficients()};
 
-  // get estimate from result spline
   Basis basisEst{};
-  const Eigen::ArrayXXd valuesEst{m_basisO3->derivative(basisEst, 1) *
-                                  m_splineO3.getCoefficients().matrix()};
+  const Eigen::ArrayXXd valuesEst{
+      m_basis.derivative(basisEst, m_derivativeOrder) *
+      m_spline.getCoefficients()};
 
   // test if coefficients are almost equal
-  expectAllClose(valuesGtr, valuesEst, 1e-8);
-
-  // ground truth basis
-  Basis basisGtr{*m_basisO3Der.get()};
+  EXPECT_TRUE(valuesGtr.isApprox(valuesEst, accAbsNumerical))
+      << "Coefficient values do not match.";
 
   // test if knots are almost equal
-  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
+  EXPECT_TRUE(m_basisDer.knots().isApprox(basisEst.knots(), accAbsNumerical))
+      << "Knot values do not match.";
+
   // test if order is equal
-  EXPECT_EQ(basisGtr.order(), basisEst.order());
-}
-
-/**
- * @brief Test generation of derivative transformation matrix with scaled basis.
- *
- */
-TEST_F(BasisTest, DerivMatO3Scaled) {
-  // scale basis with m_scalingFactor
-  Basis basisO3Scale2{*m_basisO3};
-  basisO3Scale2.setScale(m_scalingFactor);
-
-  // get derivative of scaled basis
-  Basis basisEst{};
-  const Eigen::ArrayXXd valuesEst{m_basisO3->derivative(basisEst, 1) *
-                                  m_splineO3.getCoefficients().matrix()};
-
-  // scale breakpoints with 2
-  Basis basisO3Bps2{*m_basisO3};
-  const Eigen::ArrayXd breakpoints{basisO3Bps2.getBreakpoints().first};
-  basisO3Bps2.setBreakpoints(
-      breakpoints * m_scalingFactor,
-      Eigen::ArrayXi::LinSpaced(breakpoints.size(), 0, breakpoints.size()));
-
-  // get derivative of breakpoint scaled basis
-  Basis basisGtr{};
-  const Eigen::ArrayXXd valuesGtr{m_basisO3->derivative(basisGtr, 1) *
-                                  m_splineO3.getCoefficients().matrix()};
-
-  // test if coefficients are almost equal
-  expectAllClose(valuesGtr, valuesEst, 1e-8);
-}
-
-/**
- * @brief Test generation of second derivative transformation matrix.
- *
- */
-TEST_F(BasisTest, DderivMatO3) {
-  // ground truth from spline fit to derivative
-  const Eigen::ArrayXXd valuesGtr{m_splineO3Dder.getCoefficients()};
-
-  // get estimate from result spline
-  Basis basisEst{};
-  const Eigen::ArrayXXd valuesEst{m_basisO3->derivative(basisEst, 2) *
-                                  m_splineO3.getCoefficients().matrix()};
-
-  // test if coefficients are almost equal
-  expectAllClose(valuesGtr, valuesEst, 1e-8);
-
-  // ground truth basis
-  Basis basisGtr{*m_basisO3Dder.get()};
-
-  // test if knots are almost equal
-  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
-  // test if order is equal
-  EXPECT_EQ(basisGtr.order(), basisEst.order());
+  EXPECT_EQ(m_basisDer.order(), basisEst.order())
+      << "Basis orders do not match.";
 }
 
 /**
  * @brief Test generation of derivative value transformation.
  *
  */
-TEST_F(BasisTest, DerivTransformO3) {
-  // ground truth from spline fit to derivative
-  const Eigen::ArrayXXd valuesGtr{m_splineO3Der.getCoefficients()};
+TEST_P(DerivativeBasisTest, DirectTransformation) {
+  const Eigen::ArrayXXd valuesGtr{m_splineDer.getCoefficients()};
 
-  // get estimate from result spline
   Basis basisEst{};
-  const Eigen::ArrayXXd valuesEst{
-      m_basisO3->derivative(basisEst, m_splineO3.getCoefficients(), 1)};
+  const Eigen::ArrayXXd valuesEst{m_basis.derivative(
+      basisEst, m_spline.getCoefficients(), m_derivativeOrder)};
 
   // test if coefficients are almost equal
-  expectAllClose(valuesGtr, valuesEst, 1e-8);
-
-  // ground truth basis
-  Basis basisGtr{*m_basisO3Der.get()};
+  EXPECT_TRUE(valuesGtr.isApprox(valuesEst, accAbsNumerical))
+      << "Coefficient values do not match.";
 
   // test if knots are almost equal
-  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
+  EXPECT_TRUE(m_basisDer.knots().isApprox(basisEst.knots(), accAbsNumerical))
+      << "Knot values do not match.";
+
   // test if order is equal
-  EXPECT_EQ(basisGtr.order(), basisEst.order());
+  EXPECT_EQ(m_basisDer.order(), basisEst.order())
+      << "Basis orders do not match.";
 }
 
-/**
- * @brief Test generation of second derivative value transformation with scaled
- * basis.
- *
- */
-TEST_F(BasisTest, DerivTransformO3Scaled) {
-  // scale basis with m_scalingFactor
-  Basis basisO3Scale2{*m_basisO3};
-  basisO3Scale2.setScale(m_scalingFactor);
-
-  // get derivative of scaled basis
-  Basis basisEst{};
-  const Eigen::ArrayXXd valuesEst{
-      basisO3Scale2.derivative(basisEst, m_splineO3.getCoefficients(), 1)};
-
-  // scale breakpoints with m_scalingFactor
-  Basis basisO3Bps2{*m_basisO3};
-  const Eigen::ArrayXd breakpoints{basisO3Bps2.getBreakpoints().first};
-  basisO3Bps2.setBreakpoints(
-      breakpoints * m_scalingFactor,
-      Eigen::ArrayXi::LinSpaced(breakpoints.size(), 0, breakpoints.size()));
-
-  // get derivative of breakpoint scaled basis
-  Basis basisGtr{};
-  const Eigen::ArrayXXd valuesGtr{
-      basisO3Bps2.derivative(basisEst, m_splineO3.getCoefficients(), 1)};
-
-  // test if coefficients are almost equal
-  expectAllClose(valuesGtr, valuesEst, 1e-8);
+// Name generator for DerivativeBasisTest parameters
+std::string DerivativeBasisTestNameGenerator(
+    const testing::TestParamInfo<std::tuple<int, double>> &info) {
+  return "DerivOrder" + std::to_string(std::get<0>(info.param)) +
+         "_Scale" + std::to_string(static_cast<int>(std::get<1>(info.param)));
 }
+
+INSTANTIATE_TEST_SUITE_P(DerivativeOrder, DerivativeBasisTest,
+                         testing::Combine(testing::Range(1, 3),
+                                          testing::Range(1.0, 3.0)),
+                         DerivativeBasisTestNameGenerator);
+
 } // namespace Internal
 } // namespace BasisSplines
 
