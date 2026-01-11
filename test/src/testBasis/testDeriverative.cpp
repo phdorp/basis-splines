@@ -66,7 +66,7 @@ std::string DerivativeBasisTestNameGenerator(
 }
 
 INSTANTIATE_TEST_SUITE_P(DerivativeOrder, DerivativeBasisTest,
-                         testing::Combine(testing::Range(1, 3),
+                         testing::Combine(testing::Range(0, 3),
                                           testing::Range(1.0, 3.0)),
                          DerivativeBasisTestNameGenerator);
 

@@ -93,9 +93,11 @@ private:
       Eigen::MatrixXd values(points.size(), 1);
       values << 2 * points / scale;
       return values;
+    } else if (derivativeOrder == 0) {
+      return polynomial(points);
     } else {
       throw std::invalid_argument(
-          "Only derivative orders 1 and 2 are supported.");
+          "Only derivative orders 0, 1 and 2 are supported.");
     }
   }
 };
