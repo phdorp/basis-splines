@@ -13,39 +13,35 @@ namespace Internal {
  * @brief Test product two splines of order 3.
  *
  */
-TEST_F(BasisTest, ProdMatO3) {
-  // instatiate left operand spline of order 3
-  const Eigen::VectorXd coeffsL{Eigen::VectorXd::Random(m_basisO3->dim())};
-
-  // instantiate right operand spline of order 3
-  const Eigen::ArrayXd knotsR{{0.0, 0.0, 0.0, 0.25, 0.5, 0.8, 1.0, 1.0}};
-  const Basis basisR{knotsR, 3};
-  const Eigen::VectorXd coeffsR{Eigen::VectorXd::Random(basisR.dim())};
-
+TEST_P(BinaryOperationBasisTest, ProductTransformation) {
   // get gt from basis evaluations
-  const Eigen::ArrayXd valuesGtr{((*m_basisO3)(m_points)*coeffsL).array() *
-                                 (basisR(m_points) * coeffsR).array()};
+  const Eigen::ArrayXd valuesGtr{m_spline(m_points) * m_splineOther(m_points)};
 
   // determine product transformations
   Basis basisEst{};
-  const Eigen::MatrixXd transform{m_basisO3->prod(basisR, basisEst)};
+  const Eigen::MatrixXd transform{m_basis.prod(m_basisOther, basisEst)};
 
   // get estimate by applying product transformations
-  const Eigen::MatrixXd coeffsProd{transform * kron(coeffsL, coeffsR)};
-  const Eigen::ArrayXd valuesEst{basisEst(m_points) * coeffsProd};
+  const Eigen::ArrayXd valuesEst{
+      basisEst(m_points) * (transform * kron(m_spline.getCoefficients(),
+                                             m_splineOther.getCoefficients()))};
 
-  // test if evaluations are alomst equal
-  expectAllClose(valuesGtr, valuesEst, 1e-10);
-
-  // ground truth basis
-  const Basis basisGtr{
-      m_basisO3->combine(basisR, m_basisO3->order() + basisR.order() - 1)};
-
-  // test if knots are almost equal
-  expectAllClose(basisGtr.knots(), basisEst.knots(), 1e-8);
-  // test if order is equal
-  EXPECT_EQ(basisGtr.order(), basisEst.order());
+  // test if evaluations are almost equal
+  Eigen::Index maxIndex;
+  EXPECT_TRUE(valuesEst.isApprox(valuesGtr, accAbsNumerical))
+      << "Function values do not match. Max error: "
+      << (valuesEst - valuesGtr).abs().maxCoeff(&maxIndex) << " at index "
+      << maxIndex << '.';
 }
+
+INSTANTIATE_TEST_SUITE_P(
+    BinaryOperations, BinaryOperationBasisTest,
+    testing::Combine(testing::Range(1, 3), testing::Range(1, 4),
+                     testing::Range(1, 4),
+                     testing::Values(Eigen::ArrayXd{{0.0, 0.5, 1.0}}),
+                     testing::Values(Eigen::ArrayXd{{0.0, 0.5, 1.0}},
+                                     Eigen::ArrayXd{{0.0, 0.3, 0.7, 1.0}})),
+    BinaryOperationBasisTest::TestNameGenerator);
 } // namespace Internal
 } // namespace BasisSplines
 
