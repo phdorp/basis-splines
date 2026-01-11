@@ -141,7 +141,7 @@ public:
 
     // create basis of lower order
     return {knots()(Eigen::seqN(change, knots().size() - 2 * change)),
-            order() - change};
+            order() - change, m_scale};
   }
 
   /**
@@ -166,7 +166,7 @@ public:
         Eigen::ArrayXd::Zero(change) + *(knots().end() - 1);
 
     // create basis of higher order
-    return {knotsNew, order() + change};
+    return {knotsNew, order() + change, m_scale};
   }
 
   /**
@@ -187,7 +187,7 @@ public:
     Eigen::ArrayXd knotsNew{toKnots(getBreakpoints(), m_order + change)};
 
     // create basis of higher order
-    return {knotsNew, order() + change};
+    return {knotsNew, order() + change, m_scale};
   }
 
   /**
