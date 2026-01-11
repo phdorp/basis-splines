@@ -77,5 +77,25 @@ ArrayType diff(const Eigen::ArrayBase<ArrayType> &values) {
   return values.tail(values.size() - 1) - values.head(values.size() - 1);
 }
 
+/**
+ * @brief Determines the indices of nonzero elements in the given array
+ * "values".
+ *
+ * @tparam ArrayType type of Eigen array.
+ * @param values input array.
+ * @return Eigen::ArrayXi array of indices of non-zero elements.
+ */
+template <typename ArrayType>
+Eigen::ArrayXi nonzero(const Eigen::ArrayBase<ArrayType> &values) {
+  Eigen::ArrayXi nonzeroIdcs(values.count());
+  Eigen::Index cntNonzero{};
+
+  for (Eigen::Index cntValueIdx{}; cntValueIdx < values.size(); ++cntValueIdx)
+    if (values(cntValueIdx) != typename ArrayType::Scalar(0))
+      nonzeroIdcs(cntNonzero++) = static_cast<int>(cntValueIdx);
+
+  return nonzeroIdcs;
+}
+
 }; // namespace BasisSplines
 #endif
