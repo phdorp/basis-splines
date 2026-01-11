@@ -13,7 +13,7 @@ namespace Internal {
  * @brief Test generation of integral transformation matrix.
  *
  */
-TEST_P(IntegralBasisTest, MatrixTransformation) {
+TEST_P(IntegralTest, MatrixTransformation) {
   const Eigen::ArrayXXd valuesGtr{m_splineResult.getCoefficients()};
 
   Basis basisEst{};
@@ -38,7 +38,7 @@ TEST_P(IntegralBasisTest, MatrixTransformation) {
  * @brief Test generation of integral value transformation.
  *
  */
-TEST_P(IntegralBasisTest, DirectTransformation) {
+TEST_P(IntegralTest, DirectTransformation) {
   const Eigen::ArrayXXd valuesGtr{m_splineResult.getCoefficients()};
 
   Basis basisEst{};
@@ -58,11 +58,11 @@ TEST_P(IntegralBasisTest, DirectTransformation) {
       << "Basis orders do not match.";
 }
 
-INSTANTIATE_TEST_SUITE_P(IntegralOrder, IntegralBasisTest,
+INSTANTIATE_TEST_SUITE_P(IntegralOrder, IntegralTest,
                          testing::Combine(testing::Range(0, 3),
                                           testing::Range(1.0, 3.0),
                                           testing::Range(1, 3)),
-                         IntegralBasisTest::TestNameGenerator);
+                         IntegralTest::TestNameGenerator);
 
 } // namespace Internal
 } // namespace BasisSplines

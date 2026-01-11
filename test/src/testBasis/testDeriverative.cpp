@@ -13,7 +13,7 @@ namespace Internal {
  * @brief Test generation of derivative transformation matrix.
  *
  */
-TEST_P(DerivativeBasisTest, MatrixTransformation) {
+TEST_P(DerivativeTest, MatrixTransformation) {
   const Eigen::ArrayXXd valuesGtr{m_splineResult.getCoefficients()};
 
   Basis basisEst{};
@@ -38,7 +38,7 @@ TEST_P(DerivativeBasisTest, MatrixTransformation) {
  * @brief Test generation of derivative value transformation.
  *
  */
-TEST_P(DerivativeBasisTest, DirectTransformation) {
+TEST_P(DerivativeTest, DirectTransformation) {
   const Eigen::ArrayXXd valuesGtr{m_splineResult.getCoefficients()};
 
   Basis basisEst{};
@@ -58,11 +58,11 @@ TEST_P(DerivativeBasisTest, DirectTransformation) {
       << "Basis orders do not match.";
 }
 
-INSTANTIATE_TEST_SUITE_P(DerivativeOrder, DerivativeBasisTest,
+INSTANTIATE_TEST_SUITE_P(DerivativeOrder, DerivativeTest,
                          testing::Combine(testing::Range(0, 3),
                                           testing::Range(1.0, 3.0),
                                           testing::Range(1, 3)),
-                         DerivativeBasisTest::TestNameGenerator);
+                         DerivativeTest::TestNameGenerator);
 
 } // namespace Internal
 } // namespace BasisSplines

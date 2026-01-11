@@ -46,7 +46,7 @@ protected:
   }
 };
 
-class BinaryOperationBasisTest
+class BinaryOperationTest
     : public BasisTestBase,
       public testing::WithParamInterface<
           std::tuple<int, int, int, Eigen::ArrayXd, Eigen::ArrayXd>> {
@@ -96,7 +96,7 @@ protected:
   const int m_orderOther{std::get<2>(GetParam())};
 };
 
-class UnaryOperationBasisTest
+class UnaryOperationTest
     : public BasisTestBase,
       public testing::WithParamInterface<std::tuple<int, double, int>> {
 public:
@@ -124,7 +124,7 @@ protected:
     m_splineResult =
         Spline(basisResult,
                Interpolate(basisResult)
-                   .fit(std::bind(&UnaryOperationBasisTest::polynomialResult,
+                   .fit(std::bind(&UnaryOperationTest::polynomialResult,
                                   this, _1)));
   }
 
@@ -150,7 +150,7 @@ protected:
   const int m_dimension{std::get<2>(GetParam())};
 };
 
-class DerivativeBasisTest : public UnaryOperationBasisTest {
+class DerivativeTest : public UnaryOperationTest {
 private:
   Eigen::MatrixXd
   polynomialResult(const Eigen::ArrayXd &points) const override {
@@ -176,7 +176,7 @@ private:
   }
 };
 
-class IntegralBasisTest : public UnaryOperationBasisTest {
+class IntegralTest : public UnaryOperationTest {
 private:
   Eigen::MatrixXd
   polynomialResult(const Eigen::ArrayXd &points) const override {
@@ -196,7 +196,7 @@ private:
       return polynomial(points, m_dimension);
     } else {
       throw std::invalid_argument(
-          "Only derivative orders 0, 1 and 2 are supported.");
+          "Only integral orders 0, 1 and 2 are supported.");
     }
   }
 
