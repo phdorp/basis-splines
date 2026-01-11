@@ -380,12 +380,6 @@ public:
     // combine this and other basis to sum basis
     basisOut = combine(basis, std::max(order(), basis.order()));
 
-    const auto [breakpoints, continuities] = basisOut.getBreakpoints();
-    if (continuities(Eigen::seqN(1, breakpoints.size() - 2)).minCoeff() == 0) {
-      throw std::invalid_argument(
-          "Cannot add bases since sum basis has internal discontinuities.");
-    }
-
     // instantiate interpolate with sum basis
     const Interp interp{std::make_shared<Basis>(basisOut)};
     // determine transform for this basis by interpolating the sum basis

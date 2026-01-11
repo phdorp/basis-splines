@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "basisSplines/basis.h"
+#include "basisSplines/math.h"
 
 namespace BasisSplines {
 
@@ -106,7 +107,15 @@ public:
    */
   Eigen::MatrixXd
   fit(std::function<Eigen::MatrixXd(Eigen::VectorXd)> process) const {
-    return fit(process(m_basis->greville()), m_basis->greville());
+    Eigen::ArrayXd points{m_basis->greville()};
+
+    // increase distance between close points to avoid singularities
+    // relevant if inner breakpoint is discontinuous
+    const Eigen::ArrayXd distances{diff(points).abs()};
+    const auto closePoints = distances <= 1e-12;
+    points(nonzero(closePoints) + 1) += 1e-12;
+
+    return fit(process(points), points);
   }
 
 private:

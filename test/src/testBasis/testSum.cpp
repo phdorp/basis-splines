@@ -36,8 +36,8 @@ TEST_P(BinaryOperationBasisTest, SumTransformation) {
 
 INSTANTIATE_TEST_SUITE_P(
     BinaryOperations, BinaryOperationBasisTest,
-    testing::Combine(testing::Range(1, 3), testing::Range(2, 4),
-                     testing::Range(2, 4),
+    testing::Combine(testing::Range(1, 3), testing::Range(1, 4),
+                     testing::Range(1, 4),
                      testing::Values(Eigen::ArrayXd{{0.0, 0.5, 1.0}}),
                      testing::Values(Eigen::ArrayXd{{0.0, 0.5, 1.0}},
                                      Eigen::ArrayXd{{0.0, 0.3, 0.7, 1.0}})),
