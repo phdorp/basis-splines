@@ -96,25 +96,10 @@ protected:
   const int m_orderOther{std::get<2>(GetParam())};
 };
 
-class UnaryOperationTest
-    : public BasisTestBase,
-      public testing::WithParamInterface<std::tuple<int, double, int>> {
-public:
-  static std::string TestNameGenerator(
-      const testing::TestParamInfo<std::tuple<int, double, int>> &info) {
-    return "OperationOrder" + std::to_string(std::get<0>(info.param)) +
-           "_Scale" +
-           std::to_string(static_cast<int>(std::get<1>(info.param))) +
-           "_Dimension" + std::to_string(std::get<2>(info.param));
-  }
-
+// Base class containing common functionality for unary operations
+class UnaryOperationTestBase : public BasisTestBase {
 protected:
-  void SetUp() override {
-    const Eigen::ArrayXd knots{
-        Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0}}};
-    const int order{3};
-    m_basis = Basis(knots, order, m_scale);
-
+  void setupSplines() {
     auto basis = std::make_shared<Basis>(m_basis);
     m_spline = Spline(
         basis, Interpolate(basis).fit(std::bind(&polynomial, _1, m_dimension)));
@@ -124,7 +109,7 @@ protected:
     m_splineResult =
         Spline(basisResult,
                Interpolate(basisResult)
-                   .fit(std::bind(&UnaryOperationTest::polynomialResult,
+                   .fit(std::bind(&UnaryOperationTestBase::polynomialResult,
                                   this, _1)));
   }
 
@@ -145,26 +130,80 @@ protected:
   Basis m_basisResult{};
   Spline m_splineResult{};
 
-  const int m_operationOrder{std::get<0>(GetParam())};
-  const double m_scale{std::get<1>(GetParam())};
-  const int m_dimension{std::get<2>(GetParam())};
+  int m_operationOrder{};
+  double m_scale{};
+  int m_dimension{};
 };
 
-class DerivativeTest : public UnaryOperationTest {
+// Primary template for UnaryOperationTest
+template <typename ParamType = std::tuple<int, double, int>>
+class UnaryOperationTest
+    : public UnaryOperationTestBase,
+      public testing::WithParamInterface<ParamType> {
+public:
+  static std::string TestNameGenerator(
+      const testing::TestParamInfo<ParamType> &info) {
+    return "OperationOrder" + std::to_string(std::get<0>(info.param)) +
+           "_Scale" +
+           std::to_string(static_cast<int>(std::get<1>(info.param))) +
+           "_Dimension" + std::to_string(std::get<2>(info.param));
+  }
+
+protected:
+  void SetUp() override {
+    m_operationOrder = std::get<0>(this->GetParam());
+    m_scale = std::get<1>(this->GetParam());
+    m_dimension = std::get<2>(this->GetParam());
+
+    const Eigen::ArrayXd knots{
+        Eigen::ArrayXd{{0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0}}};
+    const int order{3};
+    m_basis = Basis(knots, order, m_scale);
+
+    setupSplines();
+  }
+};
+
+// Template specialization for custom Basis parameter
+template <>
+class UnaryOperationTest<std::tuple<int, Basis>>
+    : public UnaryOperationTestBase,
+      public testing::WithParamInterface<std::tuple<int, Basis>> {
+public:
+  static std::string TestNameGenerator(
+      const testing::TestParamInfo<std::tuple<int, Basis>> &info) {
+    return "OperationOrder" + std::to_string(std::get<0>(info.param)) +
+           "_CustomBasis";
+  }
+
+protected:
+  void SetUp() override {
+    m_operationOrder = std::get<0>(GetParam());
+    m_basis = std::get<1>(GetParam());
+    m_scale = m_basis.scale();
+    m_dimension = 1;
+
+    setupSplines();
+  }
+};
+
+template <typename ParamType = std::tuple<int, double, int>>
+class DerivativeTest : public UnaryOperationTest<ParamType> {
 private:
   Eigen::MatrixXd
   polynomialResult(const Eigen::ArrayXd &points) const override {
-    if (m_operationOrder == 2) {
+    if (this->m_operationOrder == 2) {
       // second derivative of polynomial of degree 2
-      return Eigen::MatrixXd::Constant(points.size(), m_dimension, 2.0) /
-             std::pow(m_scale, 2);
-    } else if (m_operationOrder == 1) {
+      return Eigen::MatrixXd::Constant(points.size(), this->m_dimension, 2.0) /
+             std::pow(this->m_scale, 2);
+    } else if (this->m_operationOrder == 1) {
       // derivative of polynomial of degree 2
-      Eigen::MatrixXd values(points.size(), m_dimension);
-      values << 2 * points.matrix().replicate(1, m_dimension) / m_scale;
+      Eigen::MatrixXd values(points.size(), this->m_dimension);
+      values << 2 * points.matrix().replicate(1, this->m_dimension) /
+                    this->m_scale;
       return values;
-    } else if (m_operationOrder == 0) {
-      return polynomial(points, m_dimension);
+    } else if (this->m_operationOrder == 0) {
+      return UnaryOperationTest<ParamType>::polynomial(points, this->m_dimension);
     } else {
       throw std::invalid_argument(
           "Only derivative orders 0, 1 and 2 are supported.");
@@ -172,28 +211,29 @@ private:
   }
 
   Basis getResultBasis() const override {
-    return m_basis.orderDecrease(m_operationOrder);
+    return this->m_basis.orderDecrease(this->m_operationOrder);
   }
 };
 
-class IntegralTest : public UnaryOperationTest {
+template <typename ParamType = std::tuple<int, double, int>>
+class IntegralTest : public UnaryOperationTest<ParamType> {
 private:
   Eigen::MatrixXd
   polynomialResult(const Eigen::ArrayXd &points) const override {
-    if (m_operationOrder == 2) {
+    if (this->m_operationOrder == 2) {
       // second order integral of polynomial of degree 2
-      Eigen::MatrixXd values(points.size(), m_dimension);
-      values << points.pow(4).matrix().replicate(1, m_dimension) *
-                    std::pow(m_scale, 2) / 12.0;
+      Eigen::MatrixXd values(points.size(), this->m_dimension);
+      values << points.pow(4).matrix().replicate(1, this->m_dimension) *
+                    std::pow(this->m_scale, 2) / 12.0;
       return values;
-    } else if (m_operationOrder == 1) {
+    } else if (this->m_operationOrder == 1) {
       // first order integral of polynomial of degree 2
-      Eigen::MatrixXd values(points.size(), m_dimension);
-      values << points.pow(3).matrix().replicate(1, m_dimension) * m_scale /
-                    3.0;
+      Eigen::MatrixXd values(points.size(), this->m_dimension);
+      values << points.pow(3).matrix().replicate(1, this->m_dimension) *
+                    this->m_scale / 3.0;
       return values;
-    } else if (m_operationOrder == 0) {
-      return polynomial(points, m_dimension);
+    } else if (this->m_operationOrder == 0) {
+      return UnaryOperationTest<ParamType>::polynomial(points, this->m_dimension);
     } else {
       throw std::invalid_argument(
           "Only integral orders 0, 1 and 2 are supported.");
@@ -201,7 +241,7 @@ private:
   }
 
   Basis getResultBasis() const override {
-    return m_basis.orderIncrease(m_operationOrder);
+    return this->m_basis.orderIncrease(this->m_operationOrder);
   }
 };
 

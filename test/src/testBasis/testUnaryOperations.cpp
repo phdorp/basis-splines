@@ -9,11 +9,17 @@
 
 namespace BasisSplines {
 namespace Internal {
+
+// Type aliases to avoid template syntax in TEST_P macros
+using DerivativeTestType = DerivativeTest<std::tuple<int, double, int>>;
+using IntegralTestType = IntegralTest<std::tuple<int, double, int>>;
+using IntegralTestCustomType = IntegralTest<std::tuple<int, Basis>>;
+
 /**
  * @brief Test generation of derivative transformation matrix.
  *
  */
-TEST_P(DerivativeTest, MatrixTransformation) {
+TEST_P(DerivativeTestType, MatrixTransformation) {
   const Eigen::ArrayXXd valuesGtr{m_splineResult.getCoefficients()};
 
   Basis basisEst{};
@@ -38,7 +44,7 @@ TEST_P(DerivativeTest, MatrixTransformation) {
  * @brief Test generation of derivative value transformation.
  *
  */
-TEST_P(DerivativeTest, DirectTransformation) {
+TEST_P(DerivativeTestType, DirectTransformation) {
   const Eigen::ArrayXXd valuesGtr{m_splineResult.getCoefficients()};
 
   Basis basisEst{};
@@ -58,17 +64,17 @@ TEST_P(DerivativeTest, DirectTransformation) {
       << "Basis orders do not match.";
 }
 
-INSTANTIATE_TEST_SUITE_P(DerivativeOrder, DerivativeTest,
+INSTANTIATE_TEST_SUITE_P(DerivativeOrder, DerivativeTestType,
                          testing::Combine(testing::Range(0, 3),
                                           testing::Range(1.0, 3.0),
                                           testing::Range(1, 3)),
-                         DerivativeTest::TestNameGenerator);
+                         DerivativeTestType::TestNameGenerator);
 
 /**
  * @brief Test generation of integral transformation matrix.
  *
  */
-TEST_P(IntegralTest, MatrixTransformation) {
+TEST_P(IntegralTestType, MatrixTransformation) {
   const Eigen::ArrayXXd valuesGtr{m_splineResult.getCoefficients()};
 
   Basis basisEst{};
@@ -92,7 +98,7 @@ TEST_P(IntegralTest, MatrixTransformation) {
  * @brief Test generation of integral value transformation.
  *
  */
-TEST_P(IntegralTest, DirectTransformation) {
+TEST_P(IntegralTestType, DirectTransformation) {
   const Eigen::ArrayXXd valuesGtr{m_splineResult.getCoefficients()};
 
   Basis basisEst{};
@@ -112,11 +118,11 @@ TEST_P(IntegralTest, DirectTransformation) {
       << "Basis orders do not match.";
 }
 
-INSTANTIATE_TEST_SUITE_P(IntegralOrder, IntegralTest,
+INSTANTIATE_TEST_SUITE_P(IntegralOrder, IntegralTestType,
                          testing::Combine(testing::Range(0, 3),
                                           testing::Range(1.0, 3.0),
                                           testing::Range(1, 3)),
-                         IntegralTest::TestNameGenerator);
+                         IntegralTestType::TestNameGenerator);
 } // namespace Internal
 } // namespace BasisSplines
 

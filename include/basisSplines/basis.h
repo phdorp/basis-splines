@@ -443,6 +443,8 @@ public:
    */
   const Eigen::ArrayXd &knots() const { return m_knots; }
 
+  double scale() const { return m_scale; }
+
   /**
    * @brief Set breakpoints at given breakpoint indices.
    *
