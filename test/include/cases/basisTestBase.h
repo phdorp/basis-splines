@@ -135,14 +135,34 @@ protected:
   int m_dimension{};
 };
 
+class SegmentTest
+    : public BasisTestBase,
+      public testing::WithParamInterface<std::tuple<
+          std::pair<int, int>, int, Eigen::ArrayXd, Eigen::ArrayXi>> {
+public:
+protected:
+  void SetUp() override {
+    m_segment = std::get<0>(this->GetParam());
+    m_order = std::get<1>(this->GetParam());
+    m_breakpoints = std::get<2>(this->GetParam());
+    m_continuities = std::get<3>(this->GetParam());
+
+    m_basis = Basis(m_breakpoints, m_continuities, m_order);
+  }
+
+  std::pair<int, int> m_segment{};
+  int m_order{};
+  Eigen::ArrayXd m_breakpoints{};
+  Eigen::ArrayXi m_continuities{};
+};
+
 // Primary template for UnaryOperationTest
 template <typename ParamType = std::tuple<int, double, int>>
-class UnaryOperationTest
-    : public UnaryOperationTestBase,
-      public testing::WithParamInterface<ParamType> {
+class UnaryOperationTest : public UnaryOperationTestBase,
+                           public testing::WithParamInterface<ParamType> {
 public:
-  static std::string TestNameGenerator(
-      const testing::TestParamInfo<ParamType> &info) {
+  static std::string
+  TestNameGenerator(const testing::TestParamInfo<ParamType> &info) {
     return "OperationOrder" + std::to_string(std::get<0>(info.param)) +
            "_Scale" +
            std::to_string(static_cast<int>(std::get<1>(info.param))) +
@@ -203,7 +223,8 @@ private:
                     this->m_scale;
       return values;
     } else if (this->m_operationOrder == 0) {
-      return UnaryOperationTest<ParamType>::polynomial(points, this->m_dimension);
+      return UnaryOperationTest<ParamType>::polynomial(points,
+                                                       this->m_dimension);
     } else {
       throw std::invalid_argument(
           "Only derivative orders 0, 1 and 2 are supported.");
@@ -233,7 +254,8 @@ private:
                     this->m_scale / 3.0;
       return values;
     } else if (this->m_operationOrder == 0) {
-      return UnaryOperationTest<ParamType>::polynomial(points, this->m_dimension);
+      return UnaryOperationTest<ParamType>::polynomial(points,
+                                                       this->m_dimension);
     } else {
       throw std::invalid_argument(
           "Only integral orders 0, 1 and 2 are supported.");
@@ -246,6 +268,7 @@ private:
 };
 
 }; // namespace Internal
-}; // namespace BasisSplines
+}
+; // namespace BasisSplines
 
 #endif // BASIS_TEST_BASE_H

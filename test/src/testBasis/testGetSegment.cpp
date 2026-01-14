@@ -77,6 +77,33 @@ TEST_F(BasisTest, GetSegment12O3) {
   // test order
   EXPECT_EQ(basisClamped.order(), basisSeg.order());
 }
+
+TEST_P(SegmentTest, GetSegment) {
+  auto [begin, end] = m_segment;
+
+  // retrieve segment basis
+  const Basis basisSegment{m_basis.getSegment(begin, end)};
+
+  const auto [breakpoints, contiunities] = basisSegment.getBreakpoints();
+
+  const auto active = Eigen::seqN(
+      std::accumulate(contiunities.begin(), contiunities.begin() + begin, 0), basisSegment.dim());
+  EXPECT_TRUE(m_basis(m_points)(Eigen::all, active)
+                  .isApprox(basisSegment(m_points), accAbsNumerical))
+      << "Segment basis evaluation does not match expected values.";
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    SegmentTest, SegmentTest,
+    testing::Combine(testing::Values(std::pair<int, int>{0, 0},
+                                     std::pair<int, int>{1, 1},
+                                     std::pair<int, int>{1, 2},
+                                     std::pair<int, int>{0, 2},
+                                     std::pair<int, int>{0, 1}),
+                     testing::Values(2, 3),
+                     testing::Values(Eigen::ArrayXd{{0.0, 0.5, 0.6, 1.0}}),
+                     testing::Values(Eigen::ArrayXi{{0, 1, 1, 0}})));
+
 } // namespace Internal
 } // namespace BasisSplines
 
